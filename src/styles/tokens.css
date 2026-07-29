@@ -1,0 +1,101 @@
+/* ============================================================
+   Techno Solutions design-system foundations
+   Geometry, spacing and semantic aliases live here. Theme colour
+   values are defined in themes.css and selected with data-theme.
+   ============================================================ */
+:root {
+  /* Layout */
+  --content-max: 1440px;
+  --content-gutter: clamp(16px, 2.5vw, 36px);
+  --section-gap: clamp(40px, 5vw, 72px);
+  --section-space: clamp(46px, 5.5vw, 78px);
+  --section-space-compact: clamp(28px, 3.6vw, 52px);
+  --card-pad: 16px;
+
+  /* Type scale */
+  --section-title: clamp(2.15rem, 3.1vw, 3.45rem);
+  --section-copy: clamp(0.95rem, 1.05vw, 1.08rem);
+
+  /* Shape */
+  --radius-section: clamp(24px, 2vw, 34px);
+  --radius-card: 18px;
+  --radius-button: 12px;
+  --radius-control: 14px;
+  --radius-pill: 999px;
+
+  /* Motion */
+  --motion-fast: 0.18s;
+  --motion-medium: 0.4s;
+  --motion-slow: 0.68s;
+  --motion-ease: cubic-bezier(0.33, 1, 0.68, 1);
+
+  /* Z layers */
+  --z-header: 1040;
+  --z-popover: 1070;
+  --z-drawer: 1090;
+  --z-badge: 2;
+  --z-skip-link: 1120;
+
+  /* Brand logo identity from the approved reference artwork. */
+  --brand-logo-foreground: #3c424e;
+  --brand-logo-accent: #5ad8c5;
+  --brand-logo-on-dark: #f7fbff;
+
+  /* Reusable light/dark overlays for navigation, dialogs and media chrome. */
+  --color-on-dark-surface-very-subtle: rgba(255, 255, 255, 0.07);
+  --color-on-dark-surface-subtle: rgba(255, 255, 255, 0.09);
+  --color-on-dark-surface: rgba(255, 255, 255, 0.12);
+  --color-on-dark-surface-medium: rgba(255, 255, 255, 0.16);
+  --color-on-dark-surface-hover: rgba(255, 255, 255, 0.17);
+  --color-on-dark-surface-strong: rgba(255, 255, 255, 0.22);
+  --color-on-dark-border: rgba(255, 255, 255, 0.15);
+  --color-on-dark-border-medium: rgba(255, 255, 255, 0.2);
+  --color-on-dark-border-hover: rgba(255, 255, 255, 0.42);
+  --color-on-dark-border-focus: rgba(255, 255, 255, 0.52);
+  --color-on-dark-border-strong: rgba(255, 255, 255, 0.55);
+  --color-on-dark-focus-ring: rgba(255, 255, 255, 0.58);
+  --color-on-dark-focus-ring-strong: rgba(255, 255, 255, 0.6);
+  --color-on-dark-solid-soft: rgba(255, 255, 255, 0.92);
+  --color-on-dark-solid: rgba(255, 255, 255, 0.96);
+  --color-dark-surface-translucent: rgba(0, 0, 0, 0.22);
+  --color-dark-shadow: rgba(0, 0, 0, 0.42);
+  --color-navigation-shadow: rgba(3, 15, 29, 0.32);
+  --color-product-stage-shadow: rgba(3, 12, 24, 0.55);
+
+  /* Stable semantic statuses (theme-independent meaning). */
+  --color-success: #1a9c62;
+  --color-success-soft: rgba(26, 156, 98, 0.12);
+  --color-warning: #c2760b;
+  --color-warning-soft: rgba(194, 118, 11, 0.12);
+  --color-error: #e5484d;
+  --color-error-soft: rgba(229, 72, 77, 0.12);
+  --color-info: #2478d7;
+  --color-rating: #f2a323;
+
+  /* Legacy aliases retained to avoid breaking mature components. */
+  --brand-primary: var(--color-primary);
+  --brand-primary-strong: var(--color-primary-hover);
+  --brand-primary-soft: var(--color-primary-soft);
+  --brand-ink: var(--color-brand-ink);
+  --brand-accent: var(--tone-ffc107-1p0);
+  --surface-page: var(--color-page-background);
+  --surface-card: var(--color-card-background);
+  --surface-raised: var(--color-surface-secondary);
+  --surface-hero: var(--color-surface-muted);
+  --text-main: var(--color-text-primary);
+  --text-muted: var(--color-text-secondary);
+  --text-soft: var(--color-text-muted);
+  --text-on-dark: var(--color-text-inverse);
+  --border-subtle: var(--color-border);
+  --border-strong: var(--color-border-strong);
+  --focus-ring: 0 0 0 3px var(--color-focus-ring);
+  --success: var(--color-success);
+  --danger: var(--color-error);
+  --shadow-card: var(--shadow-medium);
+  --shadow-card-hover: var(--shadow-large);
+  --shadow-stage: var(--shadow-accent);
+  --shadow-section: var(--shadow-section-value);
+  --mainColorBlue: var(--color-primary);
+  --mainColorBlack: var(--tone-1c1c1c-1p0);
+  --mainGray: var(--color-text-muted);
+}

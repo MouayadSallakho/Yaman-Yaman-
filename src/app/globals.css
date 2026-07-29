@@ -1,0 +1,138 @@
+@import "bootstrap/dist/css/bootstrap.min.css";
+@import "../styles/tokens.css";
+@import "../styles/themes.css";
+@import "../styles/legacy-tones.css";
+
+/* Colour and geometry tokens are centralized in src/styles/. */
+h1, h2, h3, h4 {
+  padding: 0;
+  margin: 0;
+}
+
+img {
+  max-width: 100%;
+}
+
+p {
+  margin-bottom: 0;
+}
+
+a {
+  text-decoration: none;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Reserve the scrollbar gutter so locking body scroll during the intro
+     doesn't shift the layout when it releases. */
+  scrollbar-gutter: stable;
+}
+
+body {
+  background:
+    radial-gradient(circle at 12% 4%, var(--color-page-glow), transparent 28%),
+    linear-gradient(180deg, var(--color-page-background-start) 0%, var(--color-page-background-end) 100%);
+  color: var(--text-main);
+  overflow-x: hidden;
+  /* Latin display font by default; the Arabic-capable family takes over under
+     dir="rtl" (both loaded via next/font, so no runtime fetch / layout shift). */
+  font-family: var(--font-latin), system-ui, -apple-system, Segoe UI, Roboto,
+    sans-serif;
+}
+
+/* Arabic typography: switch family + give headings a little more line-height
+   so Arabic glyphs (with their taller ascenders/descenders) are never clipped. */
+[dir="rtl"] body,
+body[dir="rtl"] {
+  font-family: var(--font-arabic), var(--font-latin), system-ui, sans-serif;
+}
+
+[dir="rtl"] h1,
+[dir="rtl"] h2,
+[dir="rtl"] h3,
+[dir="rtl"] h4 {
+  line-height: 1.4;
+}
+
+/* ============================================================
+   Cinematic intro pre-paint gate
+   The boot script in the root layout stamps data-mabco-intro on <html>
+   BEFORE first paint, so the first visible frame is deterministic:
+     "show" → opaque intro covers everything, page locked
+     "skip"/"done"/absent → intro shell removed, landing visible
+   These rules must not depend on JS running after paint.
+   ============================================================ */
+
+/* First frame under "show": solid navy behind everything, no scroll */
+html[data-mabco-intro="show"] {
+  background-color: var(--color-cinematic-deep);
+}
+
+html[data-mabco-intro="show"] body {
+  overflow: hidden;
+}
+
+/* The intro shell is present in server HTML; visibility is gated here.
+   Any state that is not "show" (skip, done, or the no-JS/absent fallback)
+   removes it from view so the landing page is the first frame instead. */
+html:not([data-mabco-intro="show"]) .mabco-intro-shell {
+  display: none !important;
+}
+
+/* Accessible focus for keyboard users */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 4px;
+}
+
+/* Skip link: visually hidden until focused */
+.skip-link {
+  position: absolute;
+  inset-inline-start: 12px;
+  top: -48px;
+  z-index: var(--z-skip-link);
+  padding: 10px 16px;
+  background: var(--brand-ink);
+  color: var(--text-on-dark);
+  font-weight: 700;
+  font-size: 14px;
+  border-radius: var(--radius-button);
+  transition: top var(--motion-fast) var(--motion-ease);
+}
+
+.skip-link:focus {
+  top: 12px;
+}
+
+/* Reduced motion: freeze AOS + CSS transitions/animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  [data-aos] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
+
+
+/* Homepage anchors clear the sticky navigation without adding layout height. */
+#commerce-core,
+#new-arrivals,
+#todays-picks,
+#brand-showcase,
+#promotions,
+#trending-search {
+  scroll-margin-top: 78px;
+}
+
+main#main-content {
+  overflow: clip;
+}

@@ -1,0 +1,56 @@
+.BestSeller {
+  margin-top: var(--section-gap);
+}
+
+.box {
+  background: var(--surface-card);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+/* ===== Categories (chips) ===== */
+.Cats {
+  padding: 12px var(--card-pad) 0;
+  margin-bottom: var(--card-pad);
+}
+
+.catSwiper {
+  padding: 4px;
+  margin: -4px; /* keep focus rings visible inside the overflow clip */
+}
+
+.catSwiper :global(.swiper-wrapper) {
+  align-items: center;
+}
+
+.slide {
+  width: auto !important;
+}
+
+.chipLink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 9px 14px;
+  background-color: var(--tone-ebeef6-1p0);
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+  font-weight: 700;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-main);
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.chipLink:hover {
+  background-color: var(--brand-primary-soft);
+  color: var(--brand-primary-strong);
+}
+
+/* ===== Products carousel ===== */
+.products {
+  padding: var(--card-pad);
+}

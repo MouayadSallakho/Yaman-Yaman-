@@ -1,0 +1,293 @@
+.section {
+  padding-top: var(--section-gap);
+  scroll-margin-top: 90px; /* target of the hero "See today's deals" anchor */
+}
+
+/* One cohesive outer card wrapping header + divider + body (mirrors Best Seller). */
+.sectionCard {
+  background: var(--surface-card);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.content {
+  padding: var(--card-pad);
+}
+
+/* ===== Equal height columns ===== */
+.equalHeightRow {
+  align-items: stretch;
+}
+
+.leftCol,
+.rightCol {
+  display: flex;
+}
+
+.bigBox,
+.rightStack {
+  width: 100%;
+}
+
+/* Featured deal now sits directly on the unified card — no nested card chrome. */
+.bigBox {
+  height: 100%;
+}
+
+.rightStack {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ===== LEFT BIG BOX ===== */
+.myRow {
+  align-items: center;
+}
+
+.holderimage {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--surface-raised);
+}
+
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.saveBadge {
+  position: absolute;
+  top: 10px;
+  inset-inline-start: 10px;
+  z-index: var(--z-badge);
+  background-color: var(--success);
+  color: var(--text-on-dark);
+  font-weight: 800;
+  padding: 6px 10px;
+  border-radius: var(--radius-button);
+  font-size: 12px;
+  margin: 0;
+}
+
+.detailsBtn {
+  width: 100%;
+  text-align: center;
+  background-color: var(--brand-primary);
+  padding: 12px;
+  display: block;
+  min-height: 44px;
+  border-radius: var(--radius-button);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--text-on-dark);
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.detailsBtn:hover {
+  background-color: var(--brand-primary-strong);
+  color: var(--text-on-dark);
+}
+
+/* details */
+.detailes h3 {
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+.priceLine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 18px;
+  color: var(--danger);
+  margin-bottom: 10px;
+}
+
+.priceLine span {
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* features */
+.features {
+  padding-inline-start: 18px;
+  margin: 0 0 14px 0;
+}
+
+.features li {
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text-main);
+}
+
+.features li::marker {
+  color: var(--text-muted);
+}
+
+/* tags */
+.tags {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.tags p {
+  margin: 0;
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.tagGreen {
+  background: var(--tone-f3fbf3-1p0);
+  color: var(--tone-2f9e44-1p0);
+}
+
+.tagRed {
+  background: var(--tone-fef5f4-1p0);
+  color: var(--danger);
+}
+
+/* Truthful promotional state (no fake countdown) */
+.limited {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  background: var(--brand-primary-soft);
+  color: var(--brand-primary-strong);
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin: 0;
+}
+
+/* ===== RIGHT CARDS (nested tiles within the unified card) ===== */
+.notherDeals {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+}
+
+.rightImgWrap {
+  position: relative;
+  width: 110px;
+  height: 110px;
+  border-radius: var(--radius-button);
+  overflow: hidden;
+  flex: 0 0 110px;
+  background: var(--surface-card);
+}
+
+/* isolated product shots: contain, never crop */
+.asset {
+  border-radius: inherit;
+}
+
+.img {
+  object-fit: contain;
+  padding: 6px;
+}
+
+.saveBadgeSmall {
+  position: absolute;
+  top: 0;
+  inset-inline-start: 0;
+  z-index: var(--z-badge);
+  border-radius: var(--radius-button);
+  background-color: var(--success);
+  padding: 5px 8px;
+  color: var(--text-on-dark);
+  font-weight: 800;
+  font-size: 11px;
+  margin: 0;
+}
+
+.rightInfo p {
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 0 0 6px 0;
+}
+
+.rightPrices {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.discount {
+  font-weight: 700;
+  font-size: 12px;
+  color: var(--text-soft);
+}
+
+.newPrice {
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--brand-primary-strong);
+}
+
+.rightLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  font-weight: 800;
+  font-size: 12px;
+  text-transform: uppercase;
+  color: var(--text-main);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  width: fit-content;
+}
+
+.rightLink:hover {
+  color: var(--brand-primary-strong);
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 991.98px) {
+  .rightStack {
+    height: auto;
+  }
+
+  .imageWrap {
+    aspect-ratio: 16 / 12;
+  }
+
+  .notherDeals {
+    flex: unset;
+  }
+}

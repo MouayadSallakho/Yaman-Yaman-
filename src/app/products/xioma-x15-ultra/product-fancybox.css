@@ -1,0 +1,94 @@
+.mabco-product-fancybox {
+  --fancybox-bg: var(--color-fancybox-background);
+  --f-button-bg: var(--color-fancybox-button);
+  --f-button-hover-bg: var(--color-fancybox-button-hover);
+  --f-button-color: var(--color-fancybox-text);
+  backdrop-filter: blur(14px);
+}
+
+.mabco-product-fancybox .fancybox__slide {
+  padding: clamp(14px, 3vw, 42px);
+}
+
+.mabco-product-fancybox .fancybox__content {
+  overflow: hidden;
+  border: 1px solid var(--color-fancybox-border);
+  border-radius: clamp(18px, 2vw, 28px);
+  box-shadow: 0 36px 90px var(--color-fancybox-shadow);
+}
+
+.mabco-product-fancybox .fancybox__caption {
+  padding: 12px 18px;
+  color: var(--color-fancybox-text);
+  font-weight: 700;
+}
+
+.mabco-product-fancybox .fancybox__thumbs .carousel__slide .fancybox__thumb::after {
+  border-color: var(--color-fancybox-thumb-active);
+  border-width: 3px;
+  border-radius: 12px;
+}
+
+.mabco-product-fancybox .fancybox__thumb {
+  border-radius: 12px;
+  background: var(--color-fancybox-thumb-surface);
+}
+
+.mabco-fancybox-placeholder {
+  width: min(780px, 86vw);
+  min-height: min(620px, 72vh);
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 16px;
+  padding: 40px;
+  color: var(--color-fancybox-text);
+  text-align: center;
+  background:
+    linear-gradient(var(--color-fancybox-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-fancybox-grid) 1px, transparent 1px),
+    radial-gradient(circle at 50% 44%, var(--color-fancybox-radial), transparent 38%),
+    linear-gradient(145deg, var(--color-fancybox-panel-start), var(--color-fancybox-panel-end));
+  background-size: 42px 42px, 42px 42px, auto, auto;
+}
+
+.mabco-fancybox-placeholder__orb {
+  width: 112px;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--color-fancybox-orb-border);
+  border-radius: 50%;
+  box-shadow:
+    0 0 70px var(--color-fancybox-orb-glow),
+    inset 0 0 38px var(--color-fancybox-orb-inner);
+}
+
+.mabco-fancybox-placeholder__orb span {
+  font-size: 1.35rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.mabco-fancybox-placeholder strong {
+  font-size: clamp(1.2rem, 2.5vw, 2rem);
+}
+
+.mabco-fancybox-placeholder p {
+  color: var(--color-fancybox-muted);
+}
+
+.mabco-fancybox-placeholder code {
+  max-width: 100%;
+  padding: 8px 12px;
+  overflow-wrap: anywhere;
+  border: 1px solid var(--color-fancybox-code-border);
+  border-radius: 999px;
+  color: var(--color-fancybox-code);
+  background: var(--color-fancybox-code-surface);
+}
+
+@media (max-width: 600px) {
+  .mabco-product-fancybox .fancybox__slide { padding: 8px; }
+  .mabco-fancybox-placeholder { min-height: 68vh; padding: 24px 16px; }
+}

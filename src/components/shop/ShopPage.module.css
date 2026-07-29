@@ -1,0 +1,130 @@
+.page {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  padding-block: clamp(16px, 2.2vw, 28px) clamp(56px, 6vw, 92px);
+  color: var(--text-main);
+  background:
+    linear-gradient(180deg, var(--tone-f8fcff-0p98) 0%, var(--tone-e9f1fa-0p96) 46%, var(--tone-f6fafe-1p0) 100%);
+}
+
+.ambient {
+  position: absolute;
+  z-index: -1;
+  top: -140px;
+  inset-inline-start: -120px;
+  width: 560px;
+  height: 560px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--tone-2397eb-0p16), transparent 68%);
+  pointer-events: none;
+}
+
+.container {
+  width: min(var(--content-max), calc(100% - (var(--content-gutter) * 2)));
+  margin-inline: auto;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+  color: var(--text-soft);
+  font-size: 0.78rem;
+  font-weight: 640;
+}
+
+.breadcrumb a {
+  color: var(--text-muted);
+}
+
+.breadcrumb a:hover {
+  color: var(--brand-primary-strong);
+}
+
+/* ---------------------------------------------------------------- layout */
+.layout {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  gap: clamp(18px, 2vw, 30px);
+  margin-top: clamp(22px, 2.8vw, 36px);
+  align-items: start;
+}
+
+.sidebar {
+  position: sticky;
+  /* Clears the fixed header so the panel never hides beneath it. */
+  top: 92px;
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--border-subtle);
+  border-radius: 18px;
+  background: var(--surface-card);
+  box-shadow: 0 2px 12px var(--tone-0e1b2a-0p05);
+  scrollbar-width: thin;
+}
+
+.sidebarInner {
+  padding: 16px 14px 18px;
+}
+
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.sidebarTitle {
+  font-size: 0.95rem;
+  font-weight: 850;
+  color: var(--text-main);
+}
+
+.sidebarClear {
+  padding: 3px 6px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--brand-primary);
+  font-size: 0.76rem;
+  font-weight: 760;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sidebarClear:hover {
+  color: var(--brand-primary-strong);
+}
+
+.sidebarClear:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.results {
+  display: grid;
+  gap: 14px;
+  /* Anchor target for the scroll policy; keeps a little breathing room. */
+  scroll-margin-top: 100px;
+  min-width: 0;
+}
+
+@media (max-width: 1199.98px) {
+  .layout { grid-template-columns: 240px minmax(0, 1fr); }
+}
+
+@media (max-width: 991.98px) {
+  /* Below this width filtering moves into the bottom sheet. */
+  .layout { grid-template-columns: 1fr; }
+  .sidebar { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar { scroll-behavior: auto; }
+}

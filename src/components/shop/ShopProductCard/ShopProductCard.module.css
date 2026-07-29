@@ -1,0 +1,285 @@
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: 0 1px 2px var(--tone-0e1b2a-0p04);
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-4px);
+  border-color: var(--tone-0492d0-0p28);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.cardSoldOut {
+  opacity: 0.86;
+}
+
+/* ---------------------------------------------------------------- media */
+.media {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  /* Square by default, but capped so wide columns cannot inflate card height. */
+  max-height: 248px;
+  background: linear-gradient(160deg, var(--tone-f7fbff-1p0) 0%, var(--tone-eef5fb-1p0) 100%);
+}
+
+.mediaStage {
+  border-radius: 0;
+}
+
+.mediaImage {
+  object-fit: contain;
+  padding: 12px;
+  transition: transform var(--motion-medium) var(--motion-ease);
+}
+
+.card:hover .mediaImage {
+  transform: scale(1.045);
+}
+
+.badges {
+  position: absolute;
+  z-index: var(--z-badge);
+  top: 10px;
+  inset-inline-start: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.badge {
+  padding: 4px 9px;
+  border-radius: var(--radius-pill);
+  font-size: 0.64rem;
+  font-weight: 820;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--tone-ffffff-1p0);
+}
+
+.badgeNew { background: var(--tone-1a9c62-1p0); }
+.badgeSale { background: var(--tone-e5484d-1p0); }
+.badgeBest { background: var(--tone-0e2b46-1p0); }
+.badgeTrending { background: var(--tone-7a3ff2-1p0); }
+.badgeDiscount { background: var(--tone-0e1b2a-0p82); }
+
+.wishlist {
+  position: absolute;
+  z-index: var(--z-badge);
+  top: 10px;
+  inset-inline-end: 10px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  background: var(--tone-ffffff-0p92);
+  color: var(--tone-64748b-1p0);
+  font-size: 0.95rem;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.wishlist:hover {
+  color: var(--tone-e5484d-1p0);
+  border-color: var(--tone-e5484d-0p4);
+  transform: scale(1.06);
+}
+
+.wishlistOn {
+  color: var(--tone-e5484d-1p0);
+  border-color: var(--tone-e5484d-0p5);
+}
+
+.wishlistOn svg {
+  fill: currentColor;
+}
+
+/* ----------------------------------------------------------------- body */
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 5px;
+  padding: 14px 14px 15px;
+}
+
+.brand {
+  color: var(--brand-primary);
+  font-size: 0.66rem;
+  font-weight: 820;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.title {
+  font-size: 0.92rem;
+  font-weight: 750;
+  line-height: 1.35;
+  color: var(--text-main);
+  /* Two lines keeps every card in a row the same height. */
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
+
+.titleLink {
+  color: inherit;
+}
+
+.titleLink:hover,
+.titleLink:focus-visible {
+  color: var(--brand-primary-strong);
+}
+
+.meta {
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  line-height: 1.45;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.stars {
+  display: inline-flex;
+  gap: 1px;
+  color: var(--tone-f5a524-1p0);
+  font-size: 0.72rem;
+}
+
+.ratingValue {
+  color: var(--text-main);
+  font-size: 0.74rem;
+  font-weight: 760;
+}
+
+.reviews {
+  color: var(--text-soft);
+  font-size: 0.72rem;
+}
+
+.stock {
+  font-size: 0.7rem;
+  font-weight: 720;
+}
+
+.stockin { color: var(--success); }
+.stocklow { color: var(--tone-c2760b-1p0); }
+.stockout { color: var(--text-soft); }
+
+/* --------------------------------------------------------------- footer */
+.footer {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  /* Pins the price row to the bottom so uneven titles stay aligned. */
+  margin-top: auto;
+  padding-top: 10px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 7px;
+  min-width: 0;
+}
+
+.price {
+  color: var(--text-main);
+  font-size: 1.03rem;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+.oldPrice {
+  color: var(--text-soft);
+  font-size: 0.76rem;
+  font-weight: 600;
+}
+
+.cartButton {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--brand-primary);
+  color: var(--tone-ffffff-1p0);
+  font-size: 1rem;
+  box-shadow: 0 6px 16px var(--tone-0492d0-0p28);
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.cartButton:hover:not(:disabled) {
+  background: var(--brand-primary-strong);
+  transform: translateY(-2px);
+}
+
+.cartButton:disabled {
+  background: var(--tone-cbd5e1-1p0);
+  color: var(--tone-f8fafc-1p0);
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.cartButtonAdded {
+  background: var(--success);
+  box-shadow: 0 6px 16px var(--tone-1a9c62-0p3);
+}
+
+@media (max-width: 575.98px) {
+  .body { padding: 12px 12px 13px; }
+  .title { font-size: 0.86rem; }
+  .price { font-size: 0.97rem; }
+  /* Keep taps comfortable on small screens. */
+  .cartButton { width: 42px; height: 42px; }
+  .wishlist { width: 36px; height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .mediaImage,
+  .cartButton,
+  .wishlist {
+    transition: none;
+  }
+
+  .card:hover,
+  .card:focus-within { transform: none; }
+  .card:hover .mediaImage { transform: none; }
+  .cartButton:hover:not(:disabled) { transform: none; }
+  .wishlist:hover { transform: none; }
+}

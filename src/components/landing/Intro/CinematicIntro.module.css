@@ -1,0 +1,235 @@
+.root {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/*
+  Backdrop: deep navy technology environment. The iris portal is a radial
+  mask hole whose radius is driven by the --portal custom property (animated
+  by GSAP in Scene D). --px/--py align the hole to the hero product stage.
+*/
+.backdrop {
+  --portal: 0%;
+  --px: 50%;
+  --py: 52%;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      120% 90% at 50% 42%,
+      var(--color-cinematic-glow) 0%,
+      var(--color-intro-transparent) 55%
+    ),
+    radial-gradient(140% 120% at 50% 120%, var(--color-cinematic-mid) 0%, var(--color-intro-backdrop-deep) 60%),
+    var(--color-cinematic-deep);
+  -webkit-mask: radial-gradient(
+    circle at var(--px) var(--py),
+    transparent var(--portal),
+    var(--color-text-primary) calc(var(--portal) + 2%)
+  );
+  mask: radial-gradient(
+    circle at var(--px) var(--py),
+    transparent var(--portal),
+    var(--color-text-primary) calc(var(--portal) + 2%)
+  );
+}
+
+@media (min-width: 992px) {
+  .backdrop {
+    --px: 64%;
+    --py: 48%;
+  }
+}
+
+.scene {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 24px;
+  text-align: center;
+  /* Hidden until GSAP reveals it in the same pass it applies the from-states,
+     so scene content is never painted in its final position first (no jump).
+     The opaque navy backdrop still covers the page from the very first frame. */
+  visibility: hidden;
+}
+
+/* central energy glow */
+.glow {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 260px;
+  height: 260px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--color-intro-glow-center) 0%,
+    var(--color-cinematic-glow) 32%,
+    rgba(var(--color-primary-rgb), 0) 68%
+  );
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+/* Approved Techno Solutions wordmark. */
+.wordmarkWrap {
+  will-change: transform, opacity;
+}
+
+.wordmark {
+  display: flex;
+  justify-content: center;
+  will-change: transform, opacity;
+}
+
+.introBrand {
+  width: clamp(220px, 38vw, 430px) !important;
+}
+
+.tagline {
+  margin-top: 10px;
+  font-size: clamp(12px, 2.4vw, 15px);
+  font-weight: 600;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-intro-tagline);
+}
+
+/* Product orbit */
+.orbit {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  will-change: transform;
+}
+
+.orbitItem {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 92px;
+  height: 92px;
+  margin: -46px 0 0 -46px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--color-on-dark-solid);
+  box-shadow: 0 18px 40px var(--color-product-stage-shadow);
+  will-change: transform, opacity;
+}
+
+.orbitImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 8px;
+}
+
+.orbit0 {
+  transform: translate(0, -120px);
+}
+.orbit1 {
+  transform: translate(112px, 70px);
+}
+.orbit2 {
+  transform: translate(-112px, 70px);
+}
+
+/* Skip control (stays accessible, above the decorative scene) */
+.skip {
+  position: absolute;
+  bottom: 28px;
+  right: 28px;
+  z-index: 3;
+  min-height: 44px;
+  padding: 10px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--color-on-dark-border);
+  background: var(--color-header-control);
+  color: var(--color-text-inverse);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  /* Starts hidden so it doesn't flash before GSAP fades it in. */
+  opacity: 0;
+  transition: background-color 0.18s ease, border-color 0.18s ease;
+}
+
+.skip:hover {
+  background: var(--color-on-dark-surface-medium);
+  border-color: var(--color-on-dark-border-focus);
+}
+
+.skip:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-intro-focus-ring);
+}
+
+/* ---- Mobile: fewer/smaller orbiting elements ---- */
+@media (max-width: 991.98px) {
+  .glow {
+    width: 200px;
+    height: 200px;
+  }
+
+  .orbit {
+    width: 250px;
+    height: 250px;
+  }
+
+  .orbitItem {
+    width: 72px;
+    height: 72px;
+    margin: -36px 0 0 -36px;
+  }
+
+  .orbit0 {
+    transform: translate(0, -92px);
+  }
+  .orbit1 {
+    transform: translate(86px, 54px);
+  }
+  /* drop the third orbiting product on small screens */
+  .orbit2 {
+    display: none;
+  }
+
+  .skip {
+    bottom: 20px;
+    right: 20px;
+  }
+}
+
+/* Safety: if a reduced-motion user ever reaches this component, don't move. */
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    --portal: 165%;
+  }
+
+  .glow,
+  .orbit,
+  .wordmarkWrap {
+    opacity: 0;
+  }
+}
+
+.orbitAsset {
+  position: absolute !important;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: inherit;
+}

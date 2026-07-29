@@ -1,0 +1,176 @@
+/* Full-width sibling region between the product content and the footer.
+   It deliberately has no rounded outer shell: a wrapper card here would read as
+   a second product-detail panel and would visually merge with the footer. */
+.section {
+  position: relative;
+  isolation: isolate;
+  margin-top: clamp(34px, 4vw, 56px);
+  padding-block: clamp(36px, 4.2vw, 58px);
+  border-top: 1px solid var(--tone-2575e0-0p14);
+  background: linear-gradient(180deg, var(--tone-ffffff-0p9) 0%, var(--tone-edf6fd-0p92) 100%);
+}
+
+/* Controlled ambient glow — one soft source, kept well inside the section. */
+.glow {
+  position: absolute;
+  z-index: -1;
+  top: -70px;
+  inset-inline-start: 12%;
+  width: min(560px, 62%);
+  height: 320px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--tone-2d9ced-0p14), transparent 70%);
+  pointer-events: none;
+}
+
+.inner {
+  width: min(1460px, calc(100% - 48px));
+  margin-inline: auto;
+}
+
+/* Compact header: heading block on one side, actions on the other. */
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin-bottom: clamp(20px, 2.2vw, 28px);
+}
+
+.headingGroup {
+  min-width: 0;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--brand-primary);
+  font-size: 0.7rem;
+  font-weight: 820;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Moderate size on purpose — this is a supporting rail, not a hero. */
+.title {
+  margin: 6px 0 0;
+  color: var(--tone-0a1730-1p0);
+  font-size: clamp(1.32rem, 2.1vw, 1.8rem);
+  font-weight: 850;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.subtitle {
+  max-width: 54ch;
+  margin: 7px 0 0;
+  color: var(--tone-5a6b82-1p0);
+  font-size: 0.86rem;
+  line-height: 1.6;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--tone-0d5a92-1p0);
+  font-size: 0.81rem;
+  font-weight: 740;
+  white-space: nowrap;
+}
+
+.viewAll:hover,
+.viewAll:focus-visible {
+  color: var(--brand-primary-strong, var(--tone-037bb0-1p0));
+}
+
+.viewAllIcon {
+  transition: transform 160ms ease;
+}
+
+[dir="rtl"] .viewAllIcon {
+  transform: scaleX(-1);
+}
+
+.viewAll:hover .viewAllIcon {
+  transform: translateX(3px);
+}
+
+[dir="rtl"] .viewAll:hover .viewAllIcon {
+  transform: scaleX(-1) translateX(3px);
+}
+
+.navGroup {
+  display: flex;
+  gap: 8px;
+}
+
+.navButton {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--tone-2575e0-0p2);
+  border-radius: 12px;
+  background: var(--tone-ffffff-1p0);
+  color: var(--tone-12406b-1p0);
+  font-size: 1.05rem;
+  box-shadow: 0 6px 16px var(--tone-093666-0p08);
+  transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.navButton:hover:not(:disabled) {
+  border-color: var(--tone-2575e0-0p36);
+  background: var(--tone-f2f9ff-1p0);
+  transform: translateY(-1px);
+}
+
+.navButton:disabled {
+  opacity: 0.42;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* Let card shadows breathe without clipping, and keep equal card heights. */
+.rail {
+  padding-block: 4px 8px;
+}
+
+.slide {
+  display: flex;
+  height: auto;
+}
+
+.slide > * {
+  flex: 1;
+}
+
+@media (max-width: 575.98px) {
+  .inner {
+    width: calc(100% - 32px);
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navButton,
+  .viewAllIcon {
+    transition: none;
+  }
+
+  .navButton:hover:not(:disabled) {
+    transform: none;
+  }
+}

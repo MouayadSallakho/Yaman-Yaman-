@@ -1,0 +1,95 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+
+.label {
+  color: var(--text-soft);
+  font-size: 0.73rem;
+  font-weight: 780;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 32px;
+  padding: 4px 10px 4px 12px;
+  border: 1px solid var(--tone-0492d0-0p28);
+  border-radius: var(--radius-pill);
+  background: var(--tone-0492d0-0p08);
+  color: var(--tone-0d5a92-1p0);
+  font-size: 0.78rem;
+  font-weight: 720;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.chip:hover {
+  border-color: var(--tone-e5484d-0p42);
+  background: var(--tone-e5484d-0p08);
+  color: var(--tone-b4383c-1p0);
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.chipText {
+  max-width: 220px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chipIcon {
+  flex: 0 0 auto;
+  font-size: 0.9rem;
+  opacity: 0.75;
+}
+
+.clearAll {
+  padding: 4px 6px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 760;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.clearAll:hover {
+  color: var(--brand-primary-strong);
+}
+
+.clearAll:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 575.98px) {
+  .label { display: none; }
+  .chip { min-height: 36px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chip { transition: none; }
+}

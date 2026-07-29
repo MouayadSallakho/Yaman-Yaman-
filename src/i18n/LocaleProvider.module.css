@@ -1,0 +1,28 @@
+/* Branded language-transition veil. Decorative + non-interactive; GSAP owns
+   opacity/visibility. Covers the viewport during navigation so the locale swap
+   never shows a white flash, without shifting page layout (no CLS). */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  pointer-events: none;
+  background: linear-gradient(135deg, var(--color-cinematic-deep) 0%, var(--color-primary-hover) 100%);
+  color: var(--text-on-dark);
+  will-change: opacity;
+}
+
+.mark {
+  font-size: clamp(48px, 12vw, 96px);
+  font-weight: 900;
+  line-height: 1;
+}
+
+.brandLogo {
+  width: clamp(150px, 24vw, 230px) !important;
+  opacity: 0.9;
+}

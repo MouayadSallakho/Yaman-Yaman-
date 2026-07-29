@@ -1,0 +1,51 @@
+.button {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* Matches the neighbouring header icon links' footprint. */
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: none;
+  color: var(--color-header-text);
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.button:hover {
+  background: var(--color-header-control-hover);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--color-on-dark-focus-ring);
+}
+
+.icon {
+  font-size: 1.16rem;
+}
+
+.badge {
+  position: absolute;
+  top: 2px;
+  /* Logical side keeps the badge on the outer corner in RTL too. */
+  inset-inline-end: 1px;
+  display: grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding-inline: 5px;
+  border-radius: 999px;
+  background: var(--color-error);
+  color: var(--color-header-text);
+  font-size: 0.65rem;
+  font-weight: 860;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-header-background-end) 90%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button { transition: none; }
+}

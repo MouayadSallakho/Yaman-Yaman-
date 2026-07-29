@@ -1,0 +1,112 @@
+.wrap {
+  display: grid;
+  gap: 22px;
+}
+
+/* auto-fill keeps the row full at every width instead of stepping through a
+   handful of fixed breakpoints. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+  gap: clamp(12px, 1.4vw, 20px);
+}
+
+.gridCompact {
+  grid-template-columns: repeat(auto-fill, minmax(184px, 1fr));
+}
+
+/* Entrance is CSS-only and keyed to element creation: freshly appended cards
+   (and a re-filtered set) fade up, while cards that stayed on screen do not
+   re-animate. No JS timers, nothing to clean up. */
+.grid > * {
+  animation: cardIn 380ms var(--motion-ease) both;
+}
+
+.grid > *:nth-child(2) { animation-delay: 40ms; }
+.grid > *:nth-child(3) { animation-delay: 80ms; }
+.grid > *:nth-child(4) { animation-delay: 120ms; }
+.grid > *:nth-child(5) { animation-delay: 150ms; }
+.grid > *:nth-child(n + 6) { animation-delay: 180ms; }
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+.tail {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  padding-top: 6px;
+}
+
+/* Zero-height probe: the observer watches this, well before the page end. */
+.sentinel {
+  position: absolute;
+  top: -520px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  pointer-events: none;
+}
+
+.loadMore {
+  min-height: 48px;
+  padding-inline: 30px;
+  border: 1px solid var(--tone-0492d0-0p34);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--tone-0d5a92-1p0);
+  font-size: 0.87rem;
+  font-weight: 780;
+  box-shadow: 0 6px 18px var(--tone-0e1b2a-0p06);
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.loadMore:hover:not(:disabled) {
+  background: var(--tone-0492d0-0p08);
+  transform: translateY(-2px);
+}
+
+.loadMore:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.loadMore:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.end {
+  padding-top: 4px;
+  color: var(--text-soft);
+  font-size: 0.8rem;
+  font-weight: 640;
+  text-align: center;
+}
+
+@media (max-width: 575.98px) {
+  /* Two columns stay scannable on phones and keep imagery large enough. */
+  .grid,
+  .gridCompact {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .loadMore { width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loadMore { transition: none; }
+  .loadMore:hover:not(:disabled) { transform: none; }
+
+  /* Content must never depend on animation to become visible. */
+  .grid > * {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}

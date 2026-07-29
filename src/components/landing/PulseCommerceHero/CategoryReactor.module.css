@@ -1,0 +1,340 @@
+.reactor {
+  --ring: clamp(208px, 16vw, 250px);
+  --node: clamp(36px, 2.9vw, 46px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(10px, 1.6vh, 20px);
+  height: 100%;
+}
+
+.heading {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+  position: relative;
+  padding-bottom: 8px;
+}
+.heading::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 50%;
+  bottom: 0;
+  width: 34px;
+  height: 3px;
+  border-radius: 3px;
+  transform: translateX(-50%);
+  background: var(--brand-primary);
+}
+
+/* Room around the ring so nodes + labels never clip. */
+.stage {
+  position: relative;
+  width: calc(var(--ring) + 60px);
+  height: calc(var(--ring) + 60px);
+  display: grid;
+  place-items: center;
+}
+
+.ring {
+  position: relative;
+  width: var(--ring);
+  height: var(--ring);
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 50% 42%,
+    var(--tone-ffffff-0p9),
+    var(--tone-f3f8fc-0p5) 60%,
+    var(--tone-e2eef7-0p15) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 var(--tone-ffffff-0p9),
+    inset 0 0 40px var(--tone-0492d0-0p06),
+    0 18px 44px var(--tone-0492d0-0p12);
+}
+
+.tracks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.trackOuter,
+.trackMid,
+.trackInner {
+  fill: none;
+  stroke: var(--tone-0492d0-0p14);
+  stroke-width: 1;
+}
+.trackMid {
+  stroke: var(--tone-0492d0-0p1);
+}
+.trackInner {
+  stroke: var(--tone-0e1b2a-0p06);
+}
+.ticks {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.tickMajor {
+  stroke: var(--tone-0492d0-0p38);
+  stroke-width: 1.4;
+}
+.tickMinor {
+  stroke: var(--tone-0e1b2a-0p12);
+  stroke-width: 0.8;
+}
+
+/* mechanical selector: pivots at centre, points up at rotation 0 */
+.pointer {
+  position: absolute;
+  left: 50%;
+  top: calc(50% - (var(--ring) / 2 - 26px));
+  width: 5px;
+  height: calc(var(--ring) / 2 - 26px);
+  margin-left: -2.5px;
+  transform-origin: 50% 100%;
+  z-index: 3;
+}
+.pointerStem {
+  position: absolute;
+  inset: 0;
+  border-radius: 3px;
+  background: linear-gradient(
+    to top,
+    var(--tone-0492d0-0p0) 0%,
+    var(--tone-0492d0-0p3) 45%,
+    var(--brand-primary) 100%
+  );
+}
+.pointerHead {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--brand-primary);
+  box-shadow: 0 0 12px 2px var(--tone-0492d0-0p7);
+}
+
+/* centre hub */
+.chamber {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--ring) * 0.5);
+  height: calc(var(--ring) * 0.5);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 2;
+}
+.chamberGlass {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 38%, var(--tone-ffffff-1p0) 0%, var(--tone-f4f9fd-1p0) 60%, var(--tone-e7f1f8-1p0) 100%);
+  border: 1px solid var(--tone-0492d0-0p18);
+  box-shadow:
+    inset 0 2px 6px var(--tone-ffffff-0p9),
+    inset 0 -10px 24px var(--tone-0492d0-0p08),
+    0 10px 26px var(--tone-0e1b2a-0p1);
+}
+.hub {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+  padding: 8%;
+}
+.hubIcon {
+  display: grid;
+  place-items: center;
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  color: var(--brand-primary-strong);
+  filter: drop-shadow(0 4px 8px var(--tone-0492d0-0p25));
+}
+.hubName {
+  font-size: clamp(0.85rem, 1.1vw, 1rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text-main);
+}
+.hubIndex {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--brand-primary-strong);
+  /* keep "01 / 08" left-to-right even in RTL */
+  direction: ltr;
+}
+.hubIndex i {
+  color: var(--text-soft);
+  font-style: normal;
+  margin: 0 2px;
+}
+.hubEnergy {
+  position: absolute;
+  left: 50%;
+  bottom: 12%;
+  width: 6px;
+  height: 6px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  background: var(--brand-primary);
+  box-shadow: 0 0 8px 1px var(--tone-0492d0-0p7);
+  z-index: 3;
+}
+.cover {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  z-index: 4;
+  opacity: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 42%, var(--tone-ffffff-0p9), var(--tone-dcf0fa-0p72) 70%);
+  backdrop-filter: blur(2px);
+}
+
+/* nodes — positioned via stylesheet classes (never inline, so GSAP clearProps
+   cannot wipe them) at 45° intervals: i=0 top, clockwise. */
+.node {
+  position: absolute;
+  width: var(--node);
+  height: var(--node);
+  transform: translate(-50%, -50%);
+  z-index: 4;
+}
+.pos0 { left: 50%; top: 0; }
+.pos1 { left: 85.36%; top: 14.64%; }
+.pos2 { left: 100%; top: 50%; }
+.pos3 { left: 85.36%; top: 85.36%; }
+.pos4 { left: 50%; top: 100%; }
+.pos5 { left: 14.64%; top: 85.36%; }
+.pos6 { left: 0; top: 50%; }
+.pos7 { left: 14.64%; top: 14.64%; }
+.nodeBtn {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  border: 1.5px solid var(--tone-0492d0-0p25);
+  background: var(--surface-card);
+  color: var(--brand-primary-strong);
+  font-size: clamp(0.95rem, 1.4vw, 1.2rem);
+  box-shadow: 0 6px 16px var(--tone-0e1b2a-0p1);
+  transition:
+    transform var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease);
+}
+.nodeBtn:hover,
+.nodeBtn:focus-visible {
+  transform: translateY(-4px) scale(1.06);
+  border-color: var(--brand-primary);
+  box-shadow: 0 12px 24px var(--tone-0492d0-0p28);
+}
+.nodeBtn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring), 0 12px 24px var(--tone-0492d0-0p28);
+}
+.node[data-active="true"] .nodeBtn {
+  background: linear-gradient(150deg, var(--brand-primary), var(--brand-primary-strong));
+  border-color: var(--brand-primary-strong);
+  color: var(--tone-ffffff-1p0);
+  transform: scale(1.08);
+  box-shadow:
+    0 10px 22px var(--tone-0492d0-0p4),
+    0 0 0 6px var(--tone-0492d0-0p12);
+}
+
+.nodeLabel {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.nodeLabelBelow .nodeLabel {
+  top: calc(100% + 5px);
+}
+.nodeLabelAbove .nodeLabel {
+  bottom: calc(100% + 5px);
+}
+.node[data-active="true"] .nodeLabel {
+  color: var(--brand-primary-strong);
+  font-weight: 700;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--brand-primary-strong);
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--tone-0492d0-0p28);
+  background: var(--tone-ffffff-0p7);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+.viewAll:hover,
+.viewAll:focus-visible {
+  background: var(--tone-ffffff-1p0);
+  box-shadow: 0 8px 18px var(--tone-0492d0-0p2);
+  transform: translateY(-1px);
+  color: var(--brand-primary-strong);
+}
+.viewAll:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+.arrowFlip {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nodeBtn {
+    transition: none;
+  }
+}
+
+/* Compact desktop reactor while preserving the radial interaction. */
+.reactor {
+  --ring: clamp(190px, 14vw, 224px);
+  --node: clamp(34px, 2.55vw, 42px);
+  gap: 10px;
+  padding-block: 4px;
+}
+.heading { font-size: .98rem; }
+.stage {
+  width: calc(var(--ring) + 54px);
+  height: calc(var(--ring) + 54px);
+}
+.nodeLabel { font-size: .66rem; }
+.viewAll { padding: 7px 15px; font-size: .8rem; }
+@media (max-width:1199px) {
+  .reactor { --ring: clamp(215px, 28vw, 280px); }
+}
+@media (max-width:575px) {
+  .reactor { --ring: min(68vw, 235px); --node: 38px; }
+  .stage { width: calc(var(--ring) + 48px); height: calc(var(--ring) + 48px); }
+}

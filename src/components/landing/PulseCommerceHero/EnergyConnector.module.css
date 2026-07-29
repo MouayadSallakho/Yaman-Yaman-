@@ -1,0 +1,70 @@
+.lane {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* RTL: mirror geometry so the arrowhead points along the reversed flow and the
+   pulse travels the opposite way. */
+.flip {
+  transform: scaleX(-1);
+}
+
+.svg {
+  width: 100%;
+  max-width: 72px;
+  height: auto;
+  overflow: visible;
+}
+
+.base {
+  stroke: var(--tone-0492d0-0p28);
+  stroke-width: 2.5;
+}
+
+.pulse {
+  stroke: var(--tone-46c8ff-1p0);
+  stroke-width: 2.75;
+  /* one short bright dash, hidden until the timeline drives its offset */
+  stroke-dasharray: 15 100;
+  stroke-dashoffset: 100;
+  opacity: 0;
+  filter: drop-shadow(0 0 5px var(--tone-46c8ff-0p9));
+}
+
+.arrow {
+  fill: var(--brand-primary);
+  opacity: 0.55;
+}
+
+.flash {
+  fill: var(--tone-7ad7ff-1p0);
+  opacity: 0;
+  filter: drop-shadow(0 0 8px var(--tone-46c8ff-0p95));
+}
+
+.node {
+  fill: var(--brand-primary);
+  opacity: 0.5;
+}
+
+.spark {
+  fill: var(--tone-bde9ff-1p0);
+  opacity: 0;
+}
+
+/* Reduced motion: keep a calm, readable static conduit + arrow, no glow. */
+@media (prefers-reduced-motion: reduce) {
+  .pulse,
+  .spark,
+  .flash {
+    display: none;
+  }
+  .arrow {
+    opacity: 0.5;
+  }
+}

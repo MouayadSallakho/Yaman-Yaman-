@@ -1,0 +1,159 @@
+/* One shared shimmer so every skeleton on the page animates in step. */
+.line,
+.media,
+.ctaBlock,
+.sortBlock,
+.heroArt,
+.heroCta {
+  --shimmer-base: var(--tone-e8eef5-1p0);
+  --shimmer-highlight: var(--tone-f4f8fc-1p0);
+  background: linear-gradient(
+    100deg,
+    var(--shimmer-base) 30%,
+    var(--shimmer-highlight) 48%,
+    var(--shimmer-base) 66%
+  );
+  background-size: 220% 100%;
+  animation: shimmer 1.35s var(--motion-ease) infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 180% 0; }
+  to { background-position: -40% 0; }
+}
+
+.line {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+}
+
+/* ------------------------------------------------------------ card */
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+}
+
+.media {
+  aspect-ratio: 1 / 1;
+  animation-delay: -0.2s;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  gap: 8px;
+  padding: 14px 14px 15px;
+}
+
+.brandLine { width: 34%; height: 8px; }
+.titleLine { width: 92%; }
+.titleLineShort { width: 64%; }
+.metaLine { width: 78%; height: 9px; }
+.ratingLine { width: 52%; height: 9px; }
+
+.cardFooter {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.priceLine { width: 84px; height: 16px; }
+
+.ctaBlock {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-button);
+}
+
+/* --------------------------------------------------------- filters */
+.filters {
+  display: grid;
+  gap: 26px;
+}
+
+.filterGroup {
+  display: grid;
+  gap: 11px;
+}
+
+.groupTitle { width: 46%; height: 11px; }
+.filterRow { width: 100%; height: 13px; border-radius: 7px; }
+
+/* --------------------------------------------------------- toolbar */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.countLine { width: 170px; height: 12px; }
+
+.sortBlock {
+  width: 190px;
+  height: 42px;
+  border-radius: var(--radius-button);
+}
+
+/* ------------------------------------------------------------ hero */
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+  gap: clamp(20px, 3vw, 44px);
+  align-items: center;
+  padding: clamp(22px, 3vw, 38px);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-section);
+  background: var(--surface-card);
+}
+
+.heroCopy {
+  display: grid;
+  gap: 12px;
+}
+
+.heroEyebrow { width: 30%; height: 9px; }
+.heroTitle { width: 82%; height: 30px; }
+.heroText { width: 68%; height: 11px; }
+
+.heroCta {
+  width: 150px;
+  height: 44px;
+  margin-top: 6px;
+  border-radius: var(--radius-button);
+}
+
+.heroArt {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-card);
+}
+
+@media (max-width: 767.98px) {
+  .hero { grid-template-columns: 1fr; }
+  .heroArt { aspect-ratio: 16 / 9; }
+  .sortBlock { width: 140px; }
+}
+
+/* Shimmer is decorative motion — hold a flat tone instead of pulsing. */
+@media (prefers-reduced-motion: reduce) {
+  .line,
+  .media,
+  .ctaBlock,
+  .sortBlock,
+  .heroArt,
+  .heroCta {
+    animation: none;
+    background: var(--tone-e8eef5-1p0);
+  }
+}

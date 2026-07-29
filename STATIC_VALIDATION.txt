@@ -1,0 +1,48 @@
+Techno Solutions static validation
+Generated: 2026-07-29
+Source project: Mabco(4).zip
+
+CODE / IMPORTS
+- Source syntax parse: 110 JS/JSX/MJS/CJS files, 0 parse errors
+- Local import resolution: 0 missing imports
+- CSS Module references: 993 references checked, 0 errors
+- CSS brace validation: 52 files, 0 errors
+
+LOCALIZATION
+- English leaf keys: 611
+- Arabic leaf keys: 611
+- Missing in Arabic: 0
+- Missing in English: 0
+- Literal translation references: 347
+- Missing literal translation references: 0
+
+DEPENDENCY METADATA
+- package.json/package-lock dependencies synchronized: True
+- package.json/package-lock devDependencies synchronized: True
+
+THEME / COLOR ARCHITECTURE
+- Non-central CSS color literals: 0
+- Theme presentation variables per theme: 92
+- Theme presentation variable-name parity: True
+- Compatibility tone variables per theme: 612
+- Compatibility tone variable-name parity: True
+- Themes: original-tech-blue, aurora-cyan, royal-violet
+
+CSS VARIABLES RESOLVED AT RUNTIME (EXPECTED)
+- --font-latin (provided by next/font)
+- --font-arabic (provided by next/font)
+- --img-scale (component inline custom property)
+- --mx (component inline custom property)
+- --my (component inline custom property)
+
+BRAND / ROUTES
+- User-facing page route files: 9
+- Next.js API route files: 0
+- Remaining MABCO/Mabco/mabco source occurrences: 16 (technical compatibility identifiers/classes/promo only; no localized visible brand copy)
+- Brand assets checked: 5
+
+NPM / BUILD LIMITATION IN THIS CONTAINER
+- npm ci could not be completed because this execution environment rewrites the public @fancyapps/ui tarball through an internal package gateway that returns HTTP 404.
+- Consequently npm run lint, npm run build, npm run dev, browser interaction, responsive-width testing, RTL browser testing and zoom testing were not executed here.
+- The project contains no new dependency; package metadata remains synchronized.
+- Run the local commands documented in README.md and TECHNO_SOLUTIONS_IMPLEMENTATION_REPORT.md.

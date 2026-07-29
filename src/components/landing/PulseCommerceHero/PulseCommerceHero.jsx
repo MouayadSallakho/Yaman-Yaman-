@@ -1,0 +1,90 @@
+"use client";
+
+import { useCallback, useEffect, useRef } from "react";
+import { Container } from "react-bootstrap";
+
+import { useTranslation } from "@/i18n/LocaleProvider";
+import { resolvedCollections } from "./data";
+import { usePulseCommerceSequence } from "./usePulseCommerceSequence";
+import CategoryReactor from "./CategoryReactor";
+import DealsMatrix from "./DealsMatrix";
+import TopSellerVault from "./TopSellerVault";
+import EnergyConnector from "./EnergyConnector";
+import styles from "./PulseCommerceHero.module.css";
+
+/**
+ * Techno Solutions Pulse Commerce Core — the unified homepage hero.
+ *
+ * One premium card wiring three real merchandising systems into a single
+ * synchronized experience: the Category Reactor selects a collection, an
+ * electrical signal drives the Deals Matrix, a second signal drives the Top
+ * Seller Vault. All product content resolves from the shared, truthful
+ * `data.js` model; the master GSAP orchestration lives in
+ * `usePulseCommerceSequence`. Desktop-first (a safe stacked fallback keeps
+ * narrow viewports usable until the dedicated responsive phase).
+ */
+export default function PulseCommerceHero() {
+  const { t, dir } = useTranslation();
+  const rootRef = useRef(null);
+  const liveRef = useRef(null);
+
+  const count = resolvedCollections.length;
+
+  // Always announce with the latest dictionary, even after a language switch
+  // (the sequence hook is set up once, so it reads `t` through this ref).
+  const tRef = useRef(t);
+  useEffect(() => {
+    tRef.current = t;
+  }, [t]);
+  const labelForIndex = useCallback(
+    (index) => tRef.current(resolvedCollections[index].labelKey),
+    []
+  );
+
+  const { activeIndex, dealsIndex, sellersIndex, select } =
+    usePulseCommerceSequence({ rootRef, count, labelForIndex, liveRef });
+
+  const activeCol = resolvedCollections[activeIndex];
+  const dealsCol = resolvedCollections[dealsIndex];
+  const sellersCol = resolvedCollections[sellersIndex];
+  const flip = dir === "rtl";
+
+  return (
+    <section
+      id="commerce-core"
+      ref={rootRef}
+      className={styles.hero}
+      aria-label={t("commerce.regionLabel")}
+    >
+      {/* A controlled fluid container gives the commerce hero enough room for
+          the target three-column composition while retaining responsive gutters. */}
+      <Container fluid className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.grid}>
+            <CategoryReactor
+              collections={resolvedCollections}
+              activeIndex={activeIndex}
+              count={count}
+              viewAllHref={activeCol.viewAllHref}
+              activeLabel={t(activeCol.labelKey)}
+              dir={dir}
+              t={t}
+              onSelect={(i) => select(i, true)}
+            />
+
+            <EnergyConnector id={1} flip={flip} />
+
+            <DealsMatrix deals={dealsCol.deals} featured={dealsCol.featured} t={t} />
+
+            <EnergyConnector id={2} flip={flip} />
+
+            <TopSellerVault topSellers={sellersCol.topSellers} t={t} />
+          </div>
+        </div>
+      </Container>
+
+      {/* Manual category changes make one concise polite announcement. */}
+      <span className="visually-hidden" aria-live="polite" ref={liveRef} />
+    </section>
+  );
+}

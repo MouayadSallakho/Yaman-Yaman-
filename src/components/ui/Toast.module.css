@@ -1,0 +1,38 @@
+.toast{
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 9999;
+
+  background: var(--tone-ffffff-0p95);
+  border: 1px solid var(--tone-000000-0p08);
+  box-shadow: 0 16px 40px var(--tone-000000-0p16);
+  border-radius: 14px;
+  padding: 12px 14px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-family: Inter, sans-serif;
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--tone-0b1b2a-1p0);
+
+  animation: pop 220ms ease-out;
+}
+
+.closeBtn{
+  border: none;
+  background: var(--tone-0492d0-0p1);
+  color: var(--mainColorBlue);
+  border-radius: 10px;
+  padding: 6px 8px;
+  cursor: pointer;
+  font-weight: 900;
+}
+
+@keyframes pop{
+  from { transform: translateY(-8px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

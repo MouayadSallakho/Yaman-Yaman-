@@ -1,0 +1,134 @@
+.filters {
+  display: grid;
+  gap: 6px;
+}
+
+.group {
+  padding-block: 4px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.group:last-child {
+  border-bottom: 0;
+}
+
+.groupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 2px;
+  border: 0;
+  background: none;
+  color: var(--text-main);
+  font-size: 0.79rem;
+  font-weight: 820;
+  letter-spacing: 0.05em;
+  text-align: start;
+  text-transform: uppercase;
+}
+
+.groupHeader:hover {
+  color: var(--brand-primary-strong);
+}
+
+.chevron {
+  flex: 0 0 auto;
+  color: var(--text-soft);
+  font-size: 1rem;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+.groupPanel {
+  padding-top: 2px;
+}
+
+.optionList {
+  display: grid;
+  gap: 1px;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  /* Comfortable target without looking like a button row. */
+  min-height: 36px;
+  padding: 4px 8px;
+  border-radius: 10px;
+  color: var(--text-muted);
+  font-size: 0.83rem;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--motion-ease);
+}
+
+.option:hover {
+  background: var(--tone-0492d0-0p06);
+  color: var(--text-main);
+}
+
+/* Facets that would return nothing stay selectable but read as quiet. */
+.optionEmpty {
+  opacity: 0.55;
+}
+
+.optionLabel {
+  flex: 1;
+  min-width: 0;
+}
+
+.count {
+  flex: 0 0 auto;
+  color: var(--text-soft);
+  font-size: 0.74rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Native inputs, restyled — keeps keyboard behaviour and AT semantics. */
+.radio,
+.checkbox {
+  flex: 0 0 auto;
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: var(--brand-primary);
+  cursor: pointer;
+}
+
+.option:has(:checked) {
+  background: var(--tone-0492d0-0p09);
+  color: var(--text-main);
+  font-weight: 700;
+}
+
+.radio:focus-visible,
+.checkbox:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.groupHeader:focus-visible {
+  outline: none;
+  border-radius: 8px;
+  box-shadow: var(--focus-ring);
+}
+
+@media (max-width: 991.98px) {
+  /* Roomier rows for touch inside the drawer. */
+  .option { min-height: 44px; font-size: 0.88rem; }
+  .radio, .checkbox { width: 19px; height: 19px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chevron,
+  .option { transition: none; }
+}

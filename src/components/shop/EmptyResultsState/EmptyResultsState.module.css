@@ -1,0 +1,57 @@
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: clamp(44px, 7vw, 84px) 24px;
+  border: 1px dashed var(--tone-2575e0-0p28);
+  border-radius: var(--radius-card);
+  background: var(--tone-ffffff-0p7);
+  text-align: center;
+}
+
+.icon {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--tone-0492d0-0p1);
+  color: var(--brand-primary);
+  font-size: 1.4rem;
+}
+
+.title {
+  margin-top: 6px;
+  color: var(--text-main);
+  font-size: 1.12rem;
+  font-weight: 840;
+}
+
+.text {
+  max-width: 42ch;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.action {
+  min-height: 44px;
+  margin-top: 8px;
+  padding-inline: 22px;
+  border: 0;
+  border-radius: var(--radius-button);
+  background: var(--brand-primary);
+  color: var(--tone-ffffff-1p0);
+  font-size: 0.86rem;
+  font-weight: 780;
+  box-shadow: 0 8px 20px var(--tone-0492d0-0p28);
+}
+
+.action:hover {
+  background: var(--brand-primary-strong);
+}
+
+.action:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

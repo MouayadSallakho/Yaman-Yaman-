@@ -1,0 +1,160 @@
+.hero {
+  --site-header-height: 76px;
+  --hero-page-gap: 18px;
+  padding-block: var(--hero-page-gap) 8px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1580px;
+  padding-inline: clamp(12px, 2vw, 28px);
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: calc(100dvh - var(--site-header-height) - var(--hero-page-gap));
+  padding: clamp(24px, 2.2vw, 36px);
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: clamp(27px, 2.2vw, 38px);
+  border: 1px solid var(--tone-0492d0-0p16);
+  background:
+    radial-gradient(60% 55% at 50% -8%, var(--tone-67cff8-0p2), transparent 68%),
+    radial-gradient(42% 56% at 8% 100%, var(--tone-56beeb-0p11), transparent 72%),
+    linear-gradient(180deg, var(--tone-fbfdff-1p0) 0%, var(--tone-f4faff-1p0) 46%, var(--tone-eaf5fc-1p0) 100%);
+  box-shadow:
+    0 42px 82px var(--tone-046fa1-0p16),
+    0 12px 30px var(--tone-0e1b2a-0p065),
+    inset 0 1px 0 var(--tone-ffffff-0p94);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(32% 38% at 87% 20%, var(--tone-ffffff-0p84), transparent 72%),
+    linear-gradient(110deg, var(--tone-ffffff-0p52), transparent 34% 70%, var(--tone-ffffff-0p32));
+}
+
+.card::after {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: 10%;
+  right: 10%;
+  bottom: -120px;
+  height: 220px;
+  border-radius: 50%;
+  background: var(--tone-46bdee-0p11);
+  filter: blur(48px);
+  pointer-events: none;
+}
+
+.grid {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns:
+    minmax(300px, 0.9fr)
+    clamp(28px, 2.7vw, 44px)
+    minmax(490px, 1.42fr)
+    clamp(28px, 2.7vw, 44px)
+    minmax(320px, 0.98fr);
+  align-items: stretch;
+  gap: 0;
+  min-width: 0;
+}
+
+@media (max-width: 1399px) {
+  .container {
+    max-width: 1320px;
+  }
+
+  .grid {
+    grid-template-columns:
+      minmax(280px, 0.9fr)
+      28px
+      minmax(430px, 1.35fr)
+      28px
+      minmax(285px, 0.95fr);
+  }
+}
+
+@media (max-width: 1199px) {
+  .card {
+    min-height: 0;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .grid > :nth-child(2),
+  .grid > :nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 575px) {
+  .container {
+    padding-inline: 10px;
+  }
+
+  .card {
+    padding: 18px 12px;
+    border-radius: 24px;
+  }
+
+  .grid {
+    gap: 20px;
+  }
+}
+
+/* ============================================================
+   Landing-page refinement: content-driven hero, not a full viewport
+   ============================================================ */
+.hero {
+  --site-header-height: 64px;
+  --hero-page-gap: 16px;
+  padding-block: var(--hero-page-gap) 0;
+}
+.container {
+  max-width: var(--content-max);
+  padding-inline: var(--content-gutter);
+}
+.card {
+  min-height: 0;
+  padding: clamp(20px, 2vw, 30px);
+  border-radius: var(--radius-section);
+  box-shadow: var(--shadow-section), inset 0 1px 0 var(--tone-ffffff-0p94);
+}
+.grid {
+  grid-template-columns:
+    minmax(260px, .82fr)
+    clamp(20px, 2vw, 32px)
+    minmax(470px, 1.42fr)
+    clamp(20px, 2vw, 32px)
+    minmax(285px, .92fr);
+}
+@media (max-width: 1399px) {
+  .container { max-width: var(--content-max); }
+  .grid {
+    grid-template-columns: minmax(245px,.8fr) 22px minmax(420px,1.36fr) 22px minmax(270px,.9fr);
+  }
+}
+@media (max-width: 1199px) {
+  .hero { padding-top: 14px; }
+  .grid { gap: 20px; }
+}
+@media (max-width: 575px) {
+  .container { padding-inline: 10px; }
+  .card { padding: 16px 10px; border-radius: 22px; }
+}

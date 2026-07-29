@@ -1,0 +1,88 @@
+export const XIOMA_X15_ULTRA = {
+  slug: "xioma-x15-ultra",
+  brand: "XIOMA",
+  name: "XIOMA X15 Ultra",
+  category: "Smartphones",
+  rating: 4.8,
+  reviewCount: 236,
+  stockLimit: 5,
+  defaultStorage: "512GB",
+  defaultColor: "frost-silver",
+  storageOptions: [
+    { id: "256GB", label: "256GB", price: 1199 },
+    { id: "512GB", label: "512GB", price: 1299 },
+    { id: "1TB", label: "1TB", price: 1499 },
+  ],
+  colors: [
+    { id: "frost-silver", labelKey: "productDemo.colors.frostSilver", hex: "#d8e3ef", available: true },
+    { id: "midnight-black", labelKey: "productDemo.colors.midnightBlack", hex: "#202733", available: false },
+    { id: "aurora-violet", labelKey: "productDemo.colors.auroraViolet", hex: "#8d85bd", available: false },
+  ],
+  gallery: [
+    { id: "back", src: "/images/products/xioma-x15-ultra/01-frost-silver-back.webp", altKey: "productDemo.gallery.back.alt", captionKey: "productDemo.gallery.back.caption", scale: 0.92 },
+    { id: "front", src: "/images/products/xioma-x15-ultra/02-frost-silver-front.webp", altKey: "productDemo.gallery.front.alt", captionKey: "productDemo.gallery.front.caption", scale: 0.9 },
+    { id: "side", src: "/images/products/xioma-x15-ultra/03-frost-silver-side.webp", altKey: "productDemo.gallery.side.alt", captionKey: "productDemo.gallery.side.caption", scale: 0.82 },
+    { id: "camera", src: "/images/products/xioma-x15-ultra/04-camera-closeup.webp", altKey: "productDemo.gallery.camera.alt", captionKey: "productDemo.gallery.camera.caption", scale: 0.98 },
+    { id: "box", src: "/images/products/xioma-x15-ultra/05-box-contents.webp", altKey: "productDemo.gallery.box.alt", captionKey: "productDemo.gallery.box.caption", scale: 0.9 },
+    { id: "hand", src: "/images/products/xioma-x15-ultra/06-hand-lifestyle.webp", altKey: "productDemo.gallery.hand.alt", captionKey: "productDemo.gallery.hand.caption", scale: 1 },
+    { id: "sample", src: "/images/products/xioma-x15-ultra/07-camera-sample.webp", altKey: "productDemo.gallery.sample.alt", captionKey: "productDemo.gallery.sample.caption", scale: 1, fit: "cover" },
+    { id: "material", src: "/images/products/xioma-x15-ultra/08-material-detail.webp", altKey: "productDemo.gallery.material.alt", captionKey: "productDemo.gallery.material.caption", scale: 1, fit: "cover" },
+  ],
+  featureKeys: [
+    "productDemo.features.camera",
+    "productDemo.features.processor",
+    "productDemo.features.display",
+    "productDemo.features.battery",
+    "productDemo.features.resistance",
+  ],
+  overviewBenefits: [
+    ["01", "productDemo.overview.benefits.photography"],
+    ["02", "productDemo.overview.benefits.performance"],
+    ["03", "productDemo.overview.benefits.power"],
+    ["04", "productDemo.overview.benefits.display"],
+  ],
+  specifications: [
+    ["productDemo.specs.display", "6.78-inch 2K AMOLED · 120Hz LTPO"],
+    ["productDemo.specs.processor", "Snapdragon 8 Gen 3"],
+    ["productDemo.specs.memory", "16GB LPDDR5X"],
+    ["productDemo.specs.storage", "256GB / 512GB / 1TB"],
+    ["productDemo.specs.mainCamera", "200MP flagship camera concept"],
+    ["productDemo.specs.ultrawide", "50MP ultrawide concept"],
+    ["productDemo.specs.telephoto", "50MP periscope concept"],
+    ["productDemo.specs.frontCamera", "32MP front camera concept"],
+    ["productDemo.specs.battery", "5400mAh"],
+    ["productDemo.specs.charging", "80W HyperCharge"],
+    ["productDemo.specs.connectivity", "5G · Wi-Fi 7 · Bluetooth 5.4"],
+    ["productDemo.specs.resistance", "IP68"],
+    ["productDemo.specs.dimensions", "162.4 × 75.8 × 8.9 mm"],
+    ["productDemo.specs.weight", "219 g"],
+    ["productDemo.specs.os", "XIOMA OS demo interface"],
+  ],
+  cameraHighlights: [
+    ["200MP", "productDemo.camera.main"],
+    ["122°", "productDemo.camera.ultrawide"],
+    ["5×", "productDemo.camera.telephoto"],
+    ["8K", "productDemo.camera.video"],
+  ],
+  reviews: [
+    { id: "one", initials: "AK", author: "Alex K.", date: "2026-07-18", titleKey: "productDemo.reviews.items.one.title", bodyKey: "productDemo.reviews.items.one.body" },
+    { id: "two", initials: "SM", author: "Sara M.", date: "2026-07-08", titleKey: "productDemo.reviews.items.two.title", bodyKey: "productDemo.reviews.items.two.body" },
+    { id: "three", initials: "JL", author: "Jordan L.", date: "2026-06-29", titleKey: "productDemo.reviews.items.three.title", bodyKey: "productDemo.reviews.items.three.body" },
+  ],
+  boxItems: [
+    ["01", "productDemo.box.phone"],
+    ["02", "productDemo.box.cable"],
+    ["03", "productDemo.box.case"],
+    ["04", "productDemo.box.simTool"],
+    ["05", "productDemo.box.docs"],
+    ["06", "productDemo.box.adapter"],
+  ],
+};
+
+export function formatPrice(value, locale = "en") {
+  return new Intl.NumberFormat(locale === "ar" ? "ar" : "en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(value);
+}

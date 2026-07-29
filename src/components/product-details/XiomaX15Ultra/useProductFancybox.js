@@ -1,0 +1,116 @@
+"use client";
+
+import { useCallback, useEffect, useRef } from "react";
+
+const availabilityCache = new Map();
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getThemePalette() {
+  const styles = getComputedStyle(document.documentElement);
+  const read = (name) => styles.getPropertyValue(name).trim();
+  return {
+    primary: read("--color-primary"),
+    primaryHover: read("--color-primary-hover"),
+    surface: read("--color-surface-muted"),
+    surfaceSoft: read("--color-surface-soft"),
+    surfaceStrong: read("--color-surface-elevated"),
+    text: read("--color-text-primary"),
+  };
+}
+
+function placeholderThumb(label, index, palette) {
+  const safeLabel = escapeHtml(label).slice(0, 30);
+  const number = String(index + 1).padStart(2, "0");
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="240" height="180" viewBox="0 0 240 180"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="${palette.surface}"/><stop offset="1" stop-color="${palette.surfaceSoft}"/></linearGradient></defs><rect width="240" height="180" rx="18" fill="url(#g)"/><path d="M0 45H240M0 90H240M0 135H240M48 0V180M96 0V180M144 0V180M192 0V180" stroke="${palette.primary}" stroke-opacity=".14"/><circle cx="120" cy="75" r="28" fill="${palette.surfaceStrong}" stroke="${palette.primary}" stroke-width="3"/><text x="120" y="83" text-anchor="middle" font-family="Arial" font-size="18" font-weight="700" fill="${palette.primaryHover}">${number}</text><text x="120" y="130" text-anchor="middle" font-family="Arial" font-size="12" font-weight="700" fill="${palette.text}">${safeLabel}</text></svg>`;
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+async function assetExists(src) {
+  if (availabilityCache.has(src)) return availabilityCache.get(src);
+  try {
+    const response = await fetch(src, { method: "HEAD", cache: "no-store" });
+    availabilityCache.set(src, response.ok);
+    return response.ok;
+  } catch {
+    availabilityCache.set(src, false);
+    return false;
+  }
+}
+
+function placeholderSlide(item, index, label, helper, palette) {
+  return {
+    html: `<div class="mabco-fancybox-placeholder"><div class="mabco-fancybox-placeholder__orb"><span>${String(index + 1).padStart(2, "0")}</span></div><strong>${escapeHtml(label)}</strong><p>${escapeHtml(helper)}</p><code>${escapeHtml(item.src)}</code></div>`,
+    caption: escapeHtml(label),
+    thumbSrc: placeholderThumb(label, index, palette),
+    thumbAlt: escapeHtml(label),
+  };
+}
+
+export default function useProductFancybox({ gallery, t, dir }) {
+  const instanceRef = useRef(null);
+
+  const open = useCallback(async (startIndex, triggerEl) => {
+    try {
+      const { Fancybox } = await import("@fancyapps/ui/dist/fancybox/");
+      const palette = getThemePalette();
+      const availability = await Promise.all(gallery.map((item) => assetExists(item.src)));
+      const slides = gallery.map((item, index) => {
+        const alt = t(item.altKey);
+        return availability[index]
+          ? { src: item.src, type: "image", caption: t(item.captionKey), thumbSrc: item.src, thumbAlt: alt }
+          : placeholderSlide(item, index, alt, t("productDemo.gallery.placeholderMessage"), palette);
+      });
+
+      instanceRef.current?.close?.();
+      instanceRef.current = Fancybox.show(slides, {
+        id: "mabco-xioma-gallery",
+        startIndex,
+        triggerEl,
+        closeExisting: true,
+        placeFocusBack: true,
+        hideScrollbar: true,
+        dragToClose: true,
+        theme: "dark",
+        mainClass: "mabco-product-fancybox",
+        l10n: {
+          MODAL: t("productDemo.fancybox.modal"),
+          CLOSE: t("common.close"),
+          NEXT: t("productDemo.gallery.next"),
+          PREV: t("productDemo.gallery.previous"),
+        },
+        Carousel: {
+          infinite: false,
+          rtl: dir === "rtl",
+          Thumbs: { type: "classic" },
+          Toolbar: {
+            display: {
+              left: ["counter"],
+              middle: ["zoomIn", "zoomOut", "toggle1to1"],
+              right: ["toggleFull", "thumbs", "close"],
+            },
+          },
+        },
+        on: {
+          destroy: () => { instanceRef.current = null; },
+        },
+      });
+    } catch (error) {
+      console.error("Unable to open Fancybox product gallery", error);
+    }
+  }, [dir, gallery, t]);
+
+  useEffect(() => () => {
+    instanceRef.current?.close?.();
+    instanceRef.current = null;
+  }, []);
+
+  return open;
+}

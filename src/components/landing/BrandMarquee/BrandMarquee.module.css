@@ -1,0 +1,130 @@
+.section {
+  margin-block-start: var(--section-gap);
+}
+
+.card {
+  background: var(--surface-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  padding: 18px 8px 20px;
+}
+
+.title {
+  margin: 0 0 14px;
+  padding-inline: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: var(--text-main);
+}
+
+/* Clip the moving track and fade both edges so logos ease in/out. */
+.viewport {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    var(--tone-000000-1p0) 8%,
+    var(--tone-000000-1p0) 92%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    var(--tone-000000-1p0) 8%,
+    var(--tone-000000-1p0) 92%,
+    transparent
+  );
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  will-change: transform;
+  animation: marqueeScroll 40s linear infinite;
+}
+
+/* Pause when the user hovers or focuses a brand (WCAG 2.2.2). */
+.track:hover,
+.track:focus-within {
+  animation-play-state: paused;
+}
+
+/* Spacing lives on each item (including the last) so the duplicated set is a
+   pixel-perfect copy and translateX(-50%) loops without a jump. */
+.item {
+  display: flex;
+  align-items: center;
+  margin-inline-end: 56px;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: var(--radius-button);
+}
+
+.logoAsset {
+  width: 140px !important;
+  height: 40px !important;
+  background: transparent;
+}
+
+.logo {
+  object-fit: contain;
+  padding: 4px 8px;
+  filter: grayscale(1);
+  opacity: 0.65;
+  transition:
+    filter var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease);
+}
+
+/* Reveal full-colour logo on hover / keyboard focus. */
+.link:hover .logo,
+.link:focus-visible .logo {
+  filter: grayscale(0);
+  opacity: 1;
+}
+
+@media (min-width: 768px) {
+  .logoAsset {
+    height: 44px !important;
+  }
+
+  .item {
+    margin-inline-end: 72px;
+  }
+}
+
+@keyframes marqueeScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* No motion: stop the loop, drop the duplicate, show a static centered row. */
+@media (prefers-reduced-motion: reduce) {
+  .viewport {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+
+  .track {
+    animation: none;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 18px;
+  }
+
+  .clone {
+    display: none;
+  }
+}
