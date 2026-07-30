@@ -1,24 +1,52 @@
+/* ------------------------------------------------------------------- shell */
+/* One calm ice-white shell. Every dimension that changes with the viewport is a
+   custom property, so there is no fixed card height anywhere and a wrapping
+   title cannot make one card taller than its row. */
 .card {
+  --card-radius: 26px;
+  --card-radius-bottom: 20px;
+  /* Media height drives the whole proportion; body height follows content. */
+  --card-media-h: clamp(158px, 13.6vw, 196px);
+  --card-dock-h: 46px;
+  --card-body-pad: 14px;
+  --card-body-pad-bottom: 12px;
+  /* Shared silhouette for the shaped separator, reused by both of its layers. */
+  --card-sep-shape: polygon(
+    0 100%, 0 62%, 14% 62%, 21% 0, 79% 0, 86% 62%, 100% 62%, 100% 100%
+  );
+
   position: relative;
   display: flex;
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
+  border: 1px solid var(--tone-508bc9-0p2);
+  /* Large, disciplined top radius; slightly tighter bottom, one system. */
+  border-radius: var(--card-radius) var(--card-radius) var(--card-radius-bottom) var(--card-radius-bottom);
   background: var(--surface-card);
-  box-shadow: 0 1px 2px var(--tone-0e1b2a-0p04);
+  /* Layered rest shadow: broad ambient, tight contact, faint cool-blue
+     reflection, and an inner top highlight. Restrained, never a glow. */
+  box-shadow:
+    0 18px 34px var(--tone-214d80-0p11),
+    0 2px 6px var(--tone-0e1b2a-0p06),
+    0 8px 20px var(--tone-0492d0-0p08),
+    inset 0 1px 0 var(--tone-ffffff-0p96);
   transition:
-    transform var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease);
+    transform 240ms var(--motion-ease),
+    box-shadow 240ms var(--motion-ease),
+    border-color 240ms var(--motion-ease);
 }
 
 .card:hover,
 .card:focus-within {
+  /* Short, controlled lift — no jump, no neon. */
   transform: translateY(-4px);
   border-color: var(--tone-0492d0-0p28);
-  box-shadow: var(--shadow-card-hover);
+  box-shadow:
+    0 26px 48px var(--tone-214d80-0p14),
+    0 3px 8px var(--tone-0e1b2a-0p06),
+    0 12px 26px var(--tone-0492d0-0p12),
+    inset 0 1px 0 var(--tone-ffffff-1p0);
 }
 
 .cardSoldOut {
@@ -44,6 +72,7 @@
 }
 
 .cardList .media {
+  --carousel-bullets-inset: 12px;
   flex: 0 0 200px;
   width: 200px;
   max-height: none;
@@ -63,6 +92,7 @@
   align-items: start;
   column-gap: 24px;
   padding: 6px 4px 6px 0;
+  background: none;
 }
 
 .cardList .brand { grid-area: brand; }
@@ -89,8 +119,25 @@
   border: 0;
 }
 
-.cardList .priceRow { justify-content: flex-end; }
-.cardList .cartButton { grid-area: actions; }
+.cardList .priceRow { justify-content: flex-end; padding-bottom: 0; }
+
+/* In the row the dock is a plain aligned column: no bleed, no accent bar. */
+.cardList .footer { background: none; min-height: 0; }
+.cardList .footer::before { display: none; }
+
+/* A wide row has space for a real label, and the angular chamfer only makes
+   sense where the control meets the card corner. */
+.cardList .cartButton {
+  grid-area: actions;
+  width: auto;
+  min-width: 132px;
+  padding-inline: 16px;
+  margin: 0;
+  border-radius: var(--radius-button);
+  clip-path: none;
+}
+
+.cardList .cartButtonLabel { display: inline; font-size: 0.82rem; }
 
 @media (max-width: 699.98px) {
   /* Stacked intentionally rather than squeezed into a narrow row. */
@@ -132,12 +179,32 @@
 }
 
 /* ---------------------------------------------------------------- media */
+/* ------------------------------------------------------------- media stage */
+/* Height is driven by the shell custom property rather than an aspect ratio, so
+   the card proportion is controlled in one place and stays stable per row. */
 .media {
   position: relative;
-  aspect-ratio: 1 / 1;
-  /* Square by default, but capped so wide columns cannot inflate card height. */
-  max-height: 248px;
-  background: linear-gradient(160deg, var(--tone-f7fbff-1p0) 0%, var(--tone-eef5fb-1p0) 100%);
+  flex: 0 0 auto;
+  height: var(--card-media-h);
+  /* Lifts the media indicators clear of the shaped separator band. */
+  --carousel-bullets-inset: 30px;
+  background: linear-gradient(168deg, var(--tone-f9fcff-1p0) 0%, var(--tone-eaf4ff-1p0) 58%, var(--tone-dcecff-1p0) 100%);
+}
+
+/* Orbital geometry + product grounding shadow, entirely in gradients on one
+   decorative span. It stays subordinate: low-contrast rings, no animation. */
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    /* soft elliptical shadow under the product */
+    radial-gradient(52% 9% at 50% 84%, var(--tone-214d80-0p11), transparent 70%),
+    /* concentric orbital rings */
+    radial-gradient(circle at 50% 45%, transparent 33%, var(--tone-ffffff-0p96) 33.4%, transparent 34.6%),
+    radial-gradient(circle at 50% 45%, transparent 45%, var(--tone-ffffff-0p9) 45.4%, transparent 46.4%),
+    radial-gradient(circle at 50% 45%, var(--tone-ffffff-0p92) 0%, transparent 62%);
 }
 
 .mediaStage {
@@ -146,12 +213,61 @@
 
 .mediaImage {
   object-fit: contain;
-  padding: 12px;
-  transition: transform var(--motion-medium) var(--motion-ease);
+  /* Safe inset so a full silhouette is never clipped by the stage. */
+  padding: 11px 15px 24px;
+  /* Shadow follows the product's alpha, so it grounds the product itself. */
+  filter: drop-shadow(0 8px 12px var(--tone-183152-0p16));
+  transition: transform 260ms var(--motion-ease);
 }
 
 .card:hover .mediaImage {
-  transform: scale(1.045);
+  transform: scale(1.02);
+}
+
+/* ---------------------------------------------------------- shaped separator */
+/* Two layers share one clip-path. The blue layer sits 1.5px lower, so it shows
+   as a hairline tracing the stepped silhouette — one line, no side decoration. */
+.separator {
+  position: absolute;
+  z-index: 2;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 22px;
+  pointer-events: none;
+}
+
+.separator::before,
+.separator::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  clip-path: var(--card-sep-shape);
+}
+
+.separator::before {
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 6%,
+    var(--tone-0492d0-0p28) 24%,
+    var(--brand-primary) 50%,
+    var(--tone-0492d0-0p28) 76%,
+    transparent 94%
+  );
+  transition: opacity 240ms var(--motion-ease);
+  opacity: 0.75;
+}
+
+.separator::after {
+  top: 1.5px;
+  bottom: -1px;
+  background: var(--surface-card);
+}
+
+.card:hover .separator::before,
+.card:focus-within .separator::before {
+  opacity: 1;
 }
 
 .badges {
@@ -188,8 +304,8 @@
   inset-inline-end: 10px;
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 1px solid var(--border-subtle);
   border-radius: 50%;
@@ -208,6 +324,18 @@
   transform: scale(1.06);
 }
 
+/* The control had no visible focus indicator at all — a keyboard user could not
+   see where they were. Offset outwards so it reads against the media stage. */
+.wishlist:focus-visible {
+  outline: 3px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* A subtle quiet shadow, matching the reference's circular action. */
+.wishlist {
+  box-shadow: 0 4px 10px var(--tone-0e1b2a-0p06);
+}
+
 .wishlistOn {
   color: var(--tone-e5484d-1p0);
   border-color: var(--tone-e5484d-0p5);
@@ -219,19 +347,36 @@
 
 /* ----------------------------------------------------------------- body */
 .body {
+  position: relative;
   display: flex;
   flex-direction: column;
   flex: 1;
-  gap: 5px;
-  padding: 14px 14px 15px;
+  /* Tightened rhythm: the card carried ~60px of slack versus the target ratio. */
+  gap: 2px;
+  padding: var(--card-body-pad) var(--card-body-pad) var(--card-body-pad-bottom);
+  background: var(--surface-card);
 }
 
 .brand {
+  position: relative;
   color: var(--brand-primary);
-  font-size: 0.66rem;
-  font-weight: 820;
-  letter-spacing: 0.09em;
+  font-size: 0.63rem;
+  font-weight: 850;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
+  padding-bottom: 5px;
+}
+
+/* Short blue rule under the brand label — structural, not decoration. */
+.brand::after {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: 0;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--brand-primary);
 }
 
 .title {
@@ -299,90 +444,161 @@
 .stocklow { color: var(--tone-c2760b-1p0); }
 .stockout { color: var(--text-soft); }
 
-/* --------------------------------------------------------------- footer */
+/* -------------------------------------------------------- purchase dock */
+/* Price and cart share one structural surface with a restrained blue accent
+   along its lower edge, so they read as a single conversion area. Deliberately
+   no grey rule above the price. */
 .footer {
+  position: relative;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 10px;
-  /* Pins the price row to the bottom so uneven titles stay aligned. */
+  /* Pins the dock to the bottom so uneven titles stay aligned. */
   margin-top: auto;
-  padding-top: 10px;
+  /* Bleeds to the card edges; the body's own padding is cancelled here. */
+  margin-inline: calc(var(--card-body-pad) * -1);
+  margin-bottom: calc(var(--card-body-pad-bottom) * -1);
+  padding-inline: var(--card-body-pad);
+  padding-block: 7px 0;
+  min-height: var(--card-dock-h);
+  background: linear-gradient(180deg, transparent, var(--tone-f7fbff-1p0) 62%);
+}
+
+/* The structural blue accent — a hairline, not a divider above the price. */
+.footer::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--tone-0492d0-0p28) 30%,
+    var(--tone-0492d0-0p28) 62%,
+    transparent
+  );
 }
 
 .priceRow {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: baseline;
   flex-wrap: wrap;
-  gap: 7px;
+  gap: 6px;
   min-width: 0;
+  padding-bottom: 8px;
 }
 
 .price {
   color: var(--text-main);
-  font-size: 1.03rem;
-  font-weight: 850;
-  letter-spacing: -0.01em;
+  font-size: 1.06rem;
+  font-weight: 860;
+  letter-spacing: -0.02em;
 }
 
 .oldPrice {
   color: var(--text-soft);
-  font-size: 0.76rem;
+  font-size: 0.74rem;
   font-weight: 600;
 }
 
+/* Angular Techno Solutions cart control. Chamfered on the top inline-start
+   corner and flush into the shell's bottom inline-end corner, so it reads as
+   part of the card structure rather than a button placed on top of it. */
 .cartButton {
-  display: grid;
-  place-items: center;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
   flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
+  /* ~25% of the card width in grid mode, never below the 44px touch target. */
+  width: clamp(58px, 25%, 78px);
+  min-height: var(--card-dock-h);
+  /* Only the inline offset is needed — the dock itself already bleeds to the
+     bottom edge, so a second negative margin here clipped the control. */
+  margin-inline-end: calc(var(--card-body-pad) * -1);
   padding: 0;
   border: 0;
-  border-radius: var(--radius-button);
-  background: var(--brand-primary);
+  border-start-start-radius: 0;
+  border-end-end-radius: var(--card-radius-bottom);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
   color: var(--tone-ffffff-1p0);
-  font-size: 1rem;
-  box-shadow: 0 6px 16px var(--tone-0492d0-0p28);
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  /* clip-path has no logical form, so RTL gets an explicit mirror below. */
+  clip-path: polygon(26% 0, 100% 0, 100% 100%, 0 100%);
   transition:
-    background-color var(--motion-fast) var(--motion-ease),
-    transform var(--motion-fast) var(--motion-ease);
+    filter var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+}
+
+[dir="rtl"] .cartButton {
+  clip-path: polygon(0 0, 74% 0, 100% 100%, 0 100%);
+}
+
+/* Grid mode keeps the control icon-only; the label only exists in list mode. */
+.cartButtonLabel {
+  display: none;
 }
 
 .cartButton:hover:not(:disabled) {
-  background: var(--brand-primary-strong);
-  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+.cartButton:focus-visible {
+  outline: 3px solid var(--brand-primary-strong);
+  outline-offset: -3px;
 }
 
 .cartButton:disabled {
   background: var(--tone-cbd5e1-1p0);
   color: var(--tone-f8fafc-1p0);
-  box-shadow: none;
   cursor: not-allowed;
 }
 
 .cartButtonAdded {
   background: var(--success);
-  box-shadow: 0 6px 16px var(--tone-1a9c62-0p3);
 }
 
-@media (max-width: 575.98px) {
-  .body { padding: 12px 12px 13px; }
-  .title { font-size: 0.86rem; }
-  .price { font-size: 0.97rem; }
-  /* Keep taps comfortable on small screens. */
-  .cartButton { width: 42px; height: 42px; }
-  .wishlist { width: 36px; height: 36px; }
+@media (max-width: 991.98px) {
+  .card {
+    --card-radius: 24px;
+    --card-radius-bottom: 18px;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .card {
+    --card-radius: 22px;
+    --card-radius-bottom: 16px;
+    --card-body-pad: 13px;
+    /* One column means a much wider card, so the media can breathe again. */
+    --card-media-h: clamp(190px, 46vw, 260px);
+  }
+
+  .title { font-size: 0.9rem; }
+  .price { font-size: 1.02rem; }
+  /* Never below the 44px touch target. */
+  .cartButton { width: clamp(64px, 22%, 88px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .card,
   .mediaImage,
   .cartButton,
-  .wishlist {
+  .wishlist,
+  .separator::before {
     transition: none;
   }
 
+  /* No lift, no image scaling. Focus rings and the added-to-cart state stay. */
   .card:hover,
   .card:focus-within { transform: none; }
   .card:hover .mediaImage { transform: none; }

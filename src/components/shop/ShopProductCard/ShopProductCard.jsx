@@ -92,6 +92,10 @@ export default function ShopProductCard({ product, view = "grid", priority = fal
       className={`${styles.card} ${view === "list" ? styles.cardList : ""} ${soldOut ? styles.cardSoldOut : ""}`.trim()}
     >
       <div className={styles.media}>
+        {/* Orbital stage graphic. Pure CSS gradients on a single decorative span —
+            no SVG and no raster per card — so 48 cards cost nothing extra. */}
+        <span className={styles.stage} aria-hidden="true" />
+
         {/* Products with extra real views browse in place; a single-image product
             renders exactly the static image it did before. */}
         <ProductMediaCarousel
@@ -126,6 +130,11 @@ export default function ShopProductCard({ product, view = "grid", priority = fal
         >
           <FiHeart aria-hidden="true" />
         </button>
+
+        {/* Signature shaped transition between the media stage and the
+            information surface. Two clipped layers draw a blue hairline that
+            traces a stepped silhouette; symmetric, so RTL needs no change. */}
+        <span className={styles.separator} aria-hidden="true" />
       </div>
 
       <div className={styles.body}>
@@ -152,11 +161,15 @@ export default function ShopProductCard({ product, view = "grid", priority = fal
 
         <p className={`${styles.stock} ${styles[`stock${stock}`] ?? ""}`.trim()}>{stockLabel}</p>
 
+        {/* Purchase dock: price and the cart control share one structural
+            surface, so they read as a single conversion area rather than a
+            button parked next to a number. */}
         <div className={styles.footer}>
           <p className={styles.priceRow}>
             <span className={styles.price}>{formatPrice(price)}</span>
             {oldPrice ? (
               <s className={styles.oldPrice}>
+                {/* Never communicated by strikethrough alone. */}
                 <span className="visually-hidden">{t("product.previousPrice")} </span>
                 {formatPrice(oldPrice)}
               </s>
@@ -171,6 +184,11 @@ export default function ShopProductCard({ product, view = "grid", priority = fal
             aria-label={t(soldOut ? "shop.card.soldOut" : "shop.card.addToCart", { title })}
           >
             {added ? <FiCheck aria-hidden="true" /> : <FiShoppingCart aria-hidden="true" />}
+            {/* The wider list row has space for a real label; the grid card
+                stays icon-only so the price keeps commercial dominance. */}
+            {view === "list" ? (
+              <span className={styles.cartButtonLabel}>{t("shop.card.addToCartShort")}</span>
+            ) : null}
           </button>
         </div>
 

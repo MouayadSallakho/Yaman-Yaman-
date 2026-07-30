@@ -89,8 +89,9 @@
 .bullets {
   position: absolute;
   z-index: 3;
-  /* Safe inset, not hugging the edge. */
-  bottom: 12px;
+  /* Safe inset, not hugging the edge. The consumer can raise it — the shop card
+     needs clearance above its shaped separator. */
+  bottom: var(--carousel-bullets-inset, 12px);
   inset-inline: 0;
   display: flex;
   justify-content: center;

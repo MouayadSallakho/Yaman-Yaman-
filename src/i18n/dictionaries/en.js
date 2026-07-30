@@ -645,6 +645,7 @@ const en = {
       mediaPrevious: "Previous product image",
       mediaNext: "Next product image",
       mediaPosition: "Image {current} of {total}",
+      addToCartShort: "Add to cart",
     },
     grid: {
       /* Announced politely once a batch has been committed. */

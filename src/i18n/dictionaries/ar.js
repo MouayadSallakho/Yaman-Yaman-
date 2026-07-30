@@ -635,6 +635,7 @@ const ar = {
       mediaPrevious: "الصورة السابقة للمنتج",
       mediaNext: "الصورة التالية للمنتج",
       mediaPosition: "الصورة {current} من {total}",
+      addToCartShort: "أضف إلى السلة",
     },
     grid: {
       batchAnnouncement: "تم عرض {added} منتجات إضافية. يتم عرض {shown} من {total}.",
