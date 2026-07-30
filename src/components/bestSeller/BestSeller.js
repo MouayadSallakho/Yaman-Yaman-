@@ -15,6 +15,7 @@ import {
   bestSellerProducts,
   bestSellerCategories,
   productSearchHref,
+  
   PRODUCTS_ROUTE,
 } from "@/components/landing/data/products";
 import { useTranslation } from "@/i18n/LocaleProvider";

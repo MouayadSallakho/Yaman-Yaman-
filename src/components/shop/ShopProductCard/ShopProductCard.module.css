@@ -25,6 +25,112 @@
   opacity: 0.86;
 }
 
+/* ----------------------------------------------------------------- list view */
+/* Same card, recomposed as a row: media inline-start, identity in the middle,
+   price and actions inline-end. Logical properties throughout, so RTL mirrors
+   without a second rule set. */
+.cardList {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 18px;
+  height: auto;
+  padding: 12px;
+}
+
+.cardList:hover,
+.cardList:focus-within {
+  /* A wide row lifting off the page reads as a glitch; keep the shadow only. */
+  transform: none;
+}
+
+.cardList .media {
+  flex: 0 0 200px;
+  width: 200px;
+  max-height: none;
+  align-self: center;
+  border-radius: var(--radius-card);
+}
+
+.cardList .body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "brand   price"
+    "title   price"
+    "meta    price"
+    "rating  actions"
+    "stock   actions";
+  align-items: start;
+  column-gap: 24px;
+  padding: 6px 4px 6px 0;
+}
+
+.cardList .brand { grid-area: brand; }
+.cardList .title { grid-area: title; }
+.cardList .meta { grid-area: meta; }
+.cardList .rating { grid-area: rating; align-self: end; }
+.cardList .stock { grid-area: stock; align-self: end; }
+
+.cardList .title {
+  font-size: 1.05rem;
+  /* A long name wraps instead of being clamped to one cramped line. */
+  -webkit-line-clamp: 2;
+}
+
+/* Price column keeps its own vertical rhythm, aligned to the row's inline end. */
+.cardList .footer {
+  grid-area: price;
+  display: grid;
+  justify-items: end;
+  align-content: start;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.cardList .priceRow { justify-content: flex-end; }
+.cardList .cartButton { grid-area: actions; }
+
+@media (max-width: 699.98px) {
+  /* Stacked intentionally rather than squeezed into a narrow row. */
+  .cardList {
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+  }
+
+  .cardList .media {
+    flex: 1 1 auto;
+    width: auto;
+    /* Capped so a square render does not become a full-width banner and push the
+       row to ~770px tall. */
+    max-height: 240px;
+    align-self: stretch;
+    border-radius: 0;
+  }
+
+  .cardList .body {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "brand"
+      "title"
+      "meta"
+      "rating"
+      "stock"
+      "price";
+    column-gap: 0;
+  }
+
+  .cardList .footer {
+    justify-items: stretch;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+  }
+
+  .cardList .priceRow { justify-content: flex-start; }
+}
+
 /* ---------------------------------------------------------------- media */
 .media {
   position: relative;

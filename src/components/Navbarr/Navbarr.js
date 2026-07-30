@@ -221,7 +221,13 @@ export default function Navbarr() {
           className={styles.brand}
           aria-label={t("branding.homeLabel")}
         >
-          <TechnoLogo variant="light" priority decorative />
+          <TechnoLogo
+            variant="light"
+            priority
+            decorative
+            className={styles.brandLogo}
+            sizes="(max-width: 575px) 108px, 132px"
+          />
         </Link>
 
         <nav

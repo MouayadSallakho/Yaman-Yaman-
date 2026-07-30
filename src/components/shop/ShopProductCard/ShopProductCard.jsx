@@ -5,11 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { FaRegStar, FaStar, FaStarHalfStroke } from "react-icons/fa6";
 import { FiCheck, FiHeart, FiShoppingCart } from "react-icons/fi";
 
-import AssetImage from "@/components/ui/AssetImage/AssetImage";
 import { useToast } from "@/components/ui/Toaster/ToastProvider";
 import { useCart } from "@/context/CartContext";
 import { useTranslation } from "@/i18n/LocaleProvider";
+import ProductMediaCarousel from "../ProductMediaCarousel/ProductMediaCarousel";
 import { discountPercent } from "../data/catalog";
+import { cardMediaFor } from "../data/productCardMedia";
 import styles from "./ShopProductCard.module.css";
 
 const formatPrice = (value) =>
@@ -48,7 +49,7 @@ function Stars({ rating }) {
  * back to the shared AssetImage placeholder, and the title only becomes a link
  * when the product actually has a detail route.
  */
-export default function ShopProductCard({ product, priority = false }) {
+export default function ShopProductCard({ product, view = "grid", priority = false }) {
   const { t } = useTranslation();
   const { addItem } = useCart();
   const { showToast } = useToast();
@@ -56,11 +57,13 @@ export default function ShopProductCard({ product, priority = false }) {
   const [wished, setWished] = useState(false);
   const timerRef = useRef(null);
 
-  const { title, brand, image, price, oldPrice, rating, reviews, badge, stock, meta, detailHref } =
+  const { title, brand, price, oldPrice, rating, reviews, badge, stock, meta, detailHref } =
     product;
 
   const discount = discountPercent(product);
   const soldOut = stock === "out";
+  // Falls back to the product's single catalogue image when it has no extra views.
+  const cardMedia = cardMediaFor(product);
 
   useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
 
@@ -82,18 +85,23 @@ export default function ShopProductCard({ product, priority = false }) {
       : t("shop.stock.in");
 
   return (
-    <article className={`${styles.card} ${soldOut ? styles.cardSoldOut : ""}`.trim()}>
+    /* One card, two compositions. The markup is identical in both views so there
+       is never a duplicated product tree to keep in sync or hide from assistive
+       technology — only the layout class changes. */
+    <article
+      className={`${styles.card} ${view === "list" ? styles.cardList : ""} ${soldOut ? styles.cardSoldOut : ""}`.trim()}
+    >
       <div className={styles.media}>
-        <AssetImage
-          src={image}
+        {/* Products with extra real views browse in place; a single-image product
+            renders exactly the static image it did before. */}
+        <ProductMediaCarousel
+          images={cardMedia}
           alt={title}
-          fill
-          sizes="(max-width: 575px) 46vw, (max-width: 991px) 30vw, (max-width: 1399px) 22vw, 260px"
+          sizes={view === "list" ? "200px" : "(max-width: 599px) 92vw, (max-width: 899px) 46vw, (max-width: 1259px) 31vw, 280px"}
           priority={priority}
           placeholderLabel={title}
-          showPath={false}
           wrapperClassName={styles.mediaStage}
-          className={styles.mediaImage}
+          imageClassName={styles.mediaImage}
         />
 
         <div className={styles.badges}>

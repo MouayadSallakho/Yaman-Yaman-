@@ -14,7 +14,14 @@ const product = ({
   imageSrc,
   imageScale = 1,
   objectPosition = "center",
-  mediaVariant = "cover",
+  /**
+   * `contain` is the default so a product is never cropped by its stage. The
+   * source renders are 2:3, 1:1 and 3:2, none of which match the media stages,
+   * so `cover` scaled every image to the larger axis and cut the rest off — a
+   * portrait phone lost its top and bottom, and wide renders lost their sides.
+   * Safe spacing and per-category size caps live in the CSS.
+   */
+  mediaVariant = "contain",
   isFeatured = false,
 }) => ({
   id,

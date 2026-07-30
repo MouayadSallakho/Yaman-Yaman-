@@ -606,9 +606,9 @@ const ar = {
       noResults: "لا توجد منتجات مطابقة لعوامل التصفية",
       sortBy: "ترتيب حسب",
       openFilters: "فتح عوامل التصفية",
-      densityLabel: "كثافة الشبكة",
-      densityComfortable: "شبكة مريحة",
-      densityCompact: "شبكة مضغوطة",
+      viewLabel: "طريقة عرض المنتجات",
+      viewGrid: "عرض المنتجات في شبكة",
+      viewList: "عرض المنتجات في قائمة",
     },
     chips: {
       label: "مطبَّق",
@@ -632,11 +632,12 @@ const ar = {
       wishlistAdd: "حفظ {title} في قائمة الرغبات",
       wishlistRemove: "إزالة {title} من قائمة الرغبات",
       addedAnnouncement: "تمت إضافة {title} إلى السلة",
+      mediaPrevious: "الصورة السابقة للمنتج",
+      mediaNext: "الصورة التالية للمنتج",
+      mediaPosition: "الصورة {current} من {total}",
     },
     grid: {
-      loadMore: "تحميل {count} إضافية",
-      loading: "جارٍ التحميل…",
-      loadingMore: "جارٍ تحميل مزيد من المنتجات",
+      batchAnnouncement: "تم عرض {added} منتجات إضافية. يتم عرض {shown} من {total}.",
       end: "لقد وصلت إلى نهاية النتائج.",
     },
     empty: {

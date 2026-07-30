@@ -21,8 +21,8 @@ export default function ShopToolbar({
   onSortChange,
   onOpenFilters,
   activeFilterCount,
-  density,
-  onDensityChange,
+  view,
+  onViewChange,
 }) {
   const { t } = useTranslation();
   const sortId = useId();
@@ -70,23 +70,25 @@ export default function ShopToolbar({
         <div
           className={styles.density}
           role="group"
-          aria-label={t("shop.toolbar.densityLabel")}
+          aria-label={t("shop.toolbar.viewLabel")}
         >
           <button
             type="button"
-            className={`${styles.densityButton} ${density === "comfortable" ? styles.densityOn : ""}`.trim()}
-            onClick={() => onDensityChange("comfortable")}
-            aria-pressed={density === "comfortable"}
-            aria-label={t("shop.toolbar.densityComfortable")}
+            className={`${styles.densityButton} ${view === "grid" ? styles.densityOn : ""}`.trim()}
+            onClick={() => onViewChange("grid")}
+            aria-pressed={view === "grid"}
+            aria-label={t("shop.toolbar.viewGrid")}
+            title={t("shop.toolbar.viewGrid")}
           >
             <FiGrid aria-hidden="true" />
           </button>
           <button
             type="button"
-            className={`${styles.densityButton} ${density === "compact" ? styles.densityOn : ""}`.trim()}
-            onClick={() => onDensityChange("compact")}
-            aria-pressed={density === "compact"}
-            aria-label={t("shop.toolbar.densityCompact")}
+            className={`${styles.densityButton} ${view === "list" ? styles.densityOn : ""}`.trim()}
+            onClick={() => onViewChange("list")}
+            aria-pressed={view === "list"}
+            aria-label={t("shop.toolbar.viewList")}
+            title={t("shop.toolbar.viewList")}
           >
             <FiList aria-hidden="true" />
           </button>

@@ -8,7 +8,11 @@ import styles from "./NewArrivalsSection.module.css";
 
 export default function ArrivalProductCard({ product, formatPrice, t }) {
   return (
-    <article className={styles.productCard} data-new-arrivals-card>
+    <article
+      className={styles.productCard}
+      data-new-arrivals-card
+      data-media-role={product.category}
+    >
       <div className={styles.productMedia}>
         <span className={styles.newBadge}>{t("commerce.newArrivals.newBadge")}</span>
         <AssetImage

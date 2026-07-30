@@ -301,11 +301,26 @@
   background: transparent !important;
 }
 
+/* Safe inset around the product. With object-fit: contain, padding on the image
+   shrinks the box the render is fitted into, so this is what creates the breathing
+   room while never cropping — and it scales with the stage rather than being a
+   fixed pixel guess. The lower inset is larger to clear the information panel. */
 .featuredImage {
+  padding: var(--arrival-featured-inset, 9% 24% 38%);
   transition:
     opacity 180ms ease,
     transform 420ms var(--motion-ease) !important;
 }
+
+/* Per-category caps: a tall portrait phone and a wide soundbar cannot share one
+   containment box without one of them reading wrong. Tall renders are constrained
+   on the sides, wide renders top and bottom. */
+/* Note: percentage padding resolves against the element's WIDTH on all four
+   sides, so the vertical values are chosen against that basis, not the height. */
+.featuredCard[data-media-role="phones"] { --arrival-featured-inset: 9% 26% 36%; }
+.featuredCard[data-media-role="audio"] { --arrival-featured-inset: 8% 18% 38%; }
+.featuredCard[data-media-role="wearables"] { --arrival-featured-inset: 7% 21% 36%; }
+.featuredCard[data-media-role="accessories"] { --arrival-featured-inset: 8% 16% 38%; }
 
 .featuredCard:hover .featuredImage {
   transform: scale(1.018) !important;
@@ -343,16 +358,43 @@
   gap: 24px;
   min-height: 34%;
   padding: clamp(20px, 2.3vw, 34px);
+  /* One fine translucent edge, not a stack of borders. */
   border: 1px solid var(--tone-9fcfff-0p3);
   border-radius: 24px;
   color: var(--tone-ffffff-1p0);
+  /* Frosted, not solid. The previous rule layered two near-opaque gradients over
+     a solid base, so the panel read as a dark card and the blur behind it did
+     nothing. A single translucent surface lets a little of the stage atmosphere
+     through while the blur keeps text legible over any product.
+     First declaration is the solid fallback for engines without color-mix; the
+     alpha is derived from the existing tokens (which bake opacity into their
+     names) rather than inventing new ones. */
   background:
-    linear-gradient(120deg, var(--tone-061f46-0p93), var(--tone-06285b-0p78)),
-    var(--tone-051c42-0p82);
+    linear-gradient(120deg, var(--tone-061f46-0p93), var(--tone-06285b-0p78));
+  background:
+    linear-gradient(
+      120deg,
+      color-mix(in srgb, var(--tone-061f46-0p93) 74%, transparent),
+      color-mix(in srgb, var(--tone-06285b-0p78) 84%, transparent)
+    );
   box-shadow:
-    0 20px 40px var(--tone-021230-0p28),
-    inset 0 1px 0 var(--tone-ffffff-0p16);
-  backdrop-filter: blur(15px) saturate(120%);
+    0 16px 34px var(--tone-021230-0p28),
+    /* Soft top-edge highlight — the only glass "shine" used. */
+    inset 0 1px 0 var(--tone-ffffff-0p18);
+  /* Standard property only. Pairing it with the legacy -webkit- form made the CSS
+     transformer collapse the two into the obsolete prefixed property, which this
+     engine does not support, so the blur silently disappeared. */
+  backdrop-filter: blur(18px) saturate(132%);
+}
+
+/* Without backdrop-filter the panel must not rely on blur for contrast, so the
+   surface becomes near-opaque and keeps the same border, radius and spacing. */
+@supports not (backdrop-filter: blur(2px)) {
+  .featuredOverlay {
+    background:
+      linear-gradient(120deg, var(--tone-061f46-0p93), var(--tone-06285b-0p78)),
+      var(--tone-051c42-0p82);
+  }
 }
 
 .featuredCopy {
@@ -507,11 +549,20 @@
   border-radius: inherit;
 }
 
+/* Same containment principle as the featured stage, tuned for the smaller card:
+   every product keeps its full silhouette (watch straps, both earbuds plus case,
+   full headband, whole case outline) rather than being cropped to a fragment. */
 .productImage {
+  padding: var(--arrival-card-inset, 11% 16%);
   transition:
     opacity 180ms ease,
     transform 320ms var(--motion-ease) !important;
 }
+
+.productCard[data-media-role="phones"] { --arrival-card-inset: 8% 26%; }
+.productCard[data-media-role="audio"] { --arrival-card-inset: 8% 13%; }
+.productCard[data-media-role="wearables"] { --arrival-card-inset: 8% 20%; }
+.productCard[data-media-role="accessories"] { --arrival-card-inset: 8% 13%; }
 
 .productCard:hover .productImage {
   transform: scale(1.025) !important;

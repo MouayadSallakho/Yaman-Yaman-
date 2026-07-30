@@ -91,8 +91,12 @@
   will-change: transform, opacity;
 }
 
+/* Intro-specific size only — TechnoLogo's shared base is untouched. At 430px the
+   wordmark overpowered the tagline and crowded the orbiting products; 324px keeps
+   it dominant without swallowing the composition. The clamp floor also sets the
+   mobile size, since no mobile override exists for this element. */
 .introBrand {
-  width: clamp(220px, 38vw, 430px) !important;
+  width: clamp(190px, 26vw, 324px) !important;
 }
 
 .tagline {

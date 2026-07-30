@@ -34,7 +34,7 @@ function CartItemRow({ line, onQuantity, onRemove, onWishlist }) {
           src={line.image}
           alt={line.title}
           fill
-          sizes="110px"
+          sizes="96px"
           showPath={false}
           placeholderLabel={line.title}
           wrapperClassName={styles.rowMediaStage}

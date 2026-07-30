@@ -616,9 +616,9 @@ const en = {
       noResults: "No products match your filters",
       sortBy: "Sort by",
       openFilters: "Open filters",
-      densityLabel: "Grid density",
-      densityComfortable: "Comfortable grid",
-      densityCompact: "Compact grid",
+      viewLabel: "Product view",
+      viewGrid: "Show products in grid view",
+      viewList: "Show products in list view",
     },
     chips: {
       label: "Active",
@@ -642,11 +642,13 @@ const en = {
       wishlistAdd: "Save {title} to wishlist",
       wishlistRemove: "Remove {title} from wishlist",
       addedAnnouncement: "{title} added to cart",
+      mediaPrevious: "Previous product image",
+      mediaNext: "Next product image",
+      mediaPosition: "Image {current} of {total}",
     },
     grid: {
-      loadMore: "Load {count} more",
-      loading: "Loading…",
-      loadingMore: "Loading more products",
+      /* Announced politely once a batch has been committed. */
+      batchAnnouncement: "{added} more products displayed. Showing {shown} of {total}.",
       end: "You have reached the end of the results.",
     },
     empty: {

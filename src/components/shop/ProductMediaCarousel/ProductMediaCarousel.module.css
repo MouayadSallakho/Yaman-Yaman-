@@ -1,0 +1,135 @@
+.viewport {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Vertical page scrolling stays with the page; only horizontal is ours. */
+  touch-action: pan-y;
+  /* Kill the native image-drag ghost, which otherwise fires pointercancel and
+     ends the gesture after a single move. */
+  user-select: none;
+  -webkit-user-drag: none;
+  cursor: grab;
+}
+
+.viewport[data-dragging] { cursor: grabbing; }
+
+.track {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+}
+
+/* Neighbour placement lives in CSS, not in a runtime-dir inline style: the class
+   names are identical on the server and the client, so RTL cannot cause a
+   hydration mismatch, and the mirroring is expressed once here. */
+.slidePrev { transform: translate3d(-100%, 0, 0); }
+.slideNext { transform: translate3d(100%, 0, 0); }
+
+[dir="rtl"] .slidePrev { transform: translate3d(100%, 0, 0); }
+[dir="rtl"] .slideNext { transform: translate3d(-100%, 0, 0); }
+
+/* The viewport owns every pointer interaction. Without this the browser starts
+   its own native image-drag on the <img> and fires pointercancel, which kills the
+   swipe after a single move — and -webkit-user-drag does not inherit. */
+.slide img {
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* ------------------------------------------------------------------ arrows */
+.arrow {
+  position: absolute;
+  z-index: 3;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  /* 40px interactive target while the visible disc stays smaller and quiet. */
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 50%;
+  background: var(--tone-ffffff-0p92);
+  color: var(--tone-08213a-1p0);
+  font-size: 1rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--motion-fast) var(--motion-ease), background var(--motion-fast) var(--motion-ease);
+}
+
+.arrowPrev { inset-inline-start: 8px; }
+.arrowNext { inset-inline-end: 8px; }
+
+/* Pointer-capable screens reveal the arrows on hover or keyboard focus. Touch
+   relies on the swipe plus the indicators, so nothing covers the product. */
+@media (hover: hover) and (pointer: fine) {
+  .viewport:hover .arrow,
+  .viewport:focus-within .arrow { opacity: 1; }
+}
+
+@media (hover: none) {
+  .arrow { display: none; }
+}
+
+.arrow:hover { background: var(--tone-ffffff-1p0); }
+
+.arrow:focus-visible {
+  opacity: 1;
+  outline: 3px solid var(--brand-primary);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------------- bullets */
+.bullets {
+  position: absolute;
+  z-index: 3;
+  /* Safe inset, not hugging the edge. */
+  bottom: 12px;
+  inset-inline: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  pointer-events: none;
+}
+
+.bullet {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--tone-08213a-1p0);
+  opacity: 0.28;
+  transition:
+    width var(--motion-fast) var(--motion-ease),
+    opacity var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease);
+}
+
+/* Shape as well as colour carries the active state, so it never depends on
+   colour perception alone. */
+.bulletActive {
+  width: 16px;
+  opacity: 1;
+  background: var(--brand-primary);
+}
+
+.live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track { transition: none !important; }
+  .bullet { transition: none; }
+  .arrow { transition: none; }
+}

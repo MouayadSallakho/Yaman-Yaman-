@@ -41,16 +41,16 @@ export default function ShopPage() {
 
   const {
     visibleItems,
-    hasMore,
-    isLoadingMore,
-    loadMore,
+    visibleCount,
+    lastAdded,
     sentinelRef,
-    remaining,
   } = useProgressiveList(results, queryKey);
 
   const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [density, setDensity] = useState("comfortable");
+  // Grid is the stable default; view mode is page-local so it never has to be
+  // hydrated from storage or a URL param.
+  const [view, setView] = useState("grid");
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -153,8 +153,8 @@ export default function ShopPage() {
                 onSortChange={actions.setSort}
                 onOpenFilters={() => setDrawerOpen(true)}
                 activeFilterCount={activeCount}
-                density={density}
-                onDensityChange={setDensity}
+                view={view}
+                onViewChange={setView}
               />
             )}
 
@@ -172,12 +172,11 @@ export default function ShopPage() {
             ) : (
               <ProductGrid
                 products={visibleItems}
-                density={density}
+                view={view}
                 isInitialLoading={isFirstLoad}
-                isLoadingMore={isLoadingMore}
-                hasMore={hasMore}
-                remaining={remaining}
-                onLoadMore={loadMore}
+                visibleCount={visibleCount}
+                total={results.length}
+                lastAdded={lastAdded}
                 sentinelRef={sentinelRef}
               />
             )}

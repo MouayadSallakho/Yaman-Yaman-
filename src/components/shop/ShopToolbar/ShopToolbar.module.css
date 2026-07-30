@@ -100,8 +100,9 @@
 .densityButton {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
+  /* 44px interactive target; the visible surface is the button itself. */
+  width: 44px;
+  height: 44px;
   padding: 0;
   border: 0;
   border-radius: 9px;
@@ -123,7 +124,13 @@
 
 @media (max-width: 991.98px) {
   .filterTrigger { display: inline-flex; }
-  /* Density is a desktop refinement; mobile keeps one comfortable layout. */
+}
+
+@media (max-width: 599.98px) {
+  /* The view toggle previously vanished below 992px, leaving it unreachable on
+     tablet — where a 2–3 column grid benefits most from a list alternative. It
+     now hides only on the narrowest phones, where the grid is already a single
+     column and therefore effectively a list already. */
   .density { display: none; }
 }
 

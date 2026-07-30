@@ -59,10 +59,12 @@
 
 .mobileIntro { display: none; }
 
+/* Roughly 7.4 / 4.6 of a 12-column field: the gallery stays dominant while the
+   purchase panel keeps enough width to read as deliberate rather than squeezed. */
 .heroGrid {
   display: grid;
-  grid-template-columns: minmax(0, 1.48fr) minmax(350px, 0.86fr);
-  gap: clamp(18px, 1.7vw, 26px);
+  grid-template-columns: minmax(0, 7.4fr) minmax(360px, 4.6fr);
+  gap: clamp(20px, 2vw, 32px);
   align-items: start;
 }
 
@@ -84,7 +86,15 @@
 
 .galleryStage {
   position: relative;
-  min-height: clamp(520px, 43vw, 650px);
+  /* Card size is expressed as a share of the stage so one slot table serves
+     every breakpoint — no per-breakpoint repositioning of individual cards.
+     Only the height is raised for the 2:3 portrait product assets: the orbit's
+     x offsets are card-width-relative, so widening the box would tighten the
+     spacing the slot model already defines. Taller box + object-fit: contain
+     makes the product larger without moving any card. */
+  --orbit-card-w: 38%;
+  --orbit-card-h: 74%;
+  min-height: clamp(480px, 36vw, 548px);
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--tone-ffffff-0p76);
@@ -151,47 +161,84 @@
   letter-spacing: 0.08em;
 }
 
+/* Every card shares one identical box, centred with margins so the transform is
+   free to express the orbit. Slot differences are transform + opacity only, which
+   is what makes a card able to travel from one slot to another.
+   GSAP owns transform/opacity/z-index at runtime; the [data-slot] rules below are
+   the equivalent static composition, so the deck is correct before GSAP runs and
+   stays usable if it never does. Deliberately no transition on transform here —
+   CSS and GSAP must not both drive it. */
 .galleryPanel {
   position: absolute;
   z-index: 4;
-  top: 18%;
-  width: 20%;
-  height: 56%;
+  /* Centred with calc() rather than negative margins: a percentage margin
+     resolves against the container's WIDTH, so margin-top would offset the card
+     by a share of the stage width and float it above centre. In `top`/`left` the
+     percentages resolve against height and width respectively, as intended. */
+  top: calc(50% - (var(--orbit-card-h) / 2));
+  left: calc(50% - (var(--orbit-card-w) / 2));
+  width: var(--orbit-card-w);
+  height: var(--orbit-card-h);
   padding: 0;
-  overflow: hidden;
-  border: 1px solid var(--tone-ffffff-0p7);
-  border-radius: 24px;
-  background: var(--tone-f4faff-0p56);
-  box-shadow: 0 20px 48px var(--tone-143963-0p16), inset 0 1px 0 var(--tone-ffffff-0p86);
+  /* Deliberately no background, border, radius, shadow or backdrop-filter: the
+     product image is the subject, and the panel exists only to own the transform,
+     the pointer hit area, z-order and accessibility. It stays a full-size
+     invisible surface so the user never has to hit transparent pixels. */
+  border: 0;
+  background: none;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  /* Without this the browser starts its own native image-drag on pointerdown and
+     fires pointercancel, which kills the deck's drag gesture after one move. */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Focus is an outline rather than a ring-shaped shadow, so keyboard focus never
+   reads as the card shell we just removed. */
+.galleryPanel:focus-visible {
+  outline: 3px solid var(--tone-0876ed-1p0);
+  outline-offset: 6px;
+  border-radius: 12px;
+}
+
+/* Static slot composition (pre-GSAP / no-GSAP fallback). */
+.galleryPanel[data-slot="active"] {
+  z-index: 30;
+  opacity: 1;
+  transform: translateZ(40px);
   cursor: zoom-in;
-  backdrop-filter: blur(14px);
-  transition: border-color 220ms ease, box-shadow 220ms ease, filter 220ms ease;
 }
 
-.galleryPanel:hover {
-  border-color: var(--tone-ffffff-0p98);
-  box-shadow: 0 25px 58px var(--tone-143963-0p22), inset 0 1px 0 var(--tone-ffffff-1p0);
-  filter: brightness(1.025);
+.galleryPanel[data-slot="near-prev"] { z-index: 20; opacity: 0.92; transform: translate3d(-78%, 0, -60px) rotateY(22deg) rotateZ(-1.2deg) scale(0.72); }
+.galleryPanel[data-slot="near-next"] { z-index: 20; opacity: 0.92; transform: translate3d(78%, 0, -60px) rotateY(-22deg) rotateZ(1.2deg) scale(0.72); }
+.galleryPanel[data-slot="far-prev"] { z-index: 10; opacity: 0.55; transform: translate3d(-128%, 0, -150px) rotateY(30deg) rotateZ(-1.6deg) scale(0.55); }
+.galleryPanel[data-slot="far-next"] { z-index: 10; opacity: 0.55; transform: translate3d(128%, 0, -150px) rotateY(-30deg) rotateZ(1.6deg) scale(0.55); }
+
+.galleryPanel[data-slot="hidden"] {
+  z-index: 0;
+  opacity: 0;
+  transform: translate3d(-150%, 0, -240px) scale(0.44);
+  pointer-events: none;
 }
 
-.galleryPanel:focus-visible { box-shadow: 0 0 0 4px var(--tone-0876ed-0p22); }
+[dir="rtl"] .galleryPanel[data-slot="near-prev"] { transform: translate3d(78%, 0, -60px) rotateY(-22deg) rotateZ(1.2deg) scale(0.72); }
+[dir="rtl"] .galleryPanel[data-slot="near-next"] { transform: translate3d(-78%, 0, -60px) rotateY(22deg) rotateZ(-1.2deg) scale(0.72); }
+[dir="rtl"] .galleryPanel[data-slot="far-prev"] { transform: translate3d(128%, 0, -150px) rotateY(-30deg) rotateZ(1.6deg) scale(0.55); }
+[dir="rtl"] .galleryPanel[data-slot="far-next"] { transform: translate3d(-128%, 0, -150px) rotateY(30deg) rotateZ(-1.6deg) scale(0.55); }
 
-.center {
-  z-index: 9;
-  top: 8%;
-  left: 25%;
-  width: 50%;
-  height: 72%;
-  transform: translateZ(36px);
-  border-radius: 30px;
-  background: linear-gradient(148deg, var(--tone-ffffff-0p9), var(--tone-daedfc-0p56));
-  box-shadow: 0 34px 84px var(--tone-143a69-0p24), inset 0 1px 0 var(--tone-ffffff-1p0);
+/* Hidden cards must never be reachable, whatever GSAP last wrote inline. */
+.galleryStage[data-dragging] .galleryPanel { cursor: grabbing; }
+
+.liveRegion {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
-
-.left1 { left: 8%; transform: rotateY(19deg) scale(0.95); }
-.left2 { left: -7%; transform: rotateY(29deg) scale(0.82); opacity: 0.72; }
-.right1 { right: 8%; transform: rotateY(-19deg) scale(0.95); }
-.right2 { right: -7%; transform: rotateY(-29deg) scale(0.82); opacity: 0.72; }
 
 .panelMedia,
 .thumbnailMedia,
@@ -200,31 +247,31 @@
   inset: 0;
 }
 
-.panelImage { filter: drop-shadow(0 22px 26px var(--tone-183152-0p24)); }
-
-.panelCaption {
-  position: absolute;
-  z-index: 5;
-  left: 12px;
-  right: 12px;
-  bottom: 10px;
-  overflow: hidden;
-  color: var(--tone-163654-1p0);
-  font-size: 0.7rem;
-  font-weight: 800;
-  text-align: center;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+/* AssetImage's shared .slot paints its own light gradient stage. Inside the orbit
+   that reads as exactly the card we just removed, so it is neutralised here only —
+   scoped through .galleryPanel to outrank .slot without touching the shared
+   component, so thumbnails and every other AssetImage keep their stage.
+   overflow is opened up so the product's drop-shadow is not clipped at the
+   letterbox edges of the contained image. */
+.galleryPanel .panelMedia {
+  background: none;
+  overflow: visible;
 }
 
-.center .panelCaption {
-  bottom: 16px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  color: var(--tone-ffffff-1p0);
-  background: var(--tone-062348-0p48);
-  backdrop-filter: blur(10px);
+/* The panel owns every pointer interaction; the image must not be a drag source
+   or an event target of its own.
+   The drop-shadow follows the image's alpha silhouette, so with the transparent
+   product assets it grounds the product itself rather than drawing a card. */
+.panelImage {
+  filter: drop-shadow(0 18px 22px var(--tone-183152-0p24));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
+
+/* No visible caption is rendered over the orbit any more. The same descriptions
+   remain available through image alt text, the thumbnail accessible names, the
+   settled-image live announcement and the Fancybox captions. */
 
 .galleryArrow {
   position: absolute;
@@ -247,25 +294,6 @@
 .galleryArrow:hover { transform: translateY(-3px); box-shadow: 0 14px 30px var(--tone-123a68-0p22); }
 .previousArrow { left: 16px; }
 .nextArrow { right: 16px; }
-
-.dragHint {
-  position: absolute;
-  z-index: 20;
-  left: 50%;
-  bottom: 17px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  transform: translateX(-50%);
-  padding: 8px 14px;
-  border: 1px solid var(--tone-ffffff-0p68);
-  border-radius: 999px;
-  color: var(--tone-ffffff-1p0);
-  background: var(--tone-08264c-0p54);
-  backdrop-filter: blur(10px);
-  font-size: 0.73rem;
-  font-weight: 800;
-}
 
 .thumbnailRail {
   display: grid;
@@ -542,12 +570,8 @@
 
 @media (max-width: 1180px) {
   .container { width: min(100% - 32px, 1160px); }
-  .heroGrid { grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr); }
-  .galleryStage { min-height: 560px; }
-  .center { left: 22%; width: 56%; }
-  .left1 { left: 4%; }
-  .right1 { right: 4%; }
-  .left2, .right2 { opacity: 0.48; }
+  .heroGrid { grid-template-columns: minmax(0, 7.2fr) minmax(340px, 4.8fr); }
+  .galleryStage { min-height: clamp(450px, 40vw, 500px); }
   .trustRow { grid-template-columns: 1fr; }
 }
 
@@ -556,8 +580,7 @@
   .container { width: min(100% - 28px, 900px); }
   .heroGrid { grid-template-columns: 1fr; }
   .purchasePanel { position: static; }
-  .galleryStage { min-height: 590px; }
-  .center { left: 23%; width: 54%; }
+  .galleryStage { min-height: clamp(380px, 52vw, 470px); --orbit-card-w: 42%; }
   .thumbnailRail { grid-template-columns: repeat(8, minmax(86px, 1fr)); }
   .trustRow { grid-template-columns: repeat(3, 1fr); }
   .overviewPanel, .cameraPanel { grid-template-columns: 1fr; }
@@ -578,17 +601,16 @@
   .mobileIntro a { color: var(--tone-0870d8-1p0); }
   .purchaseHeader, .productIdentity, .ratingRow { display: none; }
   .galleryShell { padding: 10px; border-radius: 23px; }
-  .galleryStage { min-height: min(112vw, 500px); border-radius: 18px; }
-  .left2, .right2 { display: none; }
-  .center { top: 8%; left: 13%; width: 74%; height: 70%; }
-  .left1 { left: -16%; width: 34%; opacity: 0.52; transform: rotateY(14deg) scale(0.88); }
-  .right1 { right: -16%; width: 34%; opacity: 0.52; transform: rotateY(-14deg) scale(0.88); }
-  .panelCaption { display: none; }
+  .galleryStage {
+    min-height: min(96vw, 380px);
+    border-radius: 18px;
+    --orbit-card-w: 54%;
+    --orbit-card-h: 72%;
+  }
   .counter { top: 12px; left: 12px; }
-  .galleryArrow { top: 44%; width: 43px; height: 43px; }
+  .galleryArrow { top: 44%; width: 44px; height: 44px; }
   .previousArrow { left: 8px; }
   .nextArrow { right: 8px; }
-  .dragHint { bottom: 12px; }
   .thumbnailRail { grid-template-columns: repeat(8, 82px); margin-top: 9px; }
   .thumbnail { height: 76px; }
   .openGalleryButton { min-height: 40px; }
@@ -610,9 +632,8 @@
   .page { padding-bottom: 62px; }
   .container { width: calc(100% - 16px); }
   .breadcrumb span:nth-last-child(2), .breadcrumb span:nth-last-child(3) { display: none; }
-  .galleryStage { min-height: 108vw; }
-  .center { left: 11%; width: 78%; }
-  .left1, .right1 { display: none; }
+  /* Near cards stay on stage here — a single card gives no sense of an orbit. */
+  .galleryStage { min-height: min(98vw, 360px); --orbit-card-w: 58%; }
   .storageOptions { grid-template-columns: 1fr; }
   .storageOption span { min-height: 45px; }
   .quantityAndStatus { align-items: start; flex-direction: column; }
@@ -628,7 +649,6 @@
 [dir="rtl"] .overviewStat { right: auto; left: 18px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .galleryPanel,
   .galleryArrow,
   .thumbnail,
   .openGalleryButton,

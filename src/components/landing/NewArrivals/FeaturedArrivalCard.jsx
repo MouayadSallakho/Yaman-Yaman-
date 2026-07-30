@@ -8,7 +8,14 @@ import styles from "./NewArrivalsSection.module.css";
 
 export default function FeaturedArrivalCard({ product, formatPrice, t }) {
   return (
-    <article className={styles.featuredCard} data-new-arrivals-featured>
+    /* data-media-role drives per-category size caps in CSS — a tall phone and a
+       wide soundbar cannot share one containment box without one of them looking
+       wrong. It reuses the existing `category` field, so no product data changes. */
+    <article
+      className={styles.featuredCard}
+      data-new-arrivals-featured
+      data-media-role={product.category}
+    >
       <div className={styles.featuredGlow} aria-hidden="true" data-new-arrivals-glow />
       <span className={styles.newBadge}>{t("commerce.newArrivals.newBadge")}</span>
 

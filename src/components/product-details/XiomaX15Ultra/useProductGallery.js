@@ -2,63 +2,57 @@
 
 import { useCallback, useRef, useState } from "react";
 
-const DRAG_THRESHOLD = 46;
-
+/**
+ * Active-image state for the orbit gallery.
+ *
+ * This owns *which* image is active and nothing about how cards move — pointer
+ * dragging and all positional transforms belong to useProductOrbitGalleryMotion,
+ * so the two never write the same properties.
+ */
 export default function useProductGallery(itemCount, dir = "ltr") {
   const [activeIndex, setActiveIndex] = useState(0);
-  const pointerStart = useRef(null);
-  const dragged = useRef(false);
   const thumbnailRefs = useRef([]);
 
+  /** Keeps the chosen thumbnail in view, and optionally moves focus to it. */
+  const revealThumbnail = useCallback((index, focus) => {
+    requestAnimationFrame(() => {
+      thumbnailRefs.current[index]?.scrollIntoView?.({ behavior: "smooth", inline: "nearest", block: "nearest" });
+      if (focus) thumbnailRefs.current[index]?.focus?.({ preventScroll: true });
+    });
+  }, []);
+
+  /**
+   * Navigation is never blocked or debounced. The active index is the single
+   * source of truth, and the motion hook rebuilds every slot from it off the
+   * cards' current positions — so rapid or alternating input retargets
+   * immediately instead of being dropped, and still cannot desync.
+   */
   const select = useCallback((index, focus = false) => {
     const normalized = ((index % itemCount) + itemCount) % itemCount;
+    if (normalized === activeIndex) return;
     setActiveIndex(normalized);
-    requestAnimationFrame(() => {
-      thumbnailRefs.current[normalized]?.scrollIntoView?.({ behavior: "smooth", inline: "nearest", block: "nearest" });
-      if (focus) thumbnailRefs.current[normalized]?.focus?.({ preventScroll: true });
-    });
-  }, [itemCount]);
+    revealThumbnail(normalized, focus);
+  }, [activeIndex, itemCount, revealThumbnail]);
 
-  const next = useCallback(() => select(activeIndex + 1), [activeIndex, select]);
-  const previous = useCallback(() => select(activeIndex - 1), [activeIndex, select]);
+  const step = useCallback((delta, focus = false) => {
+    if (!delta) return;
+    const normalized = (((activeIndex + delta) % itemCount) + itemCount) % itemCount;
+    setActiveIndex(normalized);
+    revealThumbnail(normalized, focus);
+  }, [activeIndex, itemCount, revealThumbnail]);
 
-  function onKeyDown(event) {
-    if (event.key === "ArrowRight") { event.preventDefault(); select(activeIndex + (dir === "rtl" ? -1 : 1), true); }
-    else if (event.key === "ArrowLeft") { event.preventDefault(); select(activeIndex + (dir === "rtl" ? 1 : -1), true); }
+  const next = useCallback(() => step(1), [step]);
+  const previous = useCallback(() => step(-1), [step]);
+
+  const onKeyDown = useCallback((event) => {
+    // In RTL the visual orbit is mirrored, so the arrows keep their on-screen
+    // meaning rather than their index meaning.
+    const forward = dir === "rtl" ? -1 : 1;
+    if (event.key === "ArrowRight") { event.preventDefault(); step(forward, true); }
+    else if (event.key === "ArrowLeft") { event.preventDefault(); step(-forward, true); }
     else if (event.key === "Home") { event.preventDefault(); select(0, true); }
     else if (event.key === "End") { event.preventDefault(); select(itemCount - 1, true); }
-  }
+  }, [dir, itemCount, select, step]);
 
-  function onPointerDown(event) {
-    pointerStart.current = event.clientX;
-    dragged.current = false;
-  }
-
-  function onPointerMove(event) {
-    if (pointerStart.current === null) return;
-    if (Math.abs(event.clientX - pointerStart.current) <= 8) return;
-
-    dragged.current = true;
-    // Capture only once a real drag starts. Capturing on pointerdown would
-    // retarget the following click to the stage, so the arrows and the panel
-    // buttons inside it would never receive it.
-    if (!event.currentTarget.hasPointerCapture?.(event.pointerId)) {
-      event.currentTarget.setPointerCapture?.(event.pointerId);
-    }
-  }
-
-  function onPointerUp(event) {
-    if (pointerStart.current === null) return;
-    const distance = event.clientX - pointerStart.current;
-    pointerStart.current = null;
-    if (Math.abs(distance) >= DRAG_THRESHOLD) select(activeIndex + (distance > 0 ? -1 : 1));
-  }
-
-  function consumeDrag() {
-    const value = dragged.current;
-    dragged.current = false;
-    return value;
-  }
-
-  return { activeIndex, select, next, previous, onKeyDown, onPointerDown, onPointerMove, onPointerUp, consumeDrag, thumbnailRefs };
+  return { activeIndex, select, step, next, previous, onKeyDown, thumbnailRefs };
 }

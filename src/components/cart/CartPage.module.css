@@ -59,9 +59,11 @@
 }
 
 /* ----------------------------------------------------------------- layout */
+/* Roughly an 8/4 split of a 12-column field, so the summary reads as a column of
+   the same grid rather than a narrow strip beside a very wide items panel. */
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 348px;
+  grid-template-columns: minmax(0, 7.9fr) minmax(320px, 4.1fr);
   gap: clamp(18px, 2.2vw, 32px);
   align-items: start;
 }
@@ -116,12 +118,15 @@
   list-style: none;
 }
 
+/* The 104px square was not crowding the row horizontally (measured at 11% of row
+   width), but it was the tallest thing in it and so set the row height at ~154px.
+   88px trims the row to ~130px without making the product unrecognisable. */
 .row {
   display: grid;
-  grid-template-columns: 104px minmax(0, 1fr) 106px auto 110px;
+  grid-template-columns: 88px minmax(0, 1fr) 106px auto 110px;
   gap: 16px;
   align-items: center;
-  padding-block: 18px;
+  padding-block: 15px;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -384,8 +389,8 @@
 
 /* --------------------------------------------------------------- responsive */
 @media (max-width: 1199.98px) {
-  .layout { grid-template-columns: minmax(0, 1fr) 310px; }
-  .row { grid-template-columns: 92px minmax(0, 1fr) auto 100px; }
+  .layout { grid-template-columns: minmax(0, 7.6fr) minmax(300px, 4.4fr); }
+  .row { grid-template-columns: 84px minmax(0, 1fr) auto 100px; }
   /* Unit price folds away; the line total carries the money column. */
   .rowUnit { display: none; }
 }
@@ -400,7 +405,7 @@
 
   /* Card-style rows instead of a squeezed desktop grid. */
   .row {
-    grid-template-columns: 84px minmax(0, 1fr);
+    grid-template-columns: 76px minmax(0, 1fr);
     gap: 12px;
     align-items: start;
   }
