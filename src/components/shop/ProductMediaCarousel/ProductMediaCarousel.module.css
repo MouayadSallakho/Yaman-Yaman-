@@ -89,14 +89,14 @@
 .bullets {
   position: absolute;
   z-index: 3;
-  /* Safe inset, not hugging the edge. The consumer can raise it — the shop card
-     needs clearance above its shaped separator. */
+  /* Safe inset, not hugging the edge. The consumer owns the exact value — the
+     shop card seats the strip inside its separator's centre platform. */
   bottom: var(--carousel-bullets-inset, 12px);
   inset-inline: 0;
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   pointer-events: none;
 }
 
@@ -104,19 +104,20 @@
   width: 5px;
   height: 5px;
   border-radius: 999px;
-  background: var(--tone-08213a-1p0);
-  opacity: 0.28;
+  /* A quiet blue-grey that still reads on a white surface. The previous 28%
+     navy washed out to roughly 1.6:1 once it left the product image. */
+  background: var(--tone-98a4b5-1p0);
   transition:
     width var(--motion-fast) var(--motion-ease),
-    opacity var(--motion-fast) var(--motion-ease),
+    height var(--motion-fast) var(--motion-ease),
     background var(--motion-fast) var(--motion-ease);
 }
 
 /* Shape as well as colour carries the active state, so it never depends on
    colour perception alone. */
 .bulletActive {
-  width: 16px;
-  opacity: 1;
+  width: 18px;
+  height: 6px;
   background: var(--brand-primary);
 }
 

@@ -45,6 +45,42 @@ function Stars({ rating }) {
 }
 
 /**
+ * Media-to-information transition: one thin brand hairline that steps up over a
+ * shallow centre platform, and the platform is what holds the media indicators.
+ *
+ * Drawn as a stretched SVG rather than a clipped polygon. The shoulders meet the
+ * platform through cubics with horizontal tangents at both ends, so the line has
+ * no corner to alias and stays crisp at any browser zoom. The viewBox is 22
+ * units tall and the band is 22px tall, so the vertical geometry — and with it
+ * the gap down to the indicators — is exact at every card width, while only the
+ * horizontal run stretches.
+ */
+const SEPARATOR_OUTLINE = "M0 13H16C23 13 23 2.5 30 2.5H70C77 2.5 77 13 84 13H100";
+
+function CardSeparator() {
+  return (
+    <svg
+      className={styles.separator}
+      viewBox="0 0 100 22"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {/* The information surface, so the media stage stops at the hairline.
+          Painted first; the stroke then sits on top of it at full weight. */}
+      <path className={styles.separatorFill} d={`${SEPARATOR_OUTLINE}V22H0Z`} />
+      <path
+        className={styles.separatorLine}
+        d={SEPARATOR_OUTLINE}
+        /* Keeps the hairline an even 1.5px even though the viewBox is stretched
+           horizontally, so the curves are not thinner than the flat runs. */
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
+  );
+}
+
+/**
  * Shop grid card. Every visual element degrades safely: missing imagery falls
  * back to the shared AssetImage placeholder, and the title only becomes a link
  * when the product actually has a detail route.
@@ -132,9 +168,9 @@ export default function ShopProductCard({ product, view = "grid", priority = fal
         </button>
 
         {/* Signature shaped transition between the media stage and the
-            information surface. Two clipped layers draw a blue hairline that
-            traces a stepped silhouette; symmetric, so RTL needs no change. */}
-        <span className={styles.separator} aria-hidden="true" />
+            information surface. Symmetric, so RTL needs no change. The media
+            indicators sit in its centre platform, below the hairline. */}
+        <CardSeparator />
       </div>
 
       <div className={styles.body}>

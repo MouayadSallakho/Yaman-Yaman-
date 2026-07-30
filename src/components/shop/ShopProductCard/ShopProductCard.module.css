@@ -10,10 +10,10 @@
   --card-dock-h: 46px;
   --card-body-pad: 14px;
   --card-body-pad-bottom: 12px;
-  /* Shared silhouette for the shaped separator, reused by both of its layers. */
-  --card-sep-shape: polygon(
-    0 100%, 0 62%, 14% 62%, 21% 0, 79% 0, 86% 62%, 100% 62%, 100% 100%
-  );
+  /* Height of the shaped transition band. It matches the separator SVG's viewBox
+     height, so the platform hairline lands 18.5px above the media's bottom edge
+     and the indicator inset below can be reasoned about in real pixels. */
+  --card-sep-h: 22px;
 
   position: relative;
   display: flex;
@@ -80,6 +80,12 @@
   border-radius: var(--radius-card);
 }
 
+/* The platform only means something where media sits directly above the
+   information surface. In the row the media is a free-standing rounded tile, so
+   the band is dropped and the indicators return to a plain inset inside it —
+   same pill, no notch forced into a layout that has no seam to bridge. */
+.cardList .separator { display: none; }
+
 .cardList .body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -125,16 +131,25 @@
 .cardList .footer { background: none; min-height: 0; }
 .cardList .footer::before { display: none; }
 
-/* A wide row has space for a real label, and the angular chamfer only makes
-   sense where the control meets the card corner. */
+/* A wide row has space for a real label, and the slant only reads where the
+   control meets the card corner — in mid-row it would be an arbitrary notch. */
 .cardList .cartButton {
   grid-area: actions;
   width: auto;
   min-width: 132px;
   padding-inline: 16px;
   margin: 0;
+  /* A free-standing control sits on the surface, so the lift becomes a normal
+     contact shadow rather than a glow rising into a dock above it. */
+  --cart-lift: drop-shadow(0 2px 6px var(--tone-0492d0-0p18));
+  font-size: 1.05rem;
+}
+
+.cardList .cartButton::after { display: none; }
+
+.cardList .cartButton::before {
+  inset-inline: 0;
   border-radius: var(--radius-button);
-  clip-path: none;
 }
 
 .cardList .cartButtonLabel { display: inline; font-size: 0.82rem; }
@@ -155,7 +170,11 @@
     max-height: 240px;
     align-self: stretch;
     border-radius: 0;
+    /* Stacked, the geometry is the grid card's again: media above information. */
+    --carousel-bullets-inset: 5px;
   }
+
+  .cardList .separator { display: block; }
 
   .cardList .body {
     grid-template-columns: minmax(0, 1fr);
@@ -186,8 +205,11 @@
   position: relative;
   flex: 0 0 auto;
   height: var(--card-media-h);
-  /* Lifts the media indicators clear of the shaped separator band. */
-  --carousel-bullets-inset: 30px;
+  /* Seats the media indicators inside the separator's centre platform rather than
+     over the product. The platform hairline's lower edge is 17.75px above the
+     media's bottom edge, so a 6px strip at 5px leaves a 6.75px gap under the line
+     and 19px of air before the brand label below. */
+  --carousel-bullets-inset: 5px;
   background: linear-gradient(168deg, var(--tone-f9fcff-1p0) 0%, var(--tone-eaf4ff-1p0) 58%, var(--tone-dcecff-1p0) 100%);
 }
 
@@ -225,49 +247,38 @@
 }
 
 /* ---------------------------------------------------------- shaped separator */
-/* Two layers share one clip-path. The blue layer sits 1.5px lower, so it shows
-   as a hairline tracing the stepped silhouette — one line, no side decoration. */
+/* One stretched SVG (see CardSeparator) instead of two clipped layers: the
+   hairline is a real curve, so it neither nicks at its corners nor breaks up at
+   fractional browser zoom. It overhangs the media by 1px so the stage's bottom
+   edge is fully covered by the fill. */
 .separator {
   position: absolute;
   z-index: 2;
   inset-inline: 0;
   bottom: -1px;
-  height: 22px;
+  display: block;
+  width: 100%;
+  height: var(--card-sep-h);
   pointer-events: none;
 }
 
-.separator::before,
-.separator::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  clip-path: var(--card-sep-shape);
+.separatorFill {
+  fill: var(--surface-card);
 }
 
-.separator::before {
-  top: 0;
-  bottom: 0;
-  background: linear-gradient(
-    90deg,
-    transparent 6%,
-    var(--tone-0492d0-0p28) 24%,
-    var(--brand-primary) 50%,
-    var(--tone-0492d0-0p28) 76%,
-    transparent 94%
-  );
+.separatorLine {
+  fill: none;
+  stroke: var(--brand-primary);
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  /* Structural, not decorative: present at rest, a touch stronger on hover. */
+  opacity: 0.55;
   transition: opacity 240ms var(--motion-ease);
-  opacity: 0.75;
 }
 
-.separator::after {
-  top: 1.5px;
-  bottom: -1px;
-  background: var(--surface-card);
-}
-
-.card:hover .separator::before,
-.card:focus-within .separator::before {
-  opacity: 1;
+.card:hover .separatorLine,
+.card:focus-within .separatorLine {
+  opacity: 0.82;
 }
 
 .badges {
@@ -506,10 +517,32 @@
   font-weight: 600;
 }
 
-/* Angular Techno Solutions cart control. Chamfered on the top inline-start
-   corner and flush into the shell's bottom inline-end corner, so it reads as
-   part of the card structure rather than a button placed on top of it. */
+/* Angular Techno Solutions cart control, flush into the shell's bottom
+   inline-end corner so it reads as part of the card structure rather than a
+   button placed on top of it.
+
+   Built as a rounded container plus a skewed connector instead of a clipped
+   polygon. border-radius stays tangent to both the slant and the horizontal
+   edges, so every corner is a real curve — no spike, and nothing to break up at
+   fractional browser zoom the way a clip-path edge does.
+
+   Both surfaces paint the same strictly vertical gradient. skewX maps y to y, so
+   that gradient is pixel-identical in the sheared connector and the straight
+   container and their overlap cannot show a seam. It also carries the 1.5px inner
+   highlight, which therefore runs continuously across the whole top edge. */
 .cartButton {
+  /* Horizontal run reserved for the slant. Must stay at or above the skew's real
+     run (dock height x tan(23deg) = 46 x 0.4245 = 19.5px) or the container's square
+     top corner would peek out ahead of the connector. */
+  --cart-slant: 20px;
+  --cart-skew: -23deg;
+  --cart-surface:
+    linear-gradient(180deg, var(--tone-ffffff-0p18) 0 1.5px, transparent 1.5px),
+    linear-gradient(180deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
+  /* Faint blue lift rising into the price surface. Applied as a filter so it
+     traces the painted silhouette, including the slant, rather than a box. */
+  --cart-lift: drop-shadow(0 -3px 9px var(--tone-0492d0-0p12));
+
   position: relative;
   z-index: 1;
   display: inline-flex;
@@ -517,31 +550,65 @@
   justify-content: center;
   gap: 8px;
   flex: 0 0 auto;
-  /* ~25% of the card width in grid mode, never below the 44px touch target. */
-  width: clamp(58px, 25%, 78px);
+  /* The footprint includes the slant, so the connector is never able to overhang
+     the price row. Sized so the widest price in the catalogue still keeps ~9px of
+     headroom before it would wrap and make one row taller than the rest. Never
+     below the 44px touch target. */
+  width: clamp(64px, 26%, 84px);
   min-height: var(--card-dock-h);
   /* Only the inline offset is needed — the dock itself already bleeds to the
      bottom edge, so a second negative margin here clipped the control. */
   margin-inline-end: calc(var(--card-body-pad) * -1);
   padding: 0;
+  /* Re-centres the icon on the solid area instead of the whole footprint. */
+  padding-inline-start: calc(var(--cart-slant) * 0.5);
   border: 0;
-  border-start-start-radius: 0;
-  border-end-end-radius: var(--card-radius-bottom);
-  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-strong) 100%);
+  background: none;
   color: var(--tone-ffffff-1p0);
-  font-size: 0.95rem;
+  font-size: 1.25rem;
   font-weight: 800;
   cursor: pointer;
-  /* clip-path has no logical form, so RTL gets an explicit mirror below. */
-  clip-path: polygon(26% 0, 100% 0, 100% 100%, 0 100%);
-  transition:
-    filter var(--motion-fast) var(--motion-ease),
-    background-color var(--motion-fast) var(--motion-ease);
+  filter: var(--cart-lift);
+  transition: filter var(--motion-fast) var(--motion-ease);
 }
 
-[dir="rtl"] .cartButton {
-  clip-path: polygon(0 0, 74% 0, 100% 100%, 0 100%);
+/* Main container: square where it meets the dock and the card's side, with the
+   card's own bottom radius closing the outer corner. */
+.cartButton::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block: 0;
+  inset-inline: var(--cart-slant) 0;
+  border-end-end-radius: var(--card-radius-bottom);
+  background: var(--cart-surface);
 }
+
+/* Slanted connector. Hinged on its bottom edge, so the top leans inline-end and
+   the bottom of the control reaches further inline-start — the reference
+   silhouette. Twice the slant wide, so it overlaps the container generously and
+   the joint is covered rather than butted. */
+.cartButton::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: calc(var(--cart-slant) * 2);
+  transform-origin: bottom left;
+  transform: skewX(var(--cart-skew));
+  /* Where the slant meets the top edge, and where it meets the bottom edge. Kept
+     under half the height so ~26px of the leading edge stays a straight slant —
+     enough curve to remove both corners without softening it into an arc. */
+  border-start-start-radius: 14px;
+  border-end-start-radius: 6px;
+  background: var(--cart-surface);
+}
+
+/* skewX and transform-origin have no logical form, so the mirror is explicit —
+   one sign and one keyword, where the old polygon needed a hand-mirrored copy. */
+[dir="rtl"] .cartButton { --cart-skew: 24deg; }
+[dir="rtl"] .cartButton::after { transform-origin: bottom right; }
 
 /* Grid mode keeps the control icon-only; the label only exists in list mode. */
 .cartButtonLabel {
@@ -549,22 +616,35 @@
 }
 
 .cartButton:hover:not(:disabled) {
-  filter: brightness(1.08);
+  /* Brightness first, so the lift is not brightened along with the surface. */
+  filter: brightness(1.07) var(--cart-lift);
 }
 
-.cartButton:focus-visible {
-  outline: 3px solid var(--brand-primary-strong);
+/* On the container, so the ring follows the control's real shape rather than
+   drawing a rectangle across the transparent part of the slant. */
+.cartButton:focus-visible { outline: none; }
+
+.cartButton:focus-visible::before {
+  /* White, not the darker brand tone: the ring now sits inside the blue surface
+     rather than outside a clipped box, and blue-on-blue was ~1.2:1. Disabled
+     buttons are not focusable, so the grey surface never takes this ring. */
+  outline: 3px solid var(--tone-ffffff-1p0);
   outline-offset: -3px;
 }
 
+/* One override point: both surfaces read the same custom property, so a state
+   change cannot leave the connector and the container different colours. */
 .cartButton:disabled {
-  background: var(--tone-cbd5e1-1p0);
+  --cart-surface: var(--tone-cbd5e1-1p0);
+  --cart-lift: none;
   color: var(--tone-f8fafc-1p0);
   cursor: not-allowed;
 }
 
 .cartButtonAdded {
-  background: var(--success);
+  --cart-surface:
+    linear-gradient(180deg, var(--tone-ffffff-0p18) 0 1.5px, transparent 1.5px),
+    linear-gradient(180deg, var(--success) 0%, var(--success) 100%);
 }
 
 @media (max-width: 991.98px) {
@@ -585,8 +665,9 @@
 
   .title { font-size: 0.9rem; }
   .price { font-size: 1.02rem; }
-  /* Never below the 44px touch target. */
-  .cartButton { width: clamp(64px, 22%, 88px); }
+  /* Wider card, so the solid area keeps its share once the slant is subtracted.
+     Never below the 44px touch target. */
+  .cartButton { width: clamp(72px, 24%, 96px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -594,7 +675,7 @@
   .mediaImage,
   .cartButton,
   .wishlist,
-  .separator::before {
+  .separatorLine {
     transition: none;
   }
 
