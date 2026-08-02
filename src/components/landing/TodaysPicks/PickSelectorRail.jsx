@@ -67,13 +67,13 @@ export default function PickSelectorRail({ picks, activeId, onSelect, t, dir }) 
             onClick={() => onSelect(pick.id)}
             data-todays-picks-selector
           >
-            <span className={styles.selectorNumber} aria-hidden="true">
-              {String(index + 1).padStart(2, "0")}
-            </span>
             <AssetImage
               src={pick.imageSrc}
               alt=""
               fill
+              /* 96px, not 64px: this project's image optimizer rejects w=64
+                 with a 400, so the thumbnail would fall back to a placeholder.
+                 96 also covers the 56px box at 2x DPR. */
               sizes="96px"
               fit="contain"
               wrapperClassName={styles.selectorMedia}
@@ -87,11 +87,24 @@ export default function PickSelectorRail({ picks, activeId, onSelect, t, dir }) 
                 },
               }}
             />
+
+            {/* Two flowing rows instead of four fixed grid tracks. The old
+                `auto 60px 1fr auto` layout gave the fixed columns priority, so
+                at the rail's minimum track width the name column collapsed to
+                ~8px and every title rendered as one or two characters. Here the
+                only fixed element is the thumbnail; the copy takes the rest and
+                the name is allowed two lines. */}
             <span className={styles.selectorCopy}>
-              <strong>{pick.name}</strong>
-              <span>{t(pick.categoryKey)}</span>
-              <small>{t(pick.recommendationKey)}</small>
+              <span className={styles.selectorTopLine}>
+                <span className={styles.selectorNumber} aria-hidden="true">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+                <span className={styles.selectorCategory}>{t(pick.categoryKey)}</span>
+              </span>
+              <strong className={styles.selectorName}>{pick.name}</strong>
+              <small className={styles.selectorLabel}>{t(pick.recommendationKey)}</small>
             </span>
+
             <span className={styles.selectedMark} aria-hidden="true">
               <FiCheck />
             </span>

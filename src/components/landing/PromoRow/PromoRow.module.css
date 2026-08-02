@@ -1,32 +1,427 @@
-.section { padding-block: var(--section-space-compact) 0; }
-.container { width:100%; max-width:var(--content-max); padding-inline:var(--content-gutter); }
-.surface {
-  padding:clamp(22px,2.2vw,30px);
-  border:1px solid var(--tone-2367c4-0p12);
-  border-radius:var(--radius-section);
-  background:linear-gradient(135deg,var(--tone-ffffff-0p94),var(--tone-f2f8ff-0p9));
-  box-shadow:0 18px 46px var(--tone-19497e-0p09);
+/* ============================================================================
+   More to Explore — final landing section
+   ----------------------------------------------------------------------------
+   Layout contract
+     desktop  ≥992px   one compact four-card row
+     tablet   576-991  2x2 grid, equal row heights
+     mobile   ≤575px   one native scroll-snap rail, partial next card visible
+
+   Product imagery is a card-local CSS background layer, never an `<img>` in
+   flow, so card height is fixed by this stylesheet and a slow or missing image
+   cannot shift the layout.
+   ========================================================================= */
+
+.section {
+  /* Fully transparent counterparts of the two wash colours. The CSS keyword
+     `transparent` is rgba(0,0,0,0); ramping a light wash to it interpolates
+     through grey and leaves a visible band across the card. These keep each
+     ramp inside its own hue. The base colours are the existing
+     `--tone-ffffff-*` and `--tone-061427-*` atoms. */
+  --promo-wash-light-0: rgb(255 255 255 / 0);
+  --promo-wash-dark-0: rgb(6 20 39 / 0);
+
+  --promo-surface-gutter: clamp(22px, 2.2vw, 30px);
+  --promo-card-radius: 18px;
+  /* Corner the scrim hugs — the one that holds the copy. Mirrored for RTL so
+     the gradient follows the text instead of being flipped away from it. */
+  --promo-scrim-anchor: 0% 100%;
+
+  padding-block: var(--section-space-compact) 0;
+    margin-block-end: clamp(32px, 4vw, 64px);
 }
-.header { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; margin-bottom:18px; }
-.eyebrow { display:inline-flex; align-items:center; gap:7px; color:var(--brand-primary-strong); font-size:.7rem; font-weight:850; letter-spacing:.06em; text-transform:uppercase; }
-.header h2 { margin-top:6px; color:var(--brand-ink); font-size:clamp(1.65rem,2.4vw,2.55rem); font-weight:850; letter-spacing:-.04em; line-height:1.05; }
-.header p { margin-top:7px; color:var(--text-muted); font-size:.94rem; }
-.viewAll { display:inline-flex; align-items:center; gap:8px; min-height:42px; padding:9px 15px; border:1px solid var(--tone-0492d0-0p26); border-radius:999px; color:var(--brand-primary-strong); background:var(--tone-ffffff-1p0); font-size:.82rem; font-weight:760; white-space:nowrap; transition:transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease; }
-.viewAll:hover,.viewAll:focus-visible { color:var(--tone-ffffff-1p0); background:var(--brand-primary); transform:translateY(-2px); box-shadow:0 12px 24px var(--tone-0492d0-0p2); }
-.grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
-.tile { position:relative; display:flex; align-items:flex-end; min-height:158px; overflow:hidden; border:1px solid var(--tone-205ba4-0p11); border-radius:18px; background:var(--tone-ffffff-1p0); box-shadow:0 10px 24px var(--tone-19497e-0p07); transition:transform 180ms var(--motion-ease), box-shadow 180ms var(--motion-ease), border-color 180ms ease; }
-.tile:hover,.tile:focus-visible { transform:translateY(-3px); border-color:var(--tone-0492d0-0p3); box-shadow:0 18px 34px var(--tone-19497e-0p13); }
-.tileAsset { border-radius:inherit; }
-.tileImg { object-fit:cover; transition:transform 320ms var(--motion-ease) !important; }
-.tile:hover .tileImg { transform:scale(1.035) !important; }
-.tileContent { position:relative; z-index:2; display:flex; flex-direction:column; align-items:flex-start; gap:3px; width:100%; padding:38px 15px 14px; color:var(--text-main); background:linear-gradient(180deg,transparent,var(--tone-ffffff-0p9) 42%,var(--tone-ffffff-1p0) 100%); }
-.tileDark .tileContent { color:var(--tone-ffffff-1p0); background:linear-gradient(180deg,transparent,var(--tone-061427-0p75) 40%,var(--tone-061427-0p95) 100%); }
-.tileNote { color:var(--brand-primary); font-size:.66rem; font-weight:850; letter-spacing:.05em; text-transform:uppercase; }
-.tileDark .tileNote { color:var(--tone-72d2ff-1p0); }
-.tileTitle { font-size:.92rem; line-height:1.25; }
-.tileCta { display:inline-flex; align-items:center; gap:5px; margin-top:4px; font-size:.7rem; font-weight:760; text-transform:uppercase; }
-.tileCta svg { transition:transform 160ms ease; }
-.tile:hover .tileCta svg { transform:translateX(3px); }
-[dir="rtl"] .viewAll svg,[dir="rtl"] .tileCta svg { transform:scaleX(-1); }
-@media(max-width:991.98px){ .grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
-@media(max-width:575.98px){ .section{padding-top:34px}.surface{padding:20px 14px;border-radius:23px}.header{align-items:flex-start;flex-direction:column;gap:12px}.header h2{font-size:2rem}.grid{display:flex;overflow-x:auto;scroll-snap-type:inline proximity;padding-bottom:4px}.tile{flex:0 0 82%;scroll-snap-align:start;min-height:150px}.viewAll{min-height:40px} }
+
+.container {
+  width: 100%;
+  max-width: var(--content-max);
+  padding-inline: var(--content-gutter);
+}
+
+.surface {
+  padding: var(--promo-surface-gutter);
+  border: 1px solid var(--tone-2367c4-0p12);
+  border-radius: var(--radius-section);
+  background: linear-gradient(135deg, var(--tone-ffffff-0p94), var(--tone-f2f8ff-0p9));
+  box-shadow: 0 18px 46px var(--tone-19497e-0p09);
+}
+
+/* ---------- Header ---------- */
+
+.header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 18px;
+}
+
+.headingGroup {
+  min-width: 0;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--brand-primary-strong);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.title {
+  margin-top: 6px;
+  color: var(--brand-ink);
+  font-size: clamp(1.65rem, 2.4vw, 2.55rem);
+  font-weight: 850;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.subtitle {
+  margin-top: 7px;
+  margin-bottom: 0;
+  color: var(--text-muted);
+  font-size: 0.94rem;
+}
+
+.viewAll {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  /* 44px is the minimum interaction target, not a visual preference. */
+  min-height: 44px;
+  padding: 10px 17px;
+  border: 1px solid var(--tone-0492d0-0p26);
+  border-radius: 999px;
+  color: var(--brand-primary-strong);
+  background: var(--tone-ffffff-1p0);
+  font-size: 0.82rem;
+  font-weight: 760;
+  white-space: nowrap;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+.viewAll:hover {
+  color: var(--tone-ffffff-1p0);
+  background: var(--brand-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px var(--tone-0492d0-0p2);
+}
+
+/* ---------- Promotion grid ---------- */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tileItem {
+  display: flex;
+  min-width: 0;
+}
+
+.tile {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+  min-height: 172px;
+  overflow: hidden;
+  border: 1px solid var(--tone-205ba4-0p11);
+  border-radius: var(--promo-card-radius);
+  background: linear-gradient(155deg, var(--tone-ffffff-1p0), var(--tone-f2f8ff-0p9));
+  box-shadow: 0 10px 24px var(--tone-19497e-0p07);
+  transition:
+    transform 180ms var(--motion-ease),
+    box-shadow 180ms var(--motion-ease),
+    border-color 180ms ease;
+}
+
+/* Product media layer. `background-origin: content-box` plus padding keeps the
+   render off the card edge; `contain` guarantees the whole silhouette survives
+   whatever aspect ratio the real file has. When the file is missing the
+   browser paints nothing here and the card's own gradient shows through. */
+.tile::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  padding: 10px 12px;
+  background-image: var(--promo-media-image, none);
+  background-repeat: no-repeat;
+  background-size: var(--promo-media-size, contain);
+  background-position: var(--promo-media-position, 100% 50%);
+  background-origin: content-box;
+  transition: transform 320ms var(--motion-ease);
+}
+
+/* Text-safe scrim. Deliberately localized — a bottom band for the copy plus a
+   corner wash under the first characters — rather than the near-opaque
+   full-card wash this section used to carry, which flattened the artwork. */
+.tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image:
+    linear-gradient(
+      to top,
+      var(--tone-ffffff-0p97) 0%,
+      var(--tone-ffffff-0p82) 30%,
+      var(--promo-wash-light-0) 60%
+    ),
+    radial-gradient(
+      120% 96% at var(--promo-scrim-anchor),
+      var(--tone-ffffff-0p92) 0%,
+      var(--promo-wash-light-0) 66%
+    );
+}
+
+.tileContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+  width: 100%;
+  padding: 40px 15px 14px;
+  color: var(--text-main);
+}
+
+.tileNote {
+  /* `--brand-primary` measures 3.5:1 on this wash, below AA for text this
+     small; the strong variant clears 4.5:1 in all three themes. */
+  color: var(--brand-primary-strong);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tileTitle {
+  font-size: 0.93rem;
+  font-weight: 780;
+  line-height: 1.25;
+}
+
+.tileCta {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 4px;
+  font-size: 0.7rem;
+  font-weight: 760;
+  text-transform: uppercase;
+}
+
+.tileCta svg {
+  transition: transform 160ms ease;
+}
+
+/* ---------- Dark variant ---------- */
+
+.tileDark {
+  border-color: var(--tone-04254e-0p22);
+  background: linear-gradient(155deg, var(--tone-03122f-1p0), var(--tone-020a1b-1p0));
+}
+
+.tileDark::after {
+  background-image:
+    linear-gradient(
+      to top,
+      var(--tone-061427-0p95) 0%,
+      var(--tone-061427-0p75) 32%,
+      var(--promo-wash-dark-0) 62%
+    ),
+    radial-gradient(
+      120% 96% at var(--promo-scrim-anchor),
+      var(--tone-061427-0p95) 0%,
+      var(--promo-wash-dark-0) 66%
+    );
+}
+
+.tileDark .tileContent {
+  color: var(--tone-ffffff-1p0);
+}
+
+.tileDark .tileNote {
+  color: var(--tone-72d2ff-1p0);
+}
+
+/* ---------- Hover ---------- */
+
+.tile:hover {
+  transform: translateY(-3px);
+  border-color: var(--tone-0492d0-0p3);
+  box-shadow: 0 18px 34px var(--tone-19497e-0p13);
+}
+
+.tile:hover::before {
+  transform: scale(1.035);
+}
+
+.tile:hover .tileCta svg {
+  transform: translateX(3px);
+}
+
+/* ---------- Keyboard focus ----------
+   globals.css exposes the ring as `:focus-visible { box-shadow: var(--focus-ring) }`.
+   A CSS-module class selector has the same specificity and loads later, so a
+   component shadow silently replaced the ring. Each control restates its own
+   shadow WITH the ring in front so both survive. */
+
+.viewAll:focus-visible {
+  color: var(--tone-ffffff-1p0);
+  background: var(--brand-primary);
+  box-shadow:
+    var(--focus-ring),
+    0 12px 24px var(--tone-0492d0-0p2);
+}
+
+.tile:focus-visible {
+  border-color: var(--tone-0492d0-0p3);
+  box-shadow:
+    var(--focus-ring),
+    0 18px 34px var(--tone-19497e-0p13);
+}
+
+@media (forced-colors: active) {
+  .viewAll:focus-visible,
+  .tile:focus-visible {
+    outline: 3px solid CanvasText;
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- RTL ---------- */
+
+[dir="rtl"] .viewAll svg,
+[dir="rtl"] .tileCta svg {
+  transform: scaleX(-1);
+}
+
+[dir="rtl"] .tile:hover .tileCta svg {
+  transform: scaleX(-1) translateX(3px);
+}
+
+[dir="rtl"] .section {
+  --promo-scrim-anchor: 100% 100%;
+}
+
+[dir="rtl"] .tile::before {
+  background-position: var(--promo-media-position-rtl, 0% 50%);
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .viewAll,
+  .tile,
+  .tile::before,
+  .tileCta svg {
+    transition: none;
+  }
+
+  .viewAll:hover,
+  .tile:hover {
+    transform: none;
+  }
+
+  .tile:hover::before {
+    transform: none;
+  }
+
+  .tile:hover .tileCta svg {
+    transform: none;
+  }
+}
+
+/* ============================================================================
+   Responsive
+   ========================================================================= */
+
+/* Tablet — 2x2. A four-column row below 992px cramps the copy to two words
+   per line before the card is even half filled. */
+@media (max-width: 991.98px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tile {
+    min-height: 164px;
+  }
+}
+
+/* Mobile — one native scroll-snap rail. */
+@media (max-width: 575.98px) {
+  .section {
+    --promo-surface-gutter: 14px;
+        margin-block-end: 32px;
+
+    padding-top: 34px;
+  }
+
+  .surface {
+    padding: 20px var(--promo-surface-gutter);
+    border-radius: 23px;
+  }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .title {
+    font-size: 2rem;
+  }
+
+  .grid {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: clamp(210px, 72vw, 280px);
+    /* Bleed to the surface padding box so a card can be wide enough to read
+       while the next one still peeks in. */
+    margin-inline: calc(var(--promo-surface-gutter) * -1);
+    padding-inline: var(--promo-surface-gutter);
+    /* Scroll-container headroom: `overflow-x: auto` makes the block axis
+       scrollable too, which would otherwise shear the card elevation. */
+    padding-block: 6px 16px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline proximity;
+    scrollbar-width: none;
+  }
+
+  .grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tileItem {
+    scroll-snap-align: start;
+  }
+
+  .tile {
+    min-height: 176px;
+  }
+
+  /* No lift while the rail is being dragged — it reads as jitter. */
+  .tile:hover {
+    transform: none;
+  }
+
+  .tile:hover::before {
+    transform: none;
+  }
+}

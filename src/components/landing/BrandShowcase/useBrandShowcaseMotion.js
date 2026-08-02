@@ -5,118 +5,111 @@ import gsap from "gsap";
 
 gsap.registerPlugin(useGSAP);
 
+/**
+ * Entrance choreography for Brand Showcase.
+ *
+ * FAIL-OPEN CONTRACT
+ * ------------------
+ * Nothing here hides content. The section is painted from the server HTML and
+ * no element is parked at `opacity: 0` waiting for JavaScript to release it, so
+ * every failure mode degrades to "no animation" rather than "blank section":
+ *
+ *   - JavaScript disabled      → server HTML stays visible
+ *   - GSAP fails to load       → server HTML stays visible
+ *   - hydration throws         → server HTML stays visible
+ *   - IntersectionObserver     → missing: plays immediately; never fires: stays visible
+ *   - prefers-reduced-motion   → returns before creating a single tween
+ *
+ * `fromTo` with explicit end values (rather than `from`, which infers its
+ * destination from whatever the element currently reads and can capture the
+ * start state it just wrote) plus `immediateRender: false` keeps the start
+ * state off the elements until the playhead reaches each tween. The observer
+ * fires while the section is still below the fold, so visible-by-default costs
+ * no flash. The previous clip-path reveal is gone: it was the most expensive
+ * part of the timeline and the one most likely to strand the card mid-wipe.
+ */
 export function useBrandShowcaseMotion({ rootRef, dir }) {
   useGSAP(
     () => {
       const root = rootRef.current;
       if (!root) return undefined;
 
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      if (reduceMotion) return undefined;
+
       const headerItems = gsap.utils.toArray("[data-brand-showcase-header]", root);
       const featured = root.querySelector("[data-brand-showcase-featured]");
-      const featuredCopy = root.querySelector("[data-brand-showcase-featured-copy]");
+      const featuredCopy = gsap.utils.toArray("[data-brand-showcase-featured-copy]", root);
       const rings = root.querySelector("[data-brand-showcase-rings]");
       const cards = gsap.utils.toArray("[data-brand-showcase-card]", root);
-      const mobileAction = root.querySelector("[data-brand-showcase-mobile-action]");
       const benefits = root.querySelector("[data-brand-showcase-benefits]");
-      const targets = [
-        ...headerItems,
-        featured,
-        featuredCopy,
-        rings,
-        ...cards,
-        mobileAction,
-        benefits,
-      ].filter(Boolean);
-      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 
-      if (reduceMotion) {
-        gsap.set(targets, {
-          opacity: 1,
-          x: 0,
-          y: 0,
-          scale: 1,
-          clipPath: "inset(0% 0% 0% 0% round 28px)",
-          clearProps: "rotate",
-        });
-        return undefined;
-      }
-
-      const featuredOrigin = dir === "rtl" ? "100% 50%" : "0% 50%";
-      const featuredClip = dir === "rtl"
-        ? "inset(0% 100% 0% 0% round 28px)"
-        : "inset(0% 0% 0% 100% round 28px)";
-
-      gsap.set(headerItems, { opacity: 0, y: 20 });
-      gsap.set(featured, {
-        opacity: 0.92,
-        clipPath: featuredClip,
-        transformOrigin: featuredOrigin,
-      });
-      gsap.set(featuredCopy, { opacity: 0, x: dir === "rtl" ? 22 : -22 });
-      gsap.set(rings, { opacity: 0, scale: 0.86, rotate: dir === "rtl" ? -8 : 8 });
-      gsap.set(cards, {
-        opacity: 0,
-        y: (index) => (index % 2 === 0 ? 24 : 34),
-        x: (index) => {
-          const direction = index % 3 === 0 ? -1 : index % 3 === 2 ? 1 : 0;
-          return direction * (dir === "rtl" ? -16 : 16);
-        },
-        scale: 0.975,
-      });
-      gsap.set(mobileAction, { opacity: 0, y: 14 });
-      gsap.set(benefits, { opacity: 0, y: 18 });
-
+      let timeline = null;
       let hasPlayed = false;
+
       const play = () => {
         if (hasPlayed) return;
         hasPlayed = true;
 
-        const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
-        timeline
-          .to(headerItems, {
-            opacity: 1,
-            y: 0,
-            duration: 0.56,
-            stagger: 0.075,
-          })
-          .to(
+        timeline = gsap.timeline({
+          defaults: { ease: "power3.out", immediateRender: false },
+        });
+
+        if (headerItems.length) {
+          timeline.fromTo(
+            headerItems,
+            { opacity: 0, y: 18 },
+            { opacity: 1, y: 0, duration: 0.5, stagger: 0.07 }
+          );
+        }
+
+        if (featured) {
+          timeline.fromTo(
             featured,
-            {
-              opacity: 1,
-              clipPath: "inset(0% 0% 0% 0% round 28px)",
-              duration: 0.82,
-              ease: "power4.inOut",
-            },
-            "-=0.28"
-          )
-          .to(
+            { opacity: 0, y: 20 },
+            { opacity: 1, y: 0, duration: 0.6 },
+            "-=0.26"
+          );
+        }
+
+        if (rings) {
+          timeline.fromTo(
             rings,
-            { opacity: 1, scale: 1, rotate: 0, duration: 0.78 },
-            "-=0.58"
-          )
-          .to(
+            { opacity: 0, scale: 0.9 },
+            { opacity: 1, scale: 1, duration: 0.62 },
+            "-=0.44"
+          );
+        }
+
+        if (featuredCopy.length) {
+          timeline.fromTo(
             featuredCopy,
-            { opacity: 1, x: 0, duration: 0.58 },
-            "-=0.52"
-          )
-          .to(
+            { opacity: 0, x: dir === "rtl" ? 18 : -18 },
+            { opacity: 1, x: 0, duration: 0.5, stagger: 0.06 },
+            "-=0.46"
+          );
+        }
+
+        if (cards.length) {
+          // Opacity and a small lift only. The cards sit in a horizontal scroll
+          // container on mobile, so an inline offset would briefly extend its
+          // scrollable area, and a long stagger would delay reaching the links.
+          timeline.fromTo(
             cards,
-            {
-              opacity: 1,
-              x: 0,
-              y: 0,
-              scale: 1,
-              duration: 0.58,
-              stagger: {
-                each: 0.075,
-                from: "edges",
-                grid: [2, 3],
-              },
-            },
-            "-=0.5"
-          )
-          .to(mobileAction, { opacity: 1, y: 0, duration: 0.42 }, "-=0.26")
-          .to(benefits, { opacity: 1, y: 0, duration: 0.5 }, "-=0.28");
+            { opacity: 0, y: 16 },
+            { opacity: 1, y: 0, duration: 0.44, stagger: 0.05 },
+            "-=0.34"
+          );
+        }
+
+        if (benefits) {
+          timeline.fromTo(
+            benefits,
+            { opacity: 0, y: 14 },
+            { opacity: 1, y: 0, duration: 0.44 },
+            "-=0.24"
+          );
+        }
       };
 
       if (!("IntersectionObserver" in window)) {
@@ -131,11 +124,15 @@ export function useBrandShowcaseMotion({ rootRef, dir }) {
             observer.disconnect();
           }
         },
-        { threshold: 0.12, rootMargin: "0px 0px -8% 0px" }
+        { threshold: 0, rootMargin: "0px 0px 20% 0px" }
       );
 
       observer.observe(root);
-      return () => observer.disconnect();
+
+      return () => {
+        observer.disconnect();
+        timeline?.kill();
+      };
     },
     { scope: rootRef, dependencies: [dir] }
   );

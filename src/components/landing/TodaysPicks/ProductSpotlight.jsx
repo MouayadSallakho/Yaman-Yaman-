@@ -67,7 +67,10 @@ export default function ProductSpotlight({
         />
       </div>
 
-      <div className={styles.informationPanel} data-todays-picks-copy aria-live="polite">
+      {/* No aria-live here. Wrapping the whole panel re-announced the
+          description, the reason card and every feature chip on each change;
+          the section renders one small dedicated live region instead. */}
+      <div className={styles.informationPanel} data-todays-picks-copy>
         <span className={styles.recommendationLabel}>
           <FiStar aria-hidden="true" />
           {t(product.recommendationKey)}

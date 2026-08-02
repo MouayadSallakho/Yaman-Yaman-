@@ -34,6 +34,12 @@ export default function BrandShowcaseSection() {
     >
       <Container fluid className={styles.container}>
         <div className={styles.surface}>
+          {/* One header, one heading, one View All link. The link used to be
+              rendered twice — a desktop copy in the header and a `display: none`
+              mobile copy after the grid — which duplicated the markup and put
+              the two copies in different reading positions. A single link that
+              the header re-flows below the description on narrow screens gives
+              the required order at every width. */}
           <header className={styles.header}>
             <div className={styles.headingGroup} data-brand-showcase-header>
               <span className={styles.eyebrow}>
@@ -48,7 +54,7 @@ export default function BrandShowcaseSection() {
 
             <Link
               href={BRAND_SHOWCASE_VIEW_ALL_HREF}
-              className={`${styles.viewAll} ${styles.viewAllDesktop}`}
+              className={styles.viewAll}
               data-brand-showcase-header
             >
               <span>{t("commerce.brandShowcase.viewAll")}</span>
@@ -64,15 +70,6 @@ export default function BrandShowcaseSection() {
               ))}
             </div>
           </div>
-
-          <Link
-            href={BRAND_SHOWCASE_VIEW_ALL_HREF}
-            className={`${styles.viewAll} ${styles.viewAllMobile}`}
-            data-brand-showcase-mobile-action
-          >
-            <span>{t("commerce.brandShowcase.viewAll")}</span>
-            <FiArrowRight aria-hidden="true" />
-          </Link>
 
           <BrandBenefitsStrip benefits={brandBenefits} t={t} />
         </div>

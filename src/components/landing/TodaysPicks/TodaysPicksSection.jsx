@@ -14,22 +14,42 @@ import styles from "./TodaysPicksSection.module.css";
 
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
+/**
+ * STATE MODEL
+ * -----------
+ * One piece of state: `activeId`. Selection, the rendered product, the
+ * tabpanel's `aria-labelledby`, the selector's `aria-selected` and the live
+ * announcement all derive from it, so they can never disagree.
+ *
+ * The previous implementation carried a second `displayedId` that lagged
+ * `activeId` for the duration of an outgoing tween. During those ~160ms the
+ * selector reported one product as selected while the panel still described
+ * another, and the panel's `aria-labelledby` pointed at the stale tab. It also
+ * needed a reversal guard for the case where a user re-picked the product that
+ * was still on screen.
+ *
+ * Removing it means the switch is render-first: the new product is committed
+ * immediately and only animated *in*. There is no outgoing tween to get stuck
+ * behind, which is also why a failed animation can no longer leave the panel
+ * transparent.
+ */
 export default function TodaysPicksSection() {
   const { t, locale, dir } = useTranslation();
   const rootRef = useRef(null);
   const panelRef = useRef(null);
   const transitionRef = useRef(null);
+  const previousIndexRef = useRef(0);
   const firstRenderRef = useRef(true);
-  const directionRef = useRef(1);
 
   const [activeId, setActiveId] = useState(todaysPicks[0].id);
-  const [displayedId, setDisplayedId] = useState(todaysPicks[0].id);
+  // Empty until the user actually changes pick, so nothing is announced on load.
+  const [announcement, setAnnouncement] = useState("");
 
-  const displayedIndex = Math.max(
+  const activeIndex = Math.max(
     0,
-    todaysPicks.findIndex((item) => item.id === displayedId)
+    todaysPicks.findIndex((item) => item.id === activeId)
   );
-  const product = todaysPicks[displayedIndex];
+  const product = todaysPicks[activeIndex];
 
   const formatPrice = useMemo(
     () =>
@@ -47,67 +67,36 @@ export default function TodaysPicksSection() {
     (nextId) => {
       if (nextId === activeId) return;
 
-      const currentIndex = todaysPicks.findIndex((item) => item.id === displayedId);
       const nextIndex = todaysPicks.findIndex((item) => item.id === nextId);
-      const logicalDirection = nextIndex >= currentIndex ? 1 : -1;
-      directionRef.current = dir === "rtl" ? -logicalDirection : logicalDirection;
+      if (nextIndex < 0) return;
+
+      previousIndexRef.current = activeIndex;
       setActiveId(nextId);
 
-      const panel = panelRef.current;
-      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      transitionRef.current?.kill();
-
-      if (!panel || reduceMotion) {
-        setDisplayedId(nextId);
-        return;
-      }
-
-      const visual = panel.querySelector("[data-todays-picks-visual]");
-      const copy = panel.querySelector("[data-todays-picks-copy]");
-
-      // A quick reversal can select the product that is still rendered while
-      // its outgoing animation is running. Restore it instead of committing an
-      // unnecessary state update that would leave the panel transparent.
-      if (nextId === displayedId) {
-        transitionRef.current = gsap.timeline({ defaults: { overwrite: true } })
-          .to(visual, { opacity: 1, x: 0, scale: 1, duration: 0.2, ease: "power2.out" })
-          .to(copy, { opacity: 1, x: 0, duration: 0.18, ease: "power2.out" }, "<");
-        return;
-      }
-
-      const offset = 18 * directionRef.current;
-
-      transitionRef.current = gsap
-        .timeline({ defaults: { overwrite: true } })
-        .to(visual, {
-          opacity: 0,
-          x: offset,
-          scale: 0.992,
-          duration: 0.16,
-          ease: "power1.in",
-        })
-        .to(
-          copy,
-          { opacity: 0, x: -offset * 0.7, duration: 0.14, ease: "power1.in" },
-          "<"
-        )
-        .add(() => setDisplayedId(nextId));
+      // Concise, self-contained update — not the whole details panel.
+      const next = todaysPicks[nextIndex];
+      setAnnouncement(
+        `${t("commerce.todaysPicks.position", {
+          current: String(nextIndex + 1).padStart(2, "0"),
+          total: String(todaysPicks.length).padStart(2, "0"),
+        })}: ${next.name} — ${t("commerce.todaysPicks.selected")}`
+      );
     },
-    [activeId, displayedId, dir]
+    [activeId, activeIndex, t]
   );
 
   const selectPrevious = useCallback(() => {
-    const index = todaysPicks.findIndex((item) => item.id === activeId);
-    const previous = (index - 1 + todaysPicks.length) % todaysPicks.length;
+    const previous = (activeIndex - 1 + todaysPicks.length) % todaysPicks.length;
     selectPick(todaysPicks[previous].id);
-  }, [activeId, selectPick]);
+  }, [activeIndex, selectPick]);
 
   const selectNext = useCallback(() => {
-    const index = todaysPicks.findIndex((item) => item.id === activeId);
-    const next = (index + 1) % todaysPicks.length;
+    const next = (activeIndex + 1) % todaysPicks.length;
     selectPick(todaysPicks[next].id);
-  }, [activeId, selectPick]);
+  }, [activeIndex, selectPick]);
 
+  // Incoming-only transition. The content is already committed and painted by
+  // the time this runs, so a failure here cannot hide it.
   useIsoLayoutEffect(() => {
     if (firstRenderRef.current) {
       firstRenderRef.current = false;
@@ -117,32 +106,23 @@ export default function TodaysPicksSection() {
     const panel = panelRef.current;
     if (!panel) return;
 
+    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
+
     const visual = panel.querySelector("[data-todays-picks-visual]");
     const copy = panel.querySelector("[data-todays-picks-copy]");
-    const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    if (!visual && !copy) return;
+
+    const forward = activeIndex >= previousIndexRef.current;
+    const logical = forward ? 1 : -1;
+    const offset = 16 * (dir === "rtl" ? -logical : logical);
 
     transitionRef.current?.kill();
-
-    if (reduceMotion) {
-      gsap.set([visual, copy], { opacity: 1, x: 0, scale: 1 });
-      return;
-    }
-
-    const offset = 18 * directionRef.current;
     transitionRef.current = gsap
-      .timeline({ defaults: { ease: "power2.out", overwrite: true } })
-      .fromTo(
-        visual,
-        { opacity: 0, x: -offset, scale: 0.992 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.32 }
-      )
-      .fromTo(
-        copy,
-        { opacity: 0, x: offset * 0.7 },
-        { opacity: 1, x: 0, duration: 0.28 },
-        "-=0.22"
-      );
-  }, [displayedId]);
+      .timeline({ defaults: { ease: "power2.out", overwrite: "auto", immediateRender: false } })
+      .fromTo(visual, { opacity: 0, x: offset }, { opacity: 1, x: 0, duration: 0.3 })
+      .fromTo(copy, { opacity: 0, x: -offset * 0.6 }, { opacity: 1, x: 0, duration: 0.26 }, "<0.04");
+  }, [activeId, activeIndex, dir]);
 
   useEffect(
     () => () => {
@@ -166,12 +146,12 @@ export default function TodaysPicksSection() {
             ref={panelRef}
             id="todays-picks-panel"
             role="tabpanel"
-            aria-labelledby={`todays-picks-tab-${displayedId}`}
+            aria-labelledby={`todays-picks-tab-${activeId}`}
             className={styles.panel}
           >
             <ProductSpotlight
               product={product}
-              position={displayedIndex + 1}
+              position={activeIndex + 1}
               total={todaysPicks.length}
               formatPrice={formatPrice}
               t={t}
@@ -187,6 +167,12 @@ export default function TodaysPicksSection() {
             t={t}
             dir={dir}
           />
+
+          {/* Single small live region. Carries only "Pick n of m: Name — Selected",
+              never the description, reason card or feature chips. */}
+          <p className="visually-hidden" role="status" aria-live="polite">
+            {announcement}
+          </p>
         </div>
       </Container>
     </section>

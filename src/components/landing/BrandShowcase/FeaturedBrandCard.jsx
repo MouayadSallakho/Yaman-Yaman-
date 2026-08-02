@@ -18,6 +18,18 @@ const BENEFIT_ICONS = {
   rocket: FiZap,
 };
 
+/**
+ * The copy is split into an intro block and a details block with the product
+ * media between them in the DOM. That single source order reads correctly in
+ * both compositions:
+ *
+ *   desktop — the card is a grid; intro and details occupy the left column
+ *             (rows 1 and 2) while the media is absolutely positioned across
+ *             the right side, exactly as before
+ *   mobile  — everything collapses to one column and normal flow produces
+ *             badge → brand → statement → description → image → trust points →
+ *             CTA → product count, with no absolutely positioned content block
+ */
 export default function FeaturedBrandCard({ brand, t }) {
   return (
     <article className={styles.featuredCard} data-brand-showcase-featured>
@@ -28,7 +40,7 @@ export default function FeaturedBrandCard({ brand, t }) {
         <span className={styles.stagePlatform} />
       </div>
 
-      <div className={styles.featuredContent} data-brand-showcase-featured-copy>
+      <div className={styles.featuredIntro} data-brand-showcase-featured-copy>
         <span className={styles.featuredBadge}>
           <HiSparkles aria-hidden="true" />
           {t("commerce.brandShowcase.featured.badge")}
@@ -37,7 +49,28 @@ export default function FeaturedBrandCard({ brand, t }) {
         <h3 className={styles.featuredName}>{brand.name}</h3>
         <p className={styles.featuredTagline}>{t(brand.taglineKey)}</p>
         <p className={styles.featuredDescription}>{t(brand.descriptionKey)}</p>
+      </div>
 
+      <AssetImage
+        src={brand.imageSrc}
+        alt={t(brand.imageAltKey)}
+        fill
+        sizes="(max-width: 767px) 86vw, (max-width: 1199px) 58vw, 34vw"
+        fit="contain"
+        wrapperClassName={styles.featuredMedia}
+        className={styles.featuredImage}
+        placeholderLabel={brand.name}
+        placeholderTone="dark"
+        showPath={false}
+        imageProps={{
+          style: {
+            objectPosition: brand.objectPosition,
+            transform: `scale(${brand.imageScale})`,
+          },
+        }}
+      />
+
+      <div className={styles.featuredDetails} data-brand-showcase-featured-copy>
         <ul className={styles.featuredBenefits}>
           {brand.benefits.map((benefit) => {
             const Icon = BENEFIT_ICONS[benefit.icon] ?? FiShield;
@@ -60,25 +93,6 @@ export default function FeaturedBrandCard({ brand, t }) {
           </span>
         </div>
       </div>
-
-      <AssetImage
-        src={brand.imageSrc}
-        alt={t(brand.imageAltKey)}
-        fill
-        sizes="(max-width: 767px) 92vw, (max-width: 1199px) 88vw, 48vw"
-        fit="contain"
-        wrapperClassName={styles.featuredMedia}
-        className={styles.featuredImage}
-        placeholderLabel={brand.name}
-        placeholderTone="dark"
-        showPath={false}
-        imageProps={{
-          style: {
-            objectPosition: brand.objectPosition,
-            transform: `scale(${brand.imageScale})`,
-          },
-        }}
-      />
     </article>
   );
 }

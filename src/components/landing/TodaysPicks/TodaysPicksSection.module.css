@@ -1,3 +1,20 @@
+/* ============================================================
+   Today's Picks
+
+   One canonical declaration per selector. The stylesheet previously carried an
+   unscoped "refinement" tail plus a third `.surface` block after it, so 30
+   selectors were declared two or three times and the later copies silently
+   defeated the earlier media queries. Those declarations are merged here and
+   the tails are gone.
+
+   Breakpoint ladder (chosen from measured content fit, not device names):
+     >= 992px    two columns — the information column still holds >= 400px,
+                 which is where the description stops reading as a narrow
+                 vertical strip
+     768-991px   visual above information, controls stay on the visual
+     <  768px    mobile composition, selector becomes a horizontal snap rail
+   ============================================================ */
+
 .section {
   --picks-blue: var(--tone-0a68f5-1p0);
   --picks-blue-strong: var(--tone-064fc8-1p0);
@@ -5,30 +22,35 @@
   --picks-ink: var(--tone-0c1730-1p0);
   --picks-muted: var(--tone-66728a-1p0);
   --picks-border: var(--tone-2367c4-0p16);
-  padding-block: clamp(24px, 3.4vw, 56px) 10px;
+  padding-block: var(--section-space-compact) 0;
+  /* The ambient blur blobs on .surface sit outside its box (the surface is
+     transparent, they are the section's atmosphere). Without this they added
+     ~104px of scrollable width that only `body { overflow-x: hidden }` was
+     hiding. `clip` contains them without creating a scroll container, and
+     leaves the block axis visible so card shadows still breathe. */
+  overflow-x: clip;
 }
 
 .container {
   width: 100%;
-  max-width: 1580px;
-  padding-inline: clamp(12px, 2vw, 28px);
+  max-width: var(--content-max);
+  padding-inline: var(--content-gutter);
 }
 
+/* The spotlight is the visual container; the surface is just the stacking
+   context and vertical rhythm, so it carries no card chrome of its own. */
 .surface {
   position: relative;
   isolation: isolate;
-  overflow: hidden;
-  padding: clamp(24px, 3vw, 48px);
-  border: 1px solid var(--picks-border);
-  border-radius: clamp(28px, 2.4vw, 42px);
-  background:
-    radial-gradient(58% 72% at 8% 4%, var(--tone-ffffff-0p99), transparent 73%),
-    radial-gradient(40% 52% at 94% 8%, var(--tone-abdcff-0p28), transparent 76%),
-    linear-gradient(145deg, var(--tone-ffffff-1p0) 0%, var(--tone-f7fbff-1p0) 48%, var(--tone-eef6ff-1p0) 100%);
-  box-shadow:
-    0 42px 88px var(--tone-1a549b-0p14),
-    0 10px 28px var(--tone-163763-0p06),
-    inset 0 1px 0 var(--tone-ffffff-0p96);
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  padding-block: clamp(24px, 2.4vw, 34px);
+  padding-inline: 0;
+  border: 0;
+  border-radius: var(--radius-section);
+  background: transparent;
+  box-shadow: none;
 }
 
 .surface::before,
@@ -57,12 +79,14 @@
   background: var(--tone-41acff-0p1);
 }
 
+/* ---------- Header ---------- */
+
 .header {
   display: flex;
   align-items: end;
   justify-content: space-between;
   gap: clamp(24px, 3vw, 52px);
-  margin-bottom: clamp(24px, 2.6vw, 38px);
+  margin-bottom: 22px;
 }
 
 .headingGroup {
@@ -73,9 +97,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 36px;
-  padding: 8px 16px;
-  margin-bottom: 10px;
+  min-height: 32px;
+  padding: 6px 13px;
+  margin-bottom: 8px;
   border: 1px solid var(--tone-075bdc-0p2);
   border-radius: 999px;
   color: var(--tone-075ed7-1p0);
@@ -83,7 +107,7 @@
   box-shadow:
     0 8px 20px var(--tone-195cb4-0p08),
     inset 0 1px 0 var(--tone-ffffff-0p96);
-  font-size: clamp(0.75rem, 0.88vw, 0.9rem);
+  font-size: 0.73rem;
   font-weight: 850;
   letter-spacing: 0.04em;
   text-transform: uppercase;
@@ -96,18 +120,18 @@
 
 .title {
   color: var(--picks-ink);
-  font-size: clamp(2.65rem, 4.35vw, 5rem);
+  font-size: var(--section-title);
   font-weight: 860;
-  line-height: 0.98;
-  letter-spacing: -0.056em;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
 .subtitle {
   max-width: 690px;
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--picks-muted);
-  font-size: clamp(1rem, 1.22vw, 1.22rem);
+  font-size: var(--section-copy);
   line-height: 1.52;
 }
 
@@ -123,13 +147,13 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  min-height: 42px;
-  padding: 9px 14px;
+  min-height: 38px;
+  padding: 8px 12px;
   border: 1px solid var(--tone-2a6bc4-0p13);
   border-radius: 999px;
   color: var(--tone-5a6981-1p0);
   background: var(--tone-ffffff-0p72);
-  font-size: 0.88rem;
+  font-size: 0.8rem;
   font-weight: 690;
   white-space: nowrap;
 }
@@ -144,7 +168,8 @@
 
 .viewAll,
 .detailsAction,
-.selectorItem {
+.selectorItem,
+.positionButton {
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -153,8 +178,8 @@
   align-items: center;
   justify-content: center;
   gap: 13px;
-  min-height: 50px;
-  padding: 12px 23px;
+  min-height: 44px;
+  padding: 10px 18px;
   border: 1px solid var(--tone-085be0-0p22);
   border-radius: 999px;
   color: var(--tone-ffffff-1p0);
@@ -178,9 +203,6 @@
 .viewAll:focus-visible {
   color: var(--tone-ffffff-1p0);
   transform: translateY(-2px);
-  box-shadow:
-    0 20px 38px var(--tone-0652cf-0p28),
-    inset 0 1px 0 var(--tone-ffffff-0p34);
 }
 
 .viewAll:hover svg,
@@ -200,6 +222,8 @@
   transform: scaleX(-1) translateX(4px);
 }
 
+/* ---------- Spotlight ---------- */
+
 .panel {
   min-width: 0;
   transform-origin: center;
@@ -209,41 +233,22 @@
   --accent: var(--tone-1677ff-1p0);
   --accent-rgb: 22, 119, 255;
   display: grid;
-  grid-template-columns: minmax(0, 1.38fr) minmax(360px, 1fr);
-  min-height: clamp(520px, 38vw, 620px);
+  grid-template-columns: minmax(0, 1.24fr) minmax(340px, 0.92fr);
+  min-height: clamp(450px, 32vw, 520px);
   overflow: hidden;
   border: 1px solid var(--tone-397dd8-0p18);
-  border-radius: clamp(24px, 1.8vw, 30px);
+  border-radius: 24px;
   background: var(--tone-ffffff-0p78);
   box-shadow:
     0 28px 60px var(--tone-1e5497-0p14),
     inset 0 1px 0 var(--tone-ffffff-0p88);
 }
 
-.accentBlue {
-  --accent: var(--tone-1576ff-1p0);
-  --accent-rgb: 21, 118, 255;
-}
-
-.accentCyan {
-  --accent: var(--tone-13a6c9-1p0);
-  --accent-rgb: 19, 166, 201;
-}
-
-.accentViolet {
-  --accent: var(--tone-7758e9-1p0);
-  --accent-rgb: 119, 88, 233;
-}
-
-.accentIndigo {
-  --accent: var(--tone-486be9-1p0);
-  --accent-rgb: 72, 107, 233;
-}
-
-.accentEmerald {
-  --accent: var(--tone-149a78-1p0);
-  --accent-rgb: 20, 154, 120;
-}
+.accentBlue { --accent: var(--tone-1576ff-1p0); --accent-rgb: 21, 118, 255; }
+.accentCyan { --accent: var(--tone-13a6c9-1p0); --accent-rgb: 19, 166, 201; }
+.accentViolet { --accent: var(--tone-7758e9-1p0); --accent-rgb: 119, 88, 233; }
+.accentIndigo { --accent: var(--tone-486be9-1p0); --accent-rgb: 72, 107, 233; }
+.accentEmerald { --accent: var(--tone-149a78-1p0); --accent-rgb: 20, 154, 120; }
 
 .visualPanel {
   position: relative;
@@ -335,30 +340,33 @@
   opacity: 0.7;
 }
 
+/* Category badge + navigation. Allowed to wrap so the 44px controls and the
+   counter never have to shrink or be hidden on a narrow phone. */
 .visualMeta {
   position: absolute;
   z-index: 8;
-  top: clamp(18px, 2vw, 28px);
-  inset-inline: clamp(18px, 2vw, 28px);
+  top: 18px;
+  inset-inline: 18px;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
-  gap: 14px;
+  gap: 8px 14px;
 }
 
 .categoryBadge,
 .positionLabel {
   display: inline-flex;
   align-items: center;
-  min-height: 34px;
-  padding: 7px 12px;
+  min-height: 30px;
+  padding: 6px 10px;
   border: 1px solid var(--tone-9dd7ff-0p24);
   border-radius: 999px;
   color: var(--tone-ecf8ff-1p0);
   background: var(--tone-051c43-0p58);
   backdrop-filter: blur(12px);
   box-shadow: inset 0 1px 0 var(--tone-ffffff-0p14);
-  font-size: clamp(0.7rem, 0.82vw, 0.84rem);
+  font-size: 0.72rem;
   font-weight: 760;
 }
 
@@ -366,6 +374,43 @@
   color: var(--tone-e6f4ff-0p82);
   letter-spacing: 0.08em;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.positionControls {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-inline-start: auto;
+}
+
+.positionButton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--tone-9dd7ff-0p24);
+  border-radius: 50%;
+  color: var(--tone-edf8ff-1p0);
+  background: var(--tone-051c43-0p58);
+  backdrop-filter: blur(12px);
+  font-size: 1.05rem;
+  transition:
+    transform 160ms ease,
+    background-color 160ms ease,
+    border-color 160ms ease;
+}
+
+.positionButton:hover,
+.positionButton:focus-visible {
+  transform: translateY(-1px);
+  background: rgba(var(--accent-rgb), 0.34);
+  border-color: var(--tone-bee2ff-0p55);
+}
+
+[dir="rtl"] .positionButton svg {
+  transform: scaleX(-1);
 }
 
 .productMedia {
@@ -389,12 +434,14 @@
   filter: drop-shadow(0 34px 42px var(--tone-00081e-0p4));
 }
 
+/* ---------- Information panel ---------- */
+
 .informationPanel {
   position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: clamp(28px, 3vw, 48px);
+  padding: clamp(24px, 2.25vw, 34px);
   background:
     radial-gradient(62% 55% at 100% 0%, rgba(var(--accent-rgb), 0.1), transparent 70%),
     linear-gradient(155deg, var(--tone-ffffff-0p98), var(--tone-f4f9ff-0p94));
@@ -428,12 +475,12 @@
 }
 
 .productHeading {
-  margin-top: clamp(24px, 2.8vw, 40px);
+  margin-top: 22px;
 }
 
 .productName {
   color: var(--picks-ink);
-  font-size: clamp(2rem, 2.7vw, 3.25rem);
+  font-size: clamp(1.8rem, 2.25vw, 2.65rem);
   font-weight: 860;
   line-height: 1.02;
   letter-spacing: -0.045em;
@@ -443,24 +490,23 @@
 .productVariant {
   margin-top: 9px;
   color: var(--accent);
-  font-size: clamp(1rem, 1.18vw, 1.22rem);
+  font-size: clamp(0.94rem, 1.05vw, 1.1rem);
   font-weight: 740;
 }
 
 .productDescription {
-  margin-top: 18px;
+  margin-top: 14px;
   color: var(--tone-4f5e78-1p0);
-  font-size: clamp(0.95rem, 1.05vw, 1.08rem);
-  line-height: 1.64;
+  font-size: 0.96rem;
+  line-height: 1.55;
 }
 
 .reasonCard {
-  margin-top: 22px;
-  padding: 16px 18px;
+  margin-top: 16px;
+  padding: 14px 16px;
   border: 1px solid rgba(var(--accent-rgb), 0.13);
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), var(--tone-ffffff-0p72));
+  border-radius: 15px;
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), var(--tone-ffffff-0p72));
   box-shadow: inset 0 1px 0 var(--tone-ffffff-0p82);
 }
 
@@ -476,16 +522,16 @@
 
 .reasonCard p {
   color: var(--tone-34445f-1p0);
-  font-size: clamp(0.86rem, 0.96vw, 0.98rem);
+  font-size: 0.9rem;
   line-height: 1.55;
 }
 
 .featureList {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px;
+  gap: 7px;
   padding: 0;
-  margin: 20px 0 0;
+  margin: 15px 0 0;
   list-style: none;
 }
 
@@ -493,14 +539,14 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  min-height: 34px;
-  padding: 7px 11px;
+  min-height: 31px;
+  padding: 6px 9px;
   border: 1px solid var(--tone-315e9d-0p1);
   border-radius: 999px;
   color: var(--tone-485873-1p0);
   background: var(--tone-ffffff-0p8);
   box-shadow: 0 7px 18px var(--tone-234c82-0p06);
-  font-size: 0.78rem;
+  font-size: 0.72rem;
   font-weight: 680;
 }
 
@@ -515,7 +561,7 @@
   justify-content: space-between;
   gap: 18px;
   margin-top: auto;
-  padding-top: 26px;
+  padding-top: 18px;
 }
 
 .priceBlock {
@@ -531,7 +577,7 @@
 
 .currentPrice {
   color: var(--picks-blue);
-  font-size: clamp(1.85rem, 2.45vw, 2.75rem);
+  font-size: clamp(1.65rem, 2vw, 2.25rem);
   font-weight: 880;
   line-height: 1;
   letter-spacing: -0.045em;
@@ -565,8 +611,8 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  min-height: 50px;
-  padding: 12px 20px;
+  min-height: 46px;
+  padding: 10px 17px;
   border: 1px solid var(--tone-86c3ff-0p52);
   border-radius: 999px;
   color: var(--tone-ffffff-1p0);
@@ -585,39 +631,44 @@
 .detailsAction:focus-visible {
   color: var(--tone-ffffff-1p0);
   transform: translateY(-2px);
-  box-shadow:
-    0 20px 36px rgba(var(--accent-rgb), 0.32),
-    inset 0 1px 0 var(--tone-ffffff-0p35);
 }
+
+/* ---------- Pick selector rail ---------- */
 
 .selectorRail {
   display: grid;
-  grid-template-columns: repeat(5, minmax(190px, 1fr));
-  gap: 12px;
-  margin-top: clamp(16px, 1.8vw, 24px);
+  /* 196px min: below that the copy column cannot hold a two-line product name,
+     so the rail scrolls instead of squeezing the titles. */
+  grid-template-columns: repeat(5, minmax(196px, 1fr));
+  gap: 10px;
+  margin-top: 15px;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
   scrollbar-width: none;
   scroll-snap-type: inline proximity;
-  padding: 4px 2px 7px;
+  padding: 4px 2px 8px;
 }
 
 .selectorRail::-webkit-scrollbar {
   display: none;
 }
 
+/* Two flowing rows beside one fixed thumbnail. The previous
+   `auto 60px minmax(0,1fr) auto` track list gave three fixed columns priority,
+   so at the rail's minimum width the name track collapsed to ~8px and every
+   title rendered as one or two characters in both locales. */
 .selectorItem {
   position: relative;
   display: grid;
-  grid-template-columns: auto 60px minmax(0, 1fr) auto;
+  grid-template-columns: 56px minmax(0, 1fr);
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   min-width: 0;
-  min-height: 94px;
-  padding: 11px 12px;
+  min-height: 84px;
+  padding: 10px 12px;
   overflow: hidden;
   border: 1px solid var(--tone-2c69bb-0p12);
-  border-radius: 18px;
+  border-radius: 15px;
   color: var(--tone-2e3c56-1p0);
   background: var(--tone-ffffff-0p72);
   box-shadow:
@@ -654,10 +705,11 @@
     inset 0 1px 0 var(--tone-ffffff-0p92);
 }
 
+/* Selected state carries a border, a bottom indicator, a check mark and a
+   heavier title — never colour alone. */
 .selectorItemActive {
   border-color: var(--tone-1167f2-0p34);
-  background:
-    linear-gradient(135deg, var(--tone-e7f4ff-0p98), var(--tone-ffffff-0p94));
+  background: linear-gradient(135deg, var(--tone-e7f4ff-0p98), var(--tone-ffffff-0p94));
   box-shadow:
     0 16px 32px var(--tone-195bb6-0p13),
     inset 0 1px 0 var(--tone-ffffff-0p96);
@@ -667,22 +719,17 @@
   transform: scaleX(1);
 }
 
-.selectorNumber {
-  align-self: start;
-  color: var(--tone-8190a7-1p0);
-  font-size: 0.68rem;
-  font-weight: 850;
-  letter-spacing: 0.06em;
-  font-variant-numeric: tabular-nums;
+.selectorItemActive .selectorName {
+  font-weight: 860;
 }
 
 .selectorMedia {
   position: relative !important;
   inset: auto !important;
-  width: 60px !important;
-  height: 66px !important;
+  width: 56px !important;
+  height: 60px !important;
   border: 1px solid var(--tone-2970cf-0p09);
-  border-radius: 14px;
+  border-radius: 12px;
   background:
     radial-gradient(circle at 70% 22%, var(--tone-ffffff-0p98), transparent 44%),
     linear-gradient(145deg, var(--tone-f7fbff-1p0), var(--tone-e7f2fc-1p0)) !important;
@@ -702,44 +749,71 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  gap: 2px;
+  gap: 3px;
 }
 
-.selectorCopy strong,
-.selectorCopy span,
-.selectorCopy small {
+/* Only the short top line reserves room for the check mark; the product name
+   and editorial label get the full copy width. */
+.selectorTopLine {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding-inline-end: 22px;
+}
+
+.selectorNumber {
+  flex: 0 0 auto;
+  color: var(--tone-8190a7-1p0);
+  font-size: 0.62rem;
+  font-weight: 850;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+}
+
+.selectorCategory {
   overflow: hidden;
+  color: var(--tone-6d7a90-1p0);
+  font-size: 0.68rem;
+  font-weight: 620;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.selectorCopy strong {
+.selectorName {
+  display: -webkit-box;
+  overflow: hidden;
   color: var(--tone-17223a-1p0);
-  font-size: 0.83rem;
+  font-size: 0.79rem;
   font-weight: 790;
+  line-height: 1.22;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 
-.selectorCopy span {
-  color: var(--tone-6d7a90-1p0);
-  font-size: 0.72rem;
-  font-weight: 620;
-}
-
-.selectorCopy small {
+.selectorLabel {
+  overflow: hidden;
   color: var(--tone-3175cf-1p0);
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   font-weight: 720;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .selectedMark {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  inset-inline-end: 10px;
   display: grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   color: var(--tone-ffffff-1p0);
   background: var(--picks-blue);
   box-shadow: 0 8px 16px var(--tone-0a68f5-0p22);
+  font-size: 0.72rem;
   opacity: 0;
   transform: scale(0.8);
   transition:
@@ -752,6 +826,65 @@
   transform: scale(1);
 }
 
+/* ---------- Keyboard focus ----------
+   globals.css exposes the ring as `:focus-visible { box-shadow: var(--focus-ring) }`.
+   A CSS-module class selector has the same specificity and loads later, so a
+   component shadow silently replaced the ring. Each control restates its own
+   shadow WITH the ring in front so both survive. */
+
+.viewAll:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 15px 30px var(--tone-0652cf-0p22),
+    inset 0 1px 0 var(--tone-ffffff-0p28);
+}
+
+.detailsAction:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 15px 30px rgba(var(--accent-rgb), 0.25),
+    inset 0 1px 0 var(--tone-ffffff-0p3);
+}
+
+.positionButton:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.selectorItem:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 10px 22px var(--tone-20487e-0p06),
+    inset 0 1px 0 var(--tone-ffffff-0p88);
+}
+
+.selectorItemActive:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 16px 32px var(--tone-195bb6-0p13),
+    inset 0 1px 0 var(--tone-ffffff-0p96);
+}
+
+/* Box shadows are dropped in forced-colours mode, so the ring needs an
+   outline, and the selected pick needs a non-shadow marker. */
+@media (forced-colors: active) {
+  .viewAll:focus-visible,
+  .detailsAction:focus-visible,
+  .positionButton:focus-visible,
+  .selectorItem:focus-visible {
+    outline: 3px solid CanvasText;
+    outline-offset: 2px;
+  }
+
+  .selectorItemActive {
+    outline: 2px solid CanvasText;
+  }
+}
+
+/* ============================================================
+   >= 992px keeps two columns; the header actions stack once the
+   heading and actions stop fitting side by side.
+   ============================================================ */
+
 @media (max-width: 1199.98px) {
   .header {
     align-items: start;
@@ -761,25 +894,17 @@
     flex-direction: column;
     align-items: flex-end;
   }
-
-  .spotlight {
-    grid-template-columns: minmax(0, 1.15fr) minmax(340px, 0.85fr);
-    min-height: 540px;
-  }
-
-  .selectorRail {
-    grid-template-columns: repeat(5, minmax(210px, 1fr));
-  }
 }
 
-@media (max-width: 991.98px) {
-  .surface {
-    padding: clamp(22px, 4vw, 34px);
-  }
+/* ============================================================
+   Visual above information — below 992px the information column
+   drops under ~400px and the description reads as a narrow strip.
+   ============================================================ */
 
+@media (max-width: 991.98px) {
   .header {
-    flex-direction: column;
     align-items: stretch;
+    flex-direction: column;
   }
 
   .headerActions {
@@ -794,13 +919,15 @@
   }
 
   .visualPanel {
-    min-height: clamp(430px, 66vw, 560px);
+    min-height: 430px;
   }
 
   .informationPanel {
-    min-height: 420px;
+    min-height: 0;
   }
 
+  /* The divider moves from the inline edge to the seam between the two
+     stacked blocks. */
   .informationPanel::before {
     inset-inline: 8%;
     top: 0;
@@ -809,66 +936,68 @@
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb), 0.25), transparent);
   }
-
-  .selectorRail {
-    grid-template-columns: repeat(5, minmax(230px, 1fr));
-  }
 }
+
+/* ============================================================
+   Mobile — one spotlight, one information block, one snap rail.
+   ============================================================ */
 
 @media (max-width: 767.98px) {
   .section {
-    padding-block: 18px 8px;
-  }
-
-  .container {
-    padding-inline: 10px;
+    padding-block: 34px 0;
   }
 
   .surface {
-    padding: 20px;
-    border-radius: 28px;
+    padding-block: 22px;
   }
 
   .title {
-    font-size: clamp(2.35rem, 12vw, 3.4rem);
+    font-size: clamp(2rem, 10vw, 2.6rem);
   }
 
-  .subtitle {
-    font-size: 0.98rem;
+  .header {
+    margin-bottom: 14px;
   }
 
+  /* Wrapping rather than a forced column: measured, the indicator and the
+     action share one row down to 360px and only wrap at 320px. */
   .headerActions {
-    align-items: stretch;
-  }
-
-  .dailyEdit {
-    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
   }
 
   .viewAll {
-    width: 100%;
+    flex: 1 1 auto;
+    justify-content: center;
   }
 
   .visualPanel {
-    min-height: 420px;
-  }
-
-  .visualMeta {
-    top: 16px;
-    inset-inline: 16px;
+    min-height: 360px;
   }
 
   .productMedia {
-    inset: 11% 2% 1% !important;
+    inset: 12% 2% 1% !important;
   }
 
   .informationPanel {
-    min-height: auto;
-    padding: 24px 20px;
+    padding: 22px 18px;
+  }
+
+  .productHeading {
+    margin-top: 16px;
+  }
+
+  .productDescription {
+    margin-top: 12px;
+  }
+
+  .purchaseRow {
+    padding-top: 14px;
   }
 
   .productName {
-    font-size: clamp(1.8rem, 8vw, 2.45rem);
+    font-size: clamp(1.72rem, 8vw, 2.25rem);
   }
 
   .purchaseRow {
@@ -878,35 +1007,22 @@
 
   .detailsAction {
     width: 100%;
+    min-height: 48px;
   }
 
   .selectorRail {
-    margin-inline: -2px;
-    grid-template-columns: repeat(5, minmax(235px, 76vw));
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: clamp(210px, 64vw, 250px);
+    margin-top: 14px;
+    padding-block: 4px 10px;
   }
 }
 
 @media (max-width: 479.98px) {
-  .surface {
-    padding: 17px;
-    border-radius: 24px;
-  }
-
-  .eyebrow {
-    min-height: 32px;
-    padding: 6px 11px;
-    font-size: 0.68rem;
-  }
-
-  .visualPanel {
-    min-height: 350px;
-  }
-
-  .categoryBadge,
-  .positionLabel {
-    min-height: 30px;
-    padding: 6px 9px;
-    font-size: 0.66rem;
+  .visualMeta {
+    top: 12px;
+    inset-inline: 12px;
   }
 
   .orbitOne {
@@ -919,141 +1035,62 @@
     inset-inline-start: 3%;
   }
 
-  .productMedia {
-    inset: 13% -2% 0 !important;
-  }
-
-  .productDescription {
-    font-size: 0.92rem;
-  }
-
-  .reasonCard {
-    padding: 14px;
-  }
-
-  .featureList li {
-    font-size: 0.72rem;
-  }
-
-  .selectorRail {
-    grid-template-columns: repeat(5, minmax(220px, 82vw));
+  .dailyEdit {
+    justify-content: center;
   }
 }
 
+/* Measured: the category badge, the counter and the two 44px controls share
+   one row down to 390px and wrap onto two at 360px and below — in both
+   locales. Only there does the stage need extra headroom so the product is
+   never pushed under the controls. */
+@media (max-width: 380px) {
+  .visualPanel {
+    min-height: 350px;
+  }
+
+  .productMedia {
+    inset: 27% 0% 2% !important;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
 @media (prefers-reduced-motion: reduce) {
   .viewAll,
+  .viewAll svg,
   .detailsAction,
+  .detailsAction svg,
+  .positionButton,
   .selectorItem,
   .selectorItem::after,
   .selectedMark,
   .productImage,
-  .selectorImage,
-  .viewAll svg,
-  .detailsAction svg {
-    transition: none;
+  .selectorImage {
+    transition: none !important;
   }
 
   .viewAll:hover,
+  .viewAll:focus-visible,
   .detailsAction:hover,
+  .detailsAction:focus-visible,
+  .positionButton:hover,
+  .positionButton:focus-visible,
   .selectorItem:hover {
-    transform: none;
+    transform: none !important;
   }
-}
 
-/* ============================================================
-   Full-home refinement: smaller spotlight, stronger navigation
-   ============================================================ */
-.section { padding-block: var(--section-space-compact) 0; }
-.container { max-width: var(--content-max); padding-inline: var(--content-gutter); }
-.surface {
-  display: flex;
-  flex-direction: column;
-  padding: clamp(24px,2.4vw,34px);
-  border-radius: var(--radius-section);
-  box-shadow: var(--shadow-section), inset 0 1px 0 var(--tone-ffffff-0p95);
-}
-.header { order:1; margin-bottom:22px; }
-.panel { order:2; }
-.selectorRail { order:3; }
-.eyebrow { min-height:32px; padding:6px 13px; margin-bottom:8px; font-size:.73rem; }
-.title { font-size:var(--section-title); line-height:1.02; letter-spacing:-.045em; }
-.subtitle { margin-top:8px; font-size:var(--section-copy); }
-.dailyEdit { min-height:38px; padding:8px 12px; font-size:.8rem; }
-.viewAll { min-height:44px; padding:10px 18px; }
-.spotlight {
-  grid-template-columns:minmax(0,1.24fr) minmax(340px,.92fr);
-  min-height:clamp(450px,32vw,520px);
-  border-radius:24px;
-}
-.visualMeta { top:18px; inset-inline:18px; }
-.categoryBadge,.positionLabel { min-height:30px; padding:6px 10px; font-size:.72rem; }
-.positionControls { display:inline-flex; align-items:center; gap:5px; }
-.positionButton {
-  display:grid;
-  place-items:center;
-  width:32px;
-  height:32px;
-  padding:0;
-  border:1px solid var(--tone-9dd7ff-0p24);
-  border-radius:50%;
-  color:var(--tone-edf8ff-1p0);
-  background:var(--tone-051c43-0p58);
-  backdrop-filter:blur(12px);
-  transition:transform 160ms ease, background-color 160ms ease, border-color 160ms ease;
-}
-.positionButton:hover,.positionButton:focus-visible { transform:translateY(-1px); background:rgba(var(--accent-rgb),.34); border-color:var(--tone-bee2ff-0p55); }
-[dir="rtl"] .positionButton svg { transform:scaleX(-1); }
-.informationPanel { padding:clamp(24px,2.25vw,34px); }
-.productHeading { margin-top:22px; }
-.productName { font-size:clamp(1.8rem,2.25vw,2.65rem); }
-.productVariant { font-size:clamp(.94rem,1.05vw,1.1rem); }
-.productDescription { margin-top:14px; font-size:.96rem; line-height:1.55; }
-.reasonCard { margin-top:16px; padding:14px 16px; border-radius:15px; }
-.reasonCard p { font-size:.9rem; }
-.featureList { margin-top:15px; gap:7px; }
-.featureList li { min-height:31px; padding:6px 9px; font-size:.72rem; }
-.purchaseRow { padding-top:18px; }
-.currentPrice { font-size:clamp(1.65rem,2vw,2.25rem); }
-.detailsAction { min-height:46px; padding:10px 17px; }
-.selectorRail { grid-template-columns:repeat(5,minmax(170px,1fr)); gap:10px; margin-top:15px; }
-.selectorItem { grid-template-columns:auto 52px minmax(0,1fr) auto; min-height:82px; padding:9px 10px; border-radius:15px; }
-.selectorMedia { width:52px !important; height:56px !important; border-radius:12px; }
-.selectorCopy strong { font-size:.76rem; }
-.selectorCopy span { font-size:.68rem; }
-.selectorCopy small { font-size:.6rem; }
-.selectedMark { width:25px; height:25px; }
-@media (max-width:991.98px) {
-  .spotlight { grid-template-columns:1fr; min-height:0; }
-  .visualPanel { min-height:430px; }
-  .informationPanel { min-height:0; }
-}
-@media (max-width:767.98px) {
-  .section { padding-top:34px; }
-  .surface { padding:22px 16px; border-radius:24px; }
-  .title { font-size:clamp(2rem,10vw,2.6rem); }
-  .header { margin-bottom:14px; }
-  .selectorRail { order:2; margin:0 0 14px; grid-template-columns:repeat(5,minmax(155px,72vw)); }
-  .panel { order:3; }
-  .visualPanel { min-height:360px; }
-  .informationPanel { padding:22px 18px; }
-  .productName { font-size:clamp(1.72rem,8vw,2.25rem); }
-  .purchaseRow { align-items:stretch; }
-}
-@media (max-width:479.98px) {
-  .headerActions { width:100%; justify-content:space-between; }
-  .dailyEdit { display:none; }
-  .visualPanel { min-height:320px; }
-  .visualMeta { top:12px; inset-inline:12px; }
-  .positionLabel { display:none; }
-  .purchaseRow { flex-direction:column; }
-  .detailsAction { width:100%; }
-}
+  .selectorItem:hover .selectorImage,
+  .selectorItemActive .selectorImage {
+    transform: none !important;
+  }
 
-/* The spotlight is the visual container; avoid repeating another oversized shell. */
-.surface {
-  overflow: visible;
-  padding-inline: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
+  /* The selected pick must still read as selected without the sweep. */
+  .selectorItemActive::after {
+    transform: scaleX(1) !important;
+  }
+
+  .selectorRail {
+    scroll-behavior: auto;
+  }
 }

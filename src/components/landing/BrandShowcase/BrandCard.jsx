@@ -22,13 +22,15 @@ export default function BrandCard({ brand, t, index }) {
         aria-label={t("commerce.brandShowcase.exploreBrand", { name: brand.name })}
       >
         <span className={styles.cardDecoration} aria-hidden="true" />
-        <span className={styles.brandWordmark}>{brand.name}</span>
+        {/* A real heading rather than a styled span: each brand card is a
+            landmark in the section outline (h2 section → h3 brand). */}
+        <h3 className={styles.brandWordmark}>{brand.name}</h3>
 
         <AssetImage
           src={brand.imageSrc}
           alt={t(brand.imageAltKey)}
           fill
-          sizes="(max-width: 575px) 86vw, (max-width: 991px) 42vw, 17vw"
+          sizes="(max-width: 767px) 76vw, (max-width: 1199px) 46vw, 240px"
           fit="contain"
           wrapperClassName={styles.brandMedia}
           className={styles.brandImage}
