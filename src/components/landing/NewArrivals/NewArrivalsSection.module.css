@@ -1,3 +1,20 @@
+/* ============================================================
+   New Arrivals
+
+   One canonical declaration per selector. The stylesheet previously
+   carried an unscoped "refinement" tail that re-declared selectors
+   already defined above; because it sat later in the file at equal
+   specificity it silently defeated the mobile media queries (the 44px
+   touch targets among them). Those declarations are now merged into
+   their canonical rules and the tail is gone — a selector is written
+   once, and the breakpoints below actually win.
+
+   Breakpoint ladder (content-fit driven, verified in-browser):
+     >= 1200px   featured beside a 2x2 supporting grid
+     768-1199px  featured full width, supporting 2x2 grid
+     <  768px    featured editorial card, supporting horizontal rail
+   ============================================================ */
+
 .section {
   --arrival-blue: var(--tone-0869ee-1p0);
   --arrival-blue-strong: var(--tone-0458d0-1p0);
@@ -6,30 +23,31 @@
   --arrival-muted: var(--tone-61708c-1p0);
   --arrival-border: var(--tone-2575e0-0p16);
   --arrival-shadow: 0 22px 54px var(--tone-1f62b0-0p13);
-  padding-block: clamp(22px, 3.2vw, 52px) 10px;
+  /* Inline gutter of .surface. The mobile rails bleed by exactly this
+     amount so they reach the card edge; keeping it in one variable stops
+     the two values drifting apart. */
+  --arrival-surface-gutter: clamp(24px, 2.4vw, 34px);
+  padding-block: var(--section-space-compact) 0;
 }
 
 .container {
   width: 100%;
-  max-width: 1580px;
-  padding-inline: clamp(12px, 2vw, 28px);
+  max-width: var(--content-max);
+  padding-inline: var(--content-gutter);
 }
 
 .surface {
   position: relative;
   isolation: isolate;
   overflow: hidden;
-  padding: clamp(24px, 3.1vw, 50px);
+  padding: var(--arrival-surface-gutter);
   border: 1px solid var(--arrival-border);
-  border-radius: clamp(28px, 2.4vw, 40px);
+  border-radius: var(--radius-section);
   background:
     radial-gradient(54% 70% at 8% 10%, var(--tone-ffffff-0p98), transparent 74%),
     radial-gradient(44% 55% at 93% 10%, var(--tone-c1e5ff-0p38), transparent 74%),
     linear-gradient(145deg, var(--tone-fbfdff-1p0) 0%, var(--tone-f4f9ff-1p0) 47%, var(--tone-edf6ff-1p0) 100%);
-  box-shadow:
-    0 40px 82px var(--tone-13579f-0p14),
-    0 10px 24px var(--tone-183a67-0p06),
-    inset 0 1px 0 var(--tone-ffffff-0p95);
+  box-shadow: var(--shadow-section), inset 0 1px 0 var(--tone-ffffff-0p95);
 }
 
 .surface::before,
@@ -58,12 +76,14 @@
   background: var(--tone-5babfa-0p12);
 }
 
+/* ---------- Header ---------- */
+
 .header {
   display: grid;
-  grid-template-columns: minmax(360px, 0.88fr) minmax(620px, 1.25fr);
+  grid-template-columns: minmax(300px, 0.82fr) minmax(560px, 1.2fr);
   align-items: end;
-  gap: clamp(24px, 3vw, 52px);
-  margin-bottom: clamp(24px, 2.4vw, 36px);
+  gap: 28px;
+  margin-bottom: 22px;
 }
 
 .headingGroup {
@@ -74,9 +94,9 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 38px;
-  padding: 8px 16px;
-  margin-bottom: 9px;
+  min-height: 32px;
+  padding: 6px 13px;
+  margin-bottom: 8px;
   border: 1px solid var(--tone-0769ee-0p2);
   border-radius: 999px;
   color: var(--tone-075fd9-1p0);
@@ -84,7 +104,7 @@
   box-shadow:
     0 8px 20px var(--tone-2370d1-0p09),
     inset 0 1px 0 var(--tone-ffffff-0p96);
-  font-size: clamp(0.76rem, 0.9vw, 0.9rem);
+  font-size: 0.73rem;
   font-weight: 850;
   letter-spacing: 0.035em;
   text-transform: uppercase;
@@ -98,27 +118,29 @@
 .title {
   max-width: 720px;
   color: var(--arrival-text);
-  font-size: clamp(2.65rem, 4.4vw, 5rem);
+  font-size: var(--section-title);
   font-weight: 850;
-  line-height: 0.98;
-  letter-spacing: -0.055em;
+  line-height: 1.02;
+  letter-spacing: -0.045em;
   text-wrap: balance;
 }
 
 .subtitle {
-  margin-top: 12px;
+  margin-top: 8px;
   color: var(--arrival-muted);
-  font-size: clamp(1rem, 1.25vw, 1.25rem);
+  font-size: var(--section-copy);
   line-height: 1.5;
 }
+
+/* ---------- Filter rail + View all ---------- */
 
 .controls {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: clamp(16px, 2.1vw, 34px);
+  gap: 14px;
   min-width: 0;
-  padding-bottom: 6px;
+  padding-bottom: 2px;
 }
 
 .tabs {
@@ -128,6 +150,7 @@
   min-width: 0;
   overflow-x: auto;
   overscroll-behavior-inline: contain;
+  scroll-snap-type: inline proximity;
   scrollbar-width: none;
   padding: 5px;
 }
@@ -145,16 +168,17 @@
 
 .tab {
   flex: 0 0 auto;
-  min-height: 46px;
-  padding: 10px clamp(18px, 1.8vw, 28px);
+  min-height: 44px;
+  padding: 8px clamp(15px, 1.3vw, 21px);
   border: 1px solid var(--tone-3b78c9-0p13);
   border-radius: 999px;
   color: var(--tone-53617a-1p0);
   background: var(--tone-ffffff-0p6);
   box-shadow: inset 0 1px 0 var(--tone-ffffff-0p85);
-  font-size: clamp(0.88rem, 1vw, 1rem);
+  font-size: 0.88rem;
   font-weight: 650;
   white-space: nowrap;
+  scroll-snap-align: start;
   transition:
     transform 180ms var(--motion-ease),
     color 180ms var(--motion-ease),
@@ -169,6 +193,8 @@
   transform: translateY(-1px);
 }
 
+/* Selected state is carried by weight and elevation as well as colour, so
+   it survives a colour-blind or forced-colours reading. */
 .tabActive {
   color: var(--tone-ffffff-1p0);
   border-color: transparent;
@@ -176,6 +202,7 @@
   box-shadow:
     0 13px 25px var(--tone-0769ee-0p22),
     inset 0 1px 0 var(--tone-ffffff-0p34);
+  font-weight: 850;
 }
 
 .tabActive:hover {
@@ -189,8 +216,8 @@
   align-items: center;
   justify-content: center;
   gap: 13px;
-  min-height: 48px;
-  padding: 11px 21px;
+  min-height: 44px;
+  padding: 9px 18px;
   border: 1px solid var(--tone-0769ee-0p58);
   border-radius: 999px;
   color: var(--tone-075fd9-1p0);
@@ -222,23 +249,27 @@
   transform: translateX(4px);
 }
 
-[dir="rtl"] .viewAll:hover svg,
-[dir="rtl"] .featuredCta:hover svg {
-  transform: translateX(-4px);
-}
-
 [dir="rtl"] .viewAll svg,
 [dir="rtl"] .featuredCta svg {
   transform: scaleX(-1);
 }
 
+[dir="rtl"] .viewAll:hover svg,
+[dir="rtl"] .featuredCta:hover svg {
+  transform: scaleX(-1) translateX(4px);
+}
+
+/* ---------- Panel ---------- */
+
 .panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: clamp(20px, 2vw, 30px);
-  min-height: clamp(560px, 42vw, 660px);
+  gap: 20px;
+  min-height: clamp(460px, 34vw, 525px);
   transform-origin: center top;
 }
+
+/* ---------- Featured product ---------- */
 
 .featuredCard {
   position: relative;
@@ -247,7 +278,7 @@
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--tone-1e80f5-0p34);
-  border-radius: clamp(24px, 1.8vw, 30px);
+  border-radius: 24px;
   background:
     radial-gradient(75% 65% at 78% 25%, var(--tone-3795ff-0p36), transparent 68%),
     linear-gradient(145deg, var(--tone-071a3a-1p0) 0%, var(--tone-0a2d66-1p0) 52%, var(--tone-0a3e8f-1p0) 100%);
@@ -301,10 +332,12 @@
   background: transparent !important;
 }
 
-/* Safe inset around the product. With object-fit: contain, padding on the image
-   shrinks the box the render is fitted into, so this is what creates the breathing
-   room while never cropping — and it scales with the stage rather than being a
-   fixed pixel guess. The lower inset is larger to clear the information panel. */
+/* Safe inset around the product. With object-fit: contain, padding on the
+   image shrinks the box the render is fitted into, so this is what creates
+   the breathing room while never cropping — and it scales with the stage
+   rather than being a fixed pixel guess. The lower inset clears the
+   information panel. Percentage padding resolves against the element's
+   WIDTH on all four sides, so the vertical values are chosen on that basis. */
 .featuredImage {
   padding: var(--arrival-featured-inset, 9% 24% 38%);
   transition:
@@ -312,11 +345,8 @@
     transform 420ms var(--motion-ease) !important;
 }
 
-/* Per-category caps: a tall portrait phone and a wide soundbar cannot share one
-   containment box without one of them reading wrong. Tall renders are constrained
-   on the sides, wide renders top and bottom. */
-/* Note: percentage padding resolves against the element's WIDTH on all four
-   sides, so the vertical values are chosen against that basis, not the height. */
+/* Per-category caps: a tall portrait phone and a wide soundbar cannot share
+   one containment box without one of them reading wrong. */
 .featuredCard[data-media-role="phones"] { --arrival-featured-inset: 9% 26% 36%; }
 .featuredCard[data-media-role="audio"] { --arrival-featured-inset: 8% 18% 38%; }
 .featuredCard[data-media-role="wearables"] { --arrival-featured-inset: 7% 21% 36%; }
@@ -356,19 +386,15 @@
   align-items: end;
   justify-content: space-between;
   gap: 24px;
-  min-height: 34%;
-  padding: clamp(20px, 2.3vw, 34px);
+  min-height: 31%;
+  padding: clamp(18px, 1.8vw, 26px);
   /* One fine translucent edge, not a stack of borders. */
   border: 1px solid var(--tone-9fcfff-0p3);
-  border-radius: 24px;
+  border-radius: 20px;
   color: var(--tone-ffffff-1p0);
-  /* Frosted, not solid. The previous rule layered two near-opaque gradients over
-     a solid base, so the panel read as a dark card and the blur behind it did
-     nothing. A single translucent surface lets a little of the stage atmosphere
-     through while the blur keeps text legible over any product.
-     First declaration is the solid fallback for engines without color-mix; the
-     alpha is derived from the existing tokens (which bake opacity into their
-     names) rather than inventing new ones. */
+  /* Frosted, not solid. First declaration is the solid fallback for engines
+     without color-mix; the alpha is derived from the existing tokens rather
+     than inventing new ones. */
   background:
     linear-gradient(120deg, var(--tone-061f46-0p93), var(--tone-06285b-0p78));
   background:
@@ -379,16 +405,15 @@
     );
   box-shadow:
     0 16px 34px var(--tone-021230-0p28),
-    /* Soft top-edge highlight — the only glass "shine" used. */
     inset 0 1px 0 var(--tone-ffffff-0p18);
-  /* Standard property only. Pairing it with the legacy -webkit- form made the CSS
-     transformer collapse the two into the obsolete prefixed property, which this
-     engine does not support, so the blur silently disappeared. */
+  /* Standard property only. Pairing it with the legacy -webkit- form made the
+     CSS transformer collapse the two into the obsolete prefixed property,
+     which this engine does not support, so the blur silently disappeared. */
   backdrop-filter: blur(18px) saturate(132%);
 }
 
-/* Without backdrop-filter the panel must not rely on blur for contrast, so the
-   surface becomes near-opaque and keeps the same border, radius and spacing. */
+/* Without backdrop-filter the panel must not rely on blur for contrast, so
+   the surface becomes near-opaque and keeps the same border and spacing. */
 @supports not (backdrop-filter: blur(2px)) {
   .featuredOverlay {
     background:
@@ -403,7 +428,7 @@
 
 .featuredTitle {
   color: var(--tone-ffffff-1p0);
-  font-size: clamp(1.35rem, 1.8vw, 2rem);
+  font-size: clamp(1.22rem, 1.5vw, 1.68rem);
   font-weight: 820;
   line-height: 1.2;
   letter-spacing: -0.025em;
@@ -412,12 +437,12 @@
 .featuredVariant {
   margin-top: 4px;
   color: var(--tone-f4f8ff-1p0);
-  font-size: clamp(1rem, 1.25vw, 1.25rem);
+  font-size: clamp(0.92rem, 1vw, 1.08rem);
   font-weight: 720;
 }
 
 .featuredSpecs {
-  margin-top: 12px;
+  margin-top: 8px;
   max-width: 610px;
   color: var(--tone-ebf5ff-0p82);
   font-size: clamp(0.78rem, 0.9vw, 0.95rem);
@@ -429,12 +454,12 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 13px;
-  margin-top: 18px;
+  margin-top: 13px;
 }
 
 .featuredPrice {
   color: var(--tone-2f94ff-1p0);
-  font-size: clamp(1.75rem, 2.5vw, 2.65rem);
+  font-size: clamp(1.55rem, 2vw, 2.15rem);
   font-weight: 880;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -452,9 +477,9 @@
   align-items: center;
   justify-content: center;
   gap: 13px;
-  min-width: 190px;
-  min-height: 52px;
-  padding: 12px 24px;
+  min-width: 160px;
+  min-height: 46px;
+  padding: 10px 18px;
   border: 1px solid var(--tone-a3dcff-0p72);
   border-radius: 999px;
   color: var(--tone-ffffff-1p0);
@@ -481,23 +506,26 @@
   filter: brightness(1.04);
 }
 
+/* ---------- Supporting products ---------- */
+
 .productGrid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: clamp(16px, 1.35vw, 22px);
+  gap: 14px;
   min-width: 0;
   min-height: 0;
 }
 
 .productCard {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-width: 0;
   min-height: 0;
   overflow: hidden;
   border: 1px solid var(--tone-2170d3-0p14);
-  border-radius: 24px;
+  border-radius: 20px;
   background: var(--tone-ffffff-0p93);
   box-shadow:
     0 14px 28px var(--tone-1f5ba4-0p09),
@@ -522,8 +550,8 @@
   flex: 1 1 62%;
   min-height: 0;
   overflow: hidden;
-  margin: 7px 7px 0;
-  border-radius: 18px;
+  margin: 6px 6px 0;
+  border-radius: 15px;
   background:
     radial-gradient(75% 65% at 78% 16%, var(--tone-ffffff-0p96), transparent 72%),
     linear-gradient(150deg, var(--tone-f9fcff-1p0) 0%, var(--tone-eaf4ff-1p0) 58%, var(--tone-dcecff-1p0) 100%);
@@ -549,9 +577,9 @@
   border-radius: inherit;
 }
 
-/* Same containment principle as the featured stage, tuned for the smaller card:
-   every product keeps its full silhouette (watch straps, both earbuds plus case,
-   full headband, whole case outline) rather than being cropped to a fragment. */
+/* Same containment principle as the featured stage, tuned for the smaller
+   card: every product keeps its full silhouette (watch straps, both earbuds
+   plus case, full headband, whole case outline) rather than being cropped. */
 .productImage {
   padding: var(--arrival-card-inset, 11% 16%);
   transition:
@@ -573,7 +601,7 @@
   align-items: end;
   justify-content: space-between;
   gap: 14px;
-  padding: 14px 16px 16px;
+  padding: 11px 13px 13px;
 }
 
 .productCopy {
@@ -582,7 +610,7 @@
 
 .productTitle {
   color: var(--arrival-text);
-  font-size: clamp(0.94rem, 1.05vw, 1.08rem);
+  font-size: clamp(0.88rem, 0.94vw, 1rem);
   font-weight: 800;
   line-height: 1.25;
   letter-spacing: -0.015em;
@@ -591,6 +619,20 @@
 .productTitle a {
   color: inherit;
   transition: color 160ms ease;
+}
+
+/* The title link is 18px of inline text, well under a comfortable tap target.
+   Stretching it over the whole card makes the product itself the target
+   (~300x327 on mobile) without adding a second link or changing the markup.
+   The arrow keeps its own layer above it so both stay independently
+   clickable, and focus still draws on the title text, which is where a
+   keyboard user expects it. */
+.productTitle a::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
 }
 
 .productTitle a:hover {
@@ -614,12 +656,12 @@
   align-items: baseline;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 7px;
 }
 
 .productPrice {
   color: var(--arrival-blue);
-  font-size: clamp(1.05rem, 1.3vw, 1.38rem);
+  font-size: clamp(1rem, 1.12vw, 1.2rem);
   font-weight: 880;
   line-height: 1;
   letter-spacing: -0.025em;
@@ -632,18 +674,21 @@
 }
 
 .productAction {
+  /* Sits above the title link's stretched hit area so both remain clickable. */
+  position: relative;
+  z-index: 4;
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 48px;
-  height: 48px;
+  width: 44px;
+  height: 44px;
   border: 1px solid var(--tone-2a75d6-0p14);
   border-radius: 50%;
   color: var(--arrival-blue);
   background: var(--tone-ffffff-1p0);
   box-shadow: 0 9px 20px var(--tone-1f5ba4-0p09);
-  font-size: 1.25rem;
+  font-size: 1.05rem;
   transition:
     transform 180ms var(--motion-ease),
     color 180ms var(--motion-ease),
@@ -658,48 +703,86 @@
   box-shadow: 0 13px 26px var(--tone-0769ee-0p24);
 }
 
-@media (max-width: 1399px) {
-  .header {
-    grid-template-columns: minmax(320px, 0.74fr) minmax(580px, 1.26fr);
+/* ---------- Keyboard focus ----------
+   globals.css exposes the ring as `:focus-visible { box-shadow: var(--focus-ring) }`.
+   A CSS-module class selector has the same specificity and loads later, so any
+   component shadow silently replaced the ring and keyboard users saw nothing.
+   Each control below re-states its own shadow WITH the ring in front, so both
+   survive. The ring is listed first so it paints on top. */
+
+.tab:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    inset 0 1px 0 var(--tone-ffffff-0p85);
+}
+
+.tabActive:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 13px 25px var(--tone-0769ee-0p22),
+    inset 0 1px 0 var(--tone-ffffff-0p34);
+}
+
+.viewAll:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 10px 20px var(--tone-0769ee-0p08);
+}
+
+.featuredCta:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 13px 28px var(--tone-0066ff-0p36),
+    inset 0 1px 0 var(--tone-ffffff-0p34);
+}
+
+.productAction:focus-visible {
+  box-shadow:
+    var(--focus-ring),
+    0 9px 20px var(--tone-1f5ba4-0p09);
+}
+
+.productTitle a:focus-visible {
+  box-shadow: var(--focus-ring);
+  border-radius: 6px;
+}
+
+/* Box shadows are dropped in forced-colours mode, so the ring needs a real
+   outline there. */
+@media (forced-colors: active) {
+  .tab:focus-visible,
+  .viewAll:focus-visible,
+  .featuredCta:focus-visible,
+  .productAction:focus-visible,
+  .productTitle a:focus-visible {
+    outline: 3px solid CanvasText;
+    outline-offset: 2px;
   }
 
-  .title {
-    font-size: clamp(2.65rem, 4.2vw, 4.25rem);
-  }
-
-  .controls {
-    gap: 16px;
-  }
-
-  .tab {
-    padding-inline: 18px;
-  }
-
-  .panel {
-    min-height: 580px;
-  }
-
-  .featuredCta {
-    min-width: 168px;
-    padding-inline: 20px;
+  .tabActive {
+    outline: 2px solid CanvasText;
   }
 }
 
-@media (max-width: 1199px) {
+/* ============================================================
+   Tablet — featured spans the full width, supporting products
+   stay a 2x2 grid because two ~330px cards still scan well.
+   ============================================================ */
+
+@media (max-width: 1199.98px) {
   .header {
     grid-template-columns: 1fr;
     align-items: start;
-    gap: 20px;
+    gap: 16px;
   }
 
   .controls {
-    justify-content: space-between;
-    padding-bottom: 0;
+    justify-content: flex-start;
   }
 
   .panel {
     grid-template-columns: 1fr;
-    min-height: auto;
+    min-height: 0;
   }
 
   .featuredCard {
@@ -711,27 +794,37 @@
   }
 }
 
-@media (max-width: 767px) {
+/* ============================================================
+   Mobile — the section is recomposed, not compressed.
+
+   The featured product becomes one editorial card laid out in normal
+   flow (media block, then copy block) instead of a fixed-height stage
+   with an absolutely positioned glass panel over it, and the four
+   supporting products become a single horizontal snap rail instead of
+   four full-width cards stacked to ~2 400px.
+   ============================================================ */
+
+@media (max-width: 767.98px) {
   .section {
-    padding-block: 18px 6px;
+    --arrival-surface-gutter: 16px;
+    padding-block: 34px 0;
   }
 
   .container {
-    padding-inline: 10px;
+    padding-inline: 12px;
   }
 
   .surface {
-    padding: 22px 14px 16px;
-    border-radius: 26px;
+    padding-block: 22px;
+    border-radius: 24px;
   }
 
   .title {
-    font-size: clamp(2.45rem, 12vw, 3.75rem);
-    line-height: 1;
+    font-size: clamp(2rem, 10vw, 2.6rem);
   }
 
-  .subtitle {
-    margin-top: 9px;
+  .header {
+    margin-bottom: 16px;
   }
 
   .controls {
@@ -740,74 +833,91 @@
     gap: 12px;
   }
 
+  /* The rail bleeds to the card edge so a partially cut tab is visible —
+     the standard mobile signal that the row scrolls — while the first tab
+     stays aligned with the heading above it. The extra block-end padding
+     is scroll-container headroom: `overflow-x: auto` makes the block axis
+     scrollable too, which would otherwise shear the active pill's shadow. */
   .tabs {
-    margin-inline: -4px;
-    padding-inline: 4px;
+    margin-inline: calc(var(--arrival-surface-gutter) * -1);
+    padding-inline: var(--arrival-surface-gutter);
+    padding-block: 5px 12px;
+    scroll-padding-inline: var(--arrival-surface-gutter);
+  }
+
+  .tabActive {
+    box-shadow:
+      0 6px 12px var(--tone-0769ee-0p22),
+      inset 0 1px 0 var(--tone-ffffff-0p34);
+  }
+
+  .tabActive:focus-visible {
+    box-shadow:
+      var(--focus-ring),
+      0 6px 12px var(--tone-0769ee-0p22),
+      inset 0 1px 0 var(--tone-ffffff-0p34);
   }
 
   .viewAll {
     align-self: flex-start;
-    min-height: 46px;
   }
 
+  .panel {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    min-height: 0;
+  }
+
+  /* --- Featured: flow layout, no absolute primary positioning --- */
+
   .featuredCard {
-    min-height: clamp(500px, 124vw, 620px);
+    display: grid;
+    grid-template-rows: auto auto;
+    min-height: 0;
     border-radius: 22px;
   }
 
+  .featuredCard:hover,
+  .featuredCard:focus-within {
+    transform: none;
+  }
+
+  .featuredMedia {
+    position: relative !important;
+    inset: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    /* A declared ratio reserves the space before the image decodes, so the
+       copy below never shifts. The cap stops the stage ballooning on large
+       phones — past ~480px the product is already big enough and extra height
+       only pushes the price and CTA further down. */
+    aspect-ratio: 4 / 3;
+    max-height: 360px;
+  }
+
+  .featuredCard[data-media-role="phones"] { --arrival-featured-inset: 4% 24%; }
+  .featuredCard[data-media-role="audio"] { --arrival-featured-inset: 6% 14%; }
+  .featuredCard[data-media-role="wearables"] { --arrival-featured-inset: 5% 18%; }
+  .featuredCard[data-media-role="accessories"] { --arrival-featured-inset: 6% 13%; }
+
+  /* The card's own dark gradient already carries the copy, so the panel
+     drops its box entirely: no nested surface, no large backdrop-filter,
+     just a hairline separating stage from copy. */
   .featuredOverlay {
-    inset-inline: 8px;
-    bottom: 8px;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-    padding: 20px;
-    border-radius: 19px;
-  }
-
-  .featuredCta {
-    align-self: flex-start;
-    min-width: 0;
-    min-height: 48px;
-  }
-
-  .productGrid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-rows: none;
-  }
-
-  .productCard {
-    min-height: 340px;
-    border-radius: 20px;
-  }
-
-  .productBody {
+    position: static;
+    z-index: auto;
+    display: flex;
     align-items: stretch;
     flex-direction: column;
-    gap: 10px;
-    padding: 12px;
-  }
-
-  .productAction {
-    width: 44px;
-    height: 44px;
-    align-self: flex-end;
-  }
-}
-
-@media (max-width: 575px) {
-  .eyebrow {
-    min-height: 34px;
-    padding: 7px 13px;
-  }
-
-  .tab {
-    min-height: 44px;
-    padding-inline: 17px;
-  }
-
-  .featuredCard {
-    min-height: 510px;
+    gap: 14px;
+    min-height: 0;
+    padding: 18px 18px 20px;
+    border: 0;
+    border-block-start: 1px solid var(--tone-9fcfff-0p3);
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+    backdrop-filter: none;
   }
 
   .featuredSpecs {
@@ -817,24 +927,97 @@
     -webkit-line-clamp: 2;
   }
 
+  .featuredCta {
+    align-self: flex-start;
+    min-width: 0;
+    min-height: 48px;
+    padding-inline: 22px;
+  }
+
+  /* --- Supporting products: one native scroll-snap rail --- */
+
   .productGrid {
-    grid-template-columns: 1fr;
+    display: grid;
+    grid-auto-flow: column;
+    /* 76vw keeps a readable card while always leaving the following card
+       partially in view — the affordance that tells the row it scrolls. */
+    grid-auto-columns: clamp(215px, 76vw, 300px);
+    grid-template-columns: none;
+    grid-template-rows: none;
+    gap: 12px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline proximity;
+    scrollbar-width: none;
+    margin-inline: calc(var(--arrival-surface-gutter) * -1);
+    padding-inline: var(--arrival-surface-gutter);
+    /* Scroll-container headroom for the card elevation — see .tabs above. */
+    padding-block: 8px 20px;
+    scroll-padding-inline: var(--arrival-surface-gutter);
+  }
+
+  .productGrid::-webkit-scrollbar {
+    display: none;
   }
 
   .productCard {
-    min-height: 390px;
+    min-height: 0;
+    scroll-snap-align: start;
+  }
+
+  .productCard:hover,
+  .productCard:focus-within {
+    transform: none;
   }
 
   .productMedia {
-    min-height: 245px;
+    flex: 0 0 auto;
+    aspect-ratio: 5 / 4;
+  }
+
+  /* Tighter insets than desktop: at rail width the product should fill the
+     stage rather than float in it, while still keeping a full silhouette. */
+  .productCard[data-media-role="phones"] { --arrival-card-inset: 7% 22%; }
+  .productCard[data-media-role="audio"] { --arrival-card-inset: 7% 11%; }
+  .productCard[data-media-role="wearables"] { --arrival-card-inset: 7% 15%; }
+  .productCard[data-media-role="accessories"] { --arrival-card-inset: 7% 11%; }
+
+  .productBody {
+    gap: 12px;
+  }
+
+  .productTitle {
+    font-size: 0.95rem;
+  }
+
+  .productVariant {
+    font-size: 0.8rem;
+  }
+
+  .productPrice {
+    font-size: 1.15rem;
+  }
+
+  .productOldPrice {
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .eyebrow {
+    margin-bottom: 6px;
+  }
+
+  .featuredOverlay {
+    padding: 16px 16px 18px;
   }
 
   .productBody {
-    flex-direction: row;
-    align-items: end;
-    padding: 14px 16px 16px;
+    padding: 10px 12px 12px;
   }
 }
+
+/* ---------- Reduced motion ---------- */
 
 @media (prefers-reduced-motion: reduce) {
   .tab,
@@ -843,6 +1026,7 @@
   .featuredImage,
   .featuredCta,
   .featuredCta svg,
+  .viewAll svg,
   .productCard,
   .productImage,
   .productAction {
@@ -852,59 +1036,21 @@
   .tab:hover,
   .viewAll:hover,
   .featuredCard:hover,
+  .featuredCard:focus-within,
   .featuredCta:hover,
   .productCard:hover,
+  .productCard:focus-within,
   .productAction:hover {
     transform: none !important;
   }
-}
 
-/* ============================================================
-   Full-home refinement: compact, content-driven proportions
-   ============================================================ */
-.section { padding-block: var(--section-space-compact) 0; }
-.container { max-width: var(--content-max); padding-inline: var(--content-gutter); }
-.surface {
-  padding: clamp(24px, 2.4vw, 34px);
-  border-radius: var(--radius-section);
-  box-shadow: var(--shadow-section), inset 0 1px 0 var(--tone-ffffff-0p95);
-}
-.header { grid-template-columns: minmax(300px,.82fr) minmax(560px,1.2fr); gap: 28px; margin-bottom: 22px; }
-.eyebrow { min-height: 32px; padding: 6px 13px; margin-bottom: 8px; font-size: .73rem; }
-.title { font-size: var(--section-title); line-height: 1.02; letter-spacing: -.045em; }
-.subtitle { margin-top: 8px; font-size: var(--section-copy); }
-.controls { gap: 14px; padding-bottom: 2px; }
-.tab { min-height: 42px; padding: 8px clamp(15px,1.3vw,21px); font-size: .88rem; }
-.viewAll { min-height: 44px; padding: 9px 18px; }
-.panel { gap: 20px; min-height: clamp(460px, 34vw, 525px); }
-.featuredCard { border-radius: 24px; }
-.featuredOverlay { min-height: 31%; padding: clamp(18px,1.8vw,26px); border-radius: 20px; }
-.featuredTitle { font-size: clamp(1.22rem,1.5vw,1.68rem); }
-.featuredVariant { font-size: clamp(.92rem,1vw,1.08rem); }
-.featuredSpecs { margin-top: 8px; }
-.featuredPriceRow { margin-top: 13px; }
-.featuredPrice { font-size: clamp(1.55rem,2vw,2.15rem); }
-.featuredCta { min-width: 160px; min-height: 46px; padding: 10px 18px; }
-.productGrid { gap: 14px; }
-.productCard { border-radius: 20px; }
-.productMedia { margin: 6px 6px 0; border-radius: 15px; }
-.productBody { padding: 11px 13px 13px; }
-.productTitle { font-size: clamp(.88rem,.94vw,1rem); }
-.productPriceRow { margin-top: 7px; }
-.productPrice { font-size: clamp(1rem,1.12vw,1.2rem); }
-.productAction { width: 42px; height: 42px; font-size: 1.05rem; }
-@media (max-width:1199px) {
-  .header { grid-template-columns:1fr; align-items:start; gap:16px; }
-  .controls { justify-content:flex-start; }
-  .panel { min-height:0; }
-}
-@media (max-width:767px) {
-  .section { padding-top: 34px; }
-  .surface { padding: 22px 16px; border-radius: 24px; }
-  .title { font-size: clamp(2rem,10vw,2.6rem); }
-  .controls { flex-direction:column; align-items:stretch; }
-  .tabs { margin-inline:-4px; }
-  .viewAll { align-self:flex-start; }
-  .featuredCard { min-height: 480px; }
-  .productGrid { gap:12px; }
+  .featuredCard:hover .featuredImage,
+  .productCard:hover .productImage {
+    transform: none !important;
+  }
+
+  .tabs,
+  .productGrid {
+    scroll-behavior: auto;
+  }
 }

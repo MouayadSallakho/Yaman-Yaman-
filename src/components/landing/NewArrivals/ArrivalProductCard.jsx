@@ -6,6 +6,12 @@ import { FiArrowUpRight } from "react-icons/fi";
 import AssetImage from "@/components/ui/AssetImage/AssetImage";
 import styles from "./NewArrivalsSection.module.css";
 
+// Mobile is a rail of ~78vw cards capped at 300px, tablet is a 2-up grid, and
+// desktop cards top out near 320px — so the widest candidate is a fixed size
+// rather than a viewport fraction, which would over-fetch on large screens.
+const CARD_IMAGE_SIZES =
+  "(max-width: 767px) 80vw, (max-width: 1199px) 46vw, 320px";
+
 export default function ArrivalProductCard({ product, formatPrice, t }) {
   return (
     <article
@@ -19,7 +25,7 @@ export default function ArrivalProductCard({ product, formatPrice, t }) {
           src={product.imageSrc}
           alt={product.imageAlt}
           fill
-          sizes="(max-width: 575px) 92vw, (max-width: 991px) 44vw, 24vw"
+          sizes={CARD_IMAGE_SIZES}
           fit={product.mediaVariant}
           wrapperClassName={styles.productAsset}
           className={styles.productImage}

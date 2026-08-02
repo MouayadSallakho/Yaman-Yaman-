@@ -24,7 +24,7 @@ export default function FeaturedArrivalCard({ product, formatPrice, t }) {
         alt={product.imageAlt}
         fill
         priority={false}
-        sizes="(max-width: 767px) 92vw, (max-width: 1199px) 88vw, 48vw"
+        sizes="(max-width: 767px) 88vw, (max-width: 1199px) 92vw, 45vw"
         fit={product.mediaVariant}
         wrapperClassName={styles.featuredMedia}
         className={styles.featuredImage}
@@ -42,7 +42,13 @@ export default function FeaturedArrivalCard({ product, formatPrice, t }) {
         <div className={styles.featuredCopy}>
           <h3 className={styles.featuredTitle}>{product.name}</h3>
           <p className={styles.featuredVariant}>{product.variant}</p>
-          <p className={styles.featuredSpecs}>{product.specifications}</p>
+          {/* The spec string is Latin text with digits and bullet separators.
+              Dropped into an Arabic (RTL) paragraph the bidi algorithm reorders
+              the runs — "6.7-inch … 48MP" rendered as "48MP-6.7". <bdi> isolates
+              it so it reads correctly in both directions. */}
+          <p className={styles.featuredSpecs}>
+            <bdi>{product.specifications}</bdi>
+          </p>
           <p className={styles.featuredPriceRow}>
             <span className={styles.featuredPrice}>{formatPrice(product.price)}</span>
             {product.previousPrice ? (
