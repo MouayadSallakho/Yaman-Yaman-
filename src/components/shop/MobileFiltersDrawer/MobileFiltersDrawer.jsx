@@ -11,6 +11,27 @@ const FOCUSABLE =
   'button:not([disabled]), [href], input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 
 /**
+ * Give focus back to the control that opened the sheet.
+ *
+ * The remembered node is preferred, but the toolbar re-renders while the sheet is
+ * open (the active-filter badge appears and disappears), which can leave that
+ * reference pointing at a node React has already replaced. Focusing a detached
+ * element silently drops focus to <body>, so fall back to finding the live
+ * trigger by the accessible name it had when it was captured.
+ */
+function restoreFocusTo(node, label) {
+  if (node?.isConnected) {
+    node.focus({ preventScroll: true });
+    return;
+  }
+  if (!label || typeof CSS === "undefined" || !CSS.escape) return;
+  const live = document.querySelector(
+    `#main-content button[aria-label="${CSS.escape(label)}"]`,
+  );
+  live?.focus({ preventScroll: true });
+}
+
+/**
  * Mobile filter sheet.
  *
  * Filters apply immediately (the result count in the footer updates live), so
@@ -24,12 +45,14 @@ export default function MobileFiltersDrawer({ open, onClose, filters, facets, ac
   const panelRef = useRef(null);
   const closeRef = useRef(null);
   const restoreRef = useRef(null);
+  const restoreLabelRef = useRef(null);
   const titleId = useId();
 
   useEffect(() => {
     if (!open) return undefined;
 
     restoreRef.current = document.activeElement;
+    restoreLabelRef.current = restoreRef.current?.getAttribute?.("aria-label") ?? null;
     closeRef.current?.focus();
 
     const { overflow } = document.body.style;
@@ -62,7 +85,12 @@ export default function MobileFiltersDrawer({ open, onClose, filters, facets, ac
     return () => {
       document.removeEventListener("keydown", onKeyDown);
       document.body.style.overflow = overflow;
-      restoreRef.current?.focus?.({ preventScroll: true });
+      // Deferred a frame so the sheet is out of the DOM and the toolbar has
+      // committed before focus is placed — otherwise it lands on a node that is
+      // about to be replaced.
+      const node = restoreRef.current;
+      const label = restoreLabelRef.current;
+      requestAnimationFrame(() => restoreFocusTo(node, label));
     };
   }, [open, onClose]);
 

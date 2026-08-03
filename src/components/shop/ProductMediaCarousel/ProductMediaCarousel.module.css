@@ -104,9 +104,10 @@
   width: 5px;
   height: 5px;
   border-radius: 999px;
-  /* A quiet blue-grey that still reads on a white surface. The previous 28%
-     navy washed out to roughly 1.6:1 once it left the product image. */
-  background: var(--tone-98a4b5-1p0);
+  /* Component-local. The shared 98a4b5 measured 2.53:1 against the separator's
+     white platform, below the 3:1 WCAG 1.4.11 floor for a meaningful UI graphic.
+     Kept local so no global token moves. */
+  background: #6f7c8b;
   transition:
     width var(--motion-fast) var(--motion-ease),
     height var(--motion-fast) var(--motion-ease),
@@ -128,6 +129,30 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
+}
+
+/* Forced colors strips the arrow discs and flattens both bullet states to the
+   same system colour. The active bullet already differs in shape (18x6 vs 5x5),
+   so state survives; these rules restore the boundaries. */
+@media (forced-colors: active) {
+  .arrow {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .arrow:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  .bullet {
+    background: GrayText;
+  }
+
+  .bulletActive {
+    background: Highlight;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

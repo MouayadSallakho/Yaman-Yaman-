@@ -561,6 +561,10 @@ const en = {
   shop: {
     breadcrumbLabel: "Shop breadcrumb",
     resultsTitle: "Product results",
+    // Compact catalogue heading. Deliberately carries no result count — the
+    // toolbar owns that, and repeating it competes with the real total.
+    pageTitle: "All Products",
+    pageIntro: "Browse the full range and narrow it down by category, brand, price or rating.",
     hero: {
       eyebrow: "Shop all tech",
       title: "Discover the latest tech essentials",

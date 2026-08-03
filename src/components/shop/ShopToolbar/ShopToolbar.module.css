@@ -5,6 +5,9 @@
   flex-wrap: wrap;
   gap: 12px 18px;
   padding: 12px 16px;
+  /* Shrinkable: the row's intrinsic width used to exceed the results column at
+     320px in Arabic, which is what pushed the whole column 44px wide. */
+  min-width: 0;
   border: 1px solid var(--border-subtle);
   border-radius: 16px;
   background: var(--surface-card);
@@ -12,6 +15,7 @@
 }
 
 .count {
+  min-width: 0;
   color: var(--text-muted);
   font-size: 0.83rem;
   font-weight: 660;
@@ -26,6 +30,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  min-width: 0;
 }
 
 /* The sidebar covers this above 992px, so the trigger only exists below it. */
@@ -33,14 +38,23 @@
   display: none;
   align-items: center;
   gap: 8px;
-  min-height: 42px;
+  /* 44px, not 42px — this is a primary mobile control. */
+  min-height: 44px;
   padding-inline: 14px;
+  min-width: 0;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-button);
   background: var(--surface-card);
   color: var(--text-main);
   font-size: 0.84rem;
   font-weight: 760;
+}
+
+.filterTriggerLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .filterCount {
@@ -60,6 +74,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .sortLabel {
@@ -70,8 +85,12 @@
 }
 
 .sortSelect {
-  min-height: 42px;
+  min-height: 44px;
   padding-inline: 12px;
+  /* A <select> takes its intrinsic width from its LONGEST option, and the Arabic
+     "price: low to high" label is ~190px. Without this the control alone could
+     not fit a 288px results column. */
+  min-width: 0;
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-button);
   background: var(--surface-card);
@@ -139,12 +158,47 @@
     align-items: stretch;
     flex-direction: column;
     gap: 10px;
+    /* Reclaims 8px of inline room at 320px without touching the card's rhythm. */
+    padding-inline: 12px;
   }
 
-  .controls { justify-content: space-between; }
+  /* Deliberate two-track split instead of a flex row that wraps by accident:
+     the filter trigger takes what it needs (its label ellipsizing if it must)
+     and the sort control fills the remainder. */
+  .controls {
+    display: grid;
+    grid-template-columns: minmax(0, auto) minmax(0, 1fr);
+    gap: 10px;
+  }
+
   .sortLabel { display: none; }
   .filterTrigger, .sortSelect { min-height: 46px; }
-  .sortSelect { flex: 1; max-width: 58%; }
+  .sortSelect { width: 100%; }
+}
+
+/* Forced colors removes the tinted "active view" background, which was the only
+   thing distinguishing the pressed grid/list control. */
+@media (forced-colors: active) {
+  .filterTrigger,
+  .sortSelect,
+  .density {
+    border: 1px solid ButtonText;
+  }
+
+  .densityButton {
+    color: ButtonText;
+  }
+
+  .densityOn {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .filterCount {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

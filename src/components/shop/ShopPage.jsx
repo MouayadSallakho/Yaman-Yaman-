@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import { useTranslation } from "@/i18n/LocaleProvider";
 import ActiveFilterChips from "./ActiveFilterChips/ActiveFilterChips";
@@ -11,10 +11,6 @@ import ProductGrid from "./ProductGrid/ProductGrid";
 import ShopFilters from "./ShopFilters/ShopFilters";
 import ShopToolbar from "./ShopToolbar/ShopToolbar";
 import {
-  FiltersSkeleton,
-  ToolbarSkeleton,
-} from "./ShopSkeletons/ShopSkeletons";
-import {
   activeFilterCount as countActive,
   hasActiveFilters,
 } from "./data/filtering";
@@ -22,8 +18,6 @@ import useProgressiveList from "./useProgressiveList";
 import useResultsScroll from "./useResultsScroll";
 import useShopQuery from "./useShopQuery";
 import styles from "./ShopPage.module.css";
-
-const FIRST_LOAD_MS = 520;
 
 export default function ShopPage() {
   const { t } = useTranslation();
@@ -43,22 +37,21 @@ export default function ShopPage() {
     visibleItems,
     visibleCount,
     lastAdded,
+    hasMore,
+    remaining,
+    observerSupported,
+    loadMore,
     sentinelRef,
   } = useProgressiveList(results, queryKey);
 
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
   // Grid is the stable default; view mode is page-local so it never has to be
   // hydrated from storage or a URL param.
   const [view, setView] = useState("grid");
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsFirstLoad(false);
-    }, FIRST_LOAD_MS);
-
-    return () => clearTimeout(timer);
-  }, []);
+  // The catalogue is a synchronous in-memory constant, so the real products are
+  // available on the very first render. There is deliberately no loading state:
+  // anything shown before them would be invented latency.
 
   const activeCount = useMemo(
     () => countActive(filters),
@@ -74,7 +67,22 @@ export default function ShopPage() {
     setDrawerOpen(false);
   }, []);
 
-  const showEmpty = !isFirstLoad && results.length === 0;
+  /**
+   * Filtering can replace 49 results with 3 without anything visible moving into
+   * the viewport, so the new total is announced politely.
+   *
+   * Derived, never stored: a live region is not announced for the content it
+   * already had when it entered the accessibility tree, only for later changes,
+   * so no "skip the first render" state is needed. It deliberately reports the
+   * matched total and not how many are revealed — revealing a batch must stay the
+   * grid's own announcement, and keying off the total is what keeps the two from
+   * firing for the same update.
+   */
+  const resultsMessage = results.length === 0
+    ? t("shop.toolbar.noResults")
+    : t("shop.hero.count", { count: results.length });
+
+  const showEmpty = results.length === 0;
 
   return (
     <main id="main-content" className={styles.page}>
@@ -95,6 +103,14 @@ export default function ShopPage() {
             {t("common.nav.products")}
           </span>
         </nav>
+
+        {/* The page's only h1. Deliberately a compact catalogue heading rather
+            than a marketing hero: it names the route for assistive technology
+            and search engines while costing almost nothing above the fold. */}
+        <header className={styles.intro}>
+          <h1 className={styles.introTitle}>{t("shop.pageTitle")}</h1>
+          <p className={styles.introText}>{t("shop.pageIntro")}</p>
+        </header>
 
         <div className={styles.layout}>
           <aside
@@ -118,16 +134,12 @@ export default function ShopPage() {
                 ) : null}
               </div>
 
-              {isFirstLoad ? (
-                <FiltersSkeleton />
-              ) : (
-                <ShopFilters
-                  filters={filters}
-                  facets={facets}
-                  actions={actions}
-                  idPrefix="sidebar"
-                />
-              )}
+              <ShopFilters
+                filters={filters}
+                facets={facets}
+                actions={actions}
+                idPrefix="sidebar"
+              />
             </div>
           </aside>
 
@@ -143,27 +155,27 @@ export default function ShopPage() {
               {t("shop.resultsTitle")}
             </h2>
 
-            {isFirstLoad ? (
-              <ToolbarSkeleton />
-            ) : (
-              <ShopToolbar
-                shown={visibleItems.length}
-                total={results.length}
-                sort={sort}
-                onSortChange={actions.setSort}
-                onOpenFilters={() => setDrawerOpen(true)}
-                activeFilterCount={activeCount}
-                view={view}
-                onViewChange={setView}
-              />
-            )}
+            {/* Narrow live region: only the committed result count, never the
+                grid itself. */}
+            <span role="status" aria-live="polite" className="visually-hidden">
+              {resultsMessage}
+            </span>
 
-            {!isFirstLoad ? (
-              <ActiveFilterChips
-                filters={filters}
-                actions={actions}
-              />
-            ) : null}
+            <ShopToolbar
+              shown={visibleItems.length}
+              total={results.length}
+              sort={sort}
+              onSortChange={actions.setSort}
+              onOpenFilters={() => setDrawerOpen(true)}
+              activeFilterCount={activeCount}
+              view={view}
+              onViewChange={setView}
+            />
+
+            <ActiveFilterChips
+              filters={filters}
+              actions={actions}
+            />
 
             {showEmpty ? (
               <EmptyResultsState
@@ -173,10 +185,13 @@ export default function ShopPage() {
               <ProductGrid
                 products={visibleItems}
                 view={view}
-                isInitialLoading={isFirstLoad}
                 visibleCount={visibleCount}
                 total={results.length}
                 lastAdded={lastAdded}
+                hasMore={hasMore}
+                remaining={remaining}
+                observerSupported={observerSupported}
+                onLoadMore={loadMore}
                 sentinelRef={sentinelRef}
               />
             )}

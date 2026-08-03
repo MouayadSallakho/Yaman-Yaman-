@@ -30,7 +30,9 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 16px;
+  /* Tighter than before: the page heading now sits directly beneath it and
+     supplies the separation the breadcrumb used to have to create alone. */
+  margin-bottom: 12px;
   color: var(--text-soft);
   font-size: 0.78rem;
   font-weight: 640;
@@ -44,12 +46,42 @@
   color: var(--brand-primary-strong);
 }
 
+/* ----------------------------------------------------------- page heading */
+/* Compact by design. The catalogue is the content; this only has to name the
+   route and orient a first-time visitor. */
+.intro {
+  display: grid;
+  gap: 4px;
+  max-width: 64ch;
+}
+
+.introTitle {
+  color: var(--text-main);
+  font-size: clamp(1.3rem, 2.3vw, 1.85rem);
+  font-weight: 860;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+.introText {
+  /* Hidden on the narrowest phones so the heading costs one line, not three,
+     before the first product. Purely orientational — nothing depends on it. */
+  display: none;
+  color: var(--text-muted);
+  font-size: clamp(0.82rem, 1vw, 0.92rem);
+  line-height: 1.55;
+}
+
+@media (min-width: 576px) {
+  .introText { display: block; }
+}
+
 /* ---------------------------------------------------------------- layout */
 .layout {
   display: grid;
   grid-template-columns: 268px minmax(0, 1fr);
   gap: clamp(18px, 2vw, 30px);
-  margin-top: clamp(22px, 2.8vw, 36px);
+  margin-top: clamp(16px, 2.2vw, 28px);
   align-items: start;
 }
 
@@ -109,10 +141,21 @@
 
 .results {
   display: grid;
+  /* min-width alone does not constrain a grid's own tracks: the implicit `auto`
+     column still sizes to its content minimum, which is how the product card
+     overflowed this column by ~9px at 320px. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 14px;
   /* Anchor target for the scroll policy; keeps a little breathing room. */
   scroll-margin-top: 100px;
   min-width: 0;
+  /* The grid inside decides its column count from THIS width, not the
+     viewport's. That is the whole fix for the density curve: the sidebar
+     appearing at 992px takes ~270px out of the results column, and a
+     viewport-based breakpoint cannot see that, which is why widening the
+     window used to make cards narrower. */
+  container-type: inline-size;
+  container-name: shopResults;
 }
 
 @media (max-width: 1199.98px) {

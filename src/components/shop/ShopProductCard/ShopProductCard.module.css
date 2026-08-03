@@ -5,11 +5,27 @@
 .card {
   --card-radius: 26px;
   --card-radius-bottom: 20px;
-  /* Media height drives the whole proportion; body height follows content. */
-  --card-media-h: clamp(158px, 13.6vw, 196px);
+  /* Media height follows the card's OWN width (see .media) rather than the
+     viewport. A viewport clamp gave a 376px-wide two-column card the same 158px
+     stage as a 214px four-column one, so the product occupied under half the
+     available width for most of the tablet range. These two bounds only stop a
+     full-width phone card from turning the stage into a banner. */
+  --card-media-min: 168px;
+  --card-media-max: 264px;
   --card-dock-h: 46px;
+  /* Width of the docked cart control, and therefore of the footer's second grid
+     track. A single value feeds both so the track genuinely reserves the
+     control's space — a percentage width contributes nothing to intrinsic track
+     sizing, which collapsed the track to 16px and let a long enough price run
+     underneath the button. */
+  --card-cart-w: 64px;
   --card-body-pad: 14px;
   --card-body-pad-bottom: 12px;
+  /* Card-local secondary text colour. The shared --text-soft measures exactly
+     3.00:1 on this surface, which fails WCAG 1.4.3 for the spec line, the review
+     count, the previous price and the out-of-stock label. Kept local so no
+     global token changes. */
+  --card-text-soft: #5f6a78;
   /* Height of the shaped transition band. It matches the separator SVG's viewBox
      height, so the platform hairline lands 18.5px above the media's bottom edge
      and the indicator inset below can be reasoned about in real pixels. */
@@ -19,6 +35,9 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  /* The card must be able to shrink to its grid track rather than push it wider
+     from min-content, which is what overflowed the results column at 320px. */
+  min-width: 0;
   overflow: hidden;
   border: 1px solid var(--tone-508bc9-0p2);
   /* Large, disciplined top radius; slightly tighter bottom, one system. */
@@ -75,6 +94,9 @@
   --carousel-bullets-inset: 12px;
   flex: 0 0 200px;
   width: 200px;
+  /* The row's media is a fixed-width tile, so the shell's bounds do not apply —
+     the 4:3 ratio alone sizes it. */
+  min-height: 0;
   max-height: none;
   align-self: center;
   border-radius: var(--radius-card);
@@ -117,6 +139,8 @@
 .cardList .footer {
   grid-area: price;
   display: grid;
+  /* Resets the grid card's two-track dock: in a row the price column stacks. */
+  grid-template-columns: minmax(0, 1fr);
   justify-items: end;
   align-content: start;
   gap: 12px;
@@ -204,7 +228,12 @@
 .media {
   position: relative;
   flex: 0 0 auto;
-  height: var(--card-media-h);
+  /* Height derives from the card's width, bounded at both ends. A 4:3 stage
+     gives portrait products (phones, watches) real vertical room while still
+     letting the 3:2 landscape photography fill the width. */
+  aspect-ratio: 4 / 3;
+  min-height: var(--card-media-min);
+  max-height: var(--card-media-max);
   /* Seats the media indicators inside the separator's centre platform rather than
      over the product. The platform hairline's lower edge is 17.75px above the
      media's bottom edge, so a 6px strip at 5px leaves a 6.75px gap under the line
@@ -362,6 +391,7 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+  min-width: 0;
   /* Tightened rhythm: the card carried ~60px of slack versus the target ratio. */
   gap: 2px;
   padding: var(--card-body-pad) var(--card-body-pad) var(--card-body-pad-bottom);
@@ -370,7 +400,10 @@
 
 .brand {
   position: relative;
-  color: var(--brand-primary);
+  /* The base brand blue measures 3.48:1 on this surface, which fails 1.4.3 for
+     text this small. The existing "strong" step is the same hue at 4.70:1, so
+     hierarchy is preserved without touching a global token. */
+  color: var(--brand-primary-strong);
   font-size: 0.63rem;
   font-weight: 850;
   letter-spacing: 0.1em;
@@ -391,6 +424,7 @@
 }
 
 .title {
+  min-width: 0;
   font-size: 0.92rem;
   font-weight: 750;
   line-height: 1.35;
@@ -413,7 +447,8 @@
 }
 
 .meta {
-  color: var(--text-soft);
+  min-width: 0;
+  color: var(--card-text-soft);
   font-size: 0.74rem;
   line-height: 1.45;
   white-space: nowrap;
@@ -442,7 +477,7 @@
 }
 
 .reviews {
-  color: var(--text-soft);
+  color: var(--card-text-soft);
   font-size: 0.72rem;
 }
 
@@ -453,7 +488,7 @@
 
 .stockin { color: var(--success); }
 .stocklow { color: var(--tone-c2760b-1p0); }
-.stockout { color: var(--text-soft); }
+.stockout { color: var(--card-text-soft); }
 
 /* -------------------------------------------------------- purchase dock */
 /* Price and cart share one structural surface with a restrained blue accent
@@ -461,9 +496,12 @@
    no grey rule above the price. */
 .footer {
   position: relative;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  /* Explicit two-track grid rather than space-between flex: the price track is
+     shrinkable and the cart track is intrinsic, so the two can never overlap and
+     the control never has to be squeezed out of its own footprint. */
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) var(--card-cart-w);
+  align-items: end;
   gap: 10px;
   /* Pins the dock to the bottom so uneven titles stay aligned. */
   margin-top: auto;
@@ -504,17 +542,22 @@
   padding-bottom: 8px;
 }
 
+/* Both prices are atomic. Without this a tight row split them at token level —
+   the currency sign or the decimals alone on a second line. If the pair genuinely
+   cannot fit, the previous price wraps as a whole, which is predictable. */
 .price {
   color: var(--text-main);
   font-size: 1.06rem;
   font-weight: 860;
   letter-spacing: -0.02em;
+  white-space: nowrap;
 }
 
 .oldPrice {
-  color: var(--text-soft);
+  color: var(--card-text-soft);
   font-size: 0.74rem;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 /* Angular Techno Solutions cart control, flush into the shell's bottom
@@ -550,11 +593,13 @@
   justify-content: center;
   gap: 8px;
   flex: 0 0 auto;
+  /* Docked to the inline end of the footer's intrinsic track. */
+  justify-self: end;
   /* The footprint includes the slant, so the connector is never able to overhang
-     the price row. Sized so the widest price in the catalogue still keeps ~9px of
-     headroom before it would wrap and make one row taller than the rest. Never
-     below the 44px touch target. */
-  width: clamp(64px, 26%, 84px);
+     the price row. Shares one value with the footer's second track, so the price
+     column is always the remainder and can never collide with this control.
+     Never below the 44px touch target. */
+  width: var(--card-cart-w);
   min-height: var(--card-dock-h);
   /* Only the inline offset is needed — the dock itself already bleeds to the
      bottom edge, so a second negative margin here clipped the control. */
@@ -659,15 +704,76 @@
     --card-radius: 22px;
     --card-radius-bottom: 16px;
     --card-body-pad: 13px;
-    /* One column means a much wider card, so the media can breathe again. */
-    --card-media-h: clamp(190px, 46vw, 260px);
+    /* One column means a much wider card; the 4:3 stage already grows with it,
+       so only the floor is lifted to keep short products from sitting small. */
+    --card-media-min: 190px;
+    /* Wider card, so the control keeps its share once the slant is subtracted. */
+    --card-cart-w: 72px;
   }
 
   .title { font-size: 0.9rem; }
   .price { font-size: 1.02rem; }
-  /* Wider card, so the solid area keeps its share once the slant is subtracted.
-     Never below the 44px touch target. */
-  .cartButton { width: clamp(72px, 24%, 96px); }
+}
+
+/* ------------------------------------------------------------ forced colors */
+/* The cart control's entire visual is two pseudo-element gradients, so forced
+   colors erased it completely — white text on nothing. Decorative geometry is
+   allowed to disappear here; a semantic control is not. The slant is given up in
+   exchange for a real, system-coloured boundary. */
+@media (forced-colors: active) {
+  .cartButton {
+    border: 2px solid ButtonText;
+    border-radius: var(--radius-button);
+    background: ButtonFace;
+    color: ButtonText;
+    /* The lift is a drop-shadow filter tracing a silhouette that no longer
+       exists in this mode. */
+    filter: none;
+  }
+
+  .cartButton::before,
+  .cartButton::after {
+    display: none;
+  }
+
+  .cartButton:disabled {
+    border-color: GrayText;
+    color: GrayText;
+  }
+
+  .cartButton:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  /* Badge backgrounds are removed, which left the labels as bare floating text. */
+  .badge {
+    border: 1px solid CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .wishlist {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    color: ButtonText;
+  }
+
+  .wishlistOn {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .wishlist:focus-visible {
+    outline: 3px solid Highlight;
+    outline-offset: 2px;
+  }
+
+  /* Purely decorative: the orbital rings and the grounding shadow carry no
+     information, so losing them is correct. */
+  .stage {
+    display: none;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

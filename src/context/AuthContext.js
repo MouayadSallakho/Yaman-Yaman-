@@ -1,7 +1,13 @@
 "use client";
 
 import { createContext, useSyncExternalStore } from "react";
-import { AuthStorage } from "@/lib/auth/storage";
+import {
+  clearToken,
+  getToken,
+  isTokenReady,
+  saveToken,
+  subscribeToken,
+} from "@/lib/auth/storage";
 
 export const AuthContext = createContext(null);
 
@@ -10,46 +16,27 @@ export const AuthContext = createContext(null);
  * useSyncExternalStore instead of an effect. That keeps the server render and
  * the first client paint identical (no token) while avoiding the cascading
  * render that setState-inside-useEffect causes.
+ *
+ * Every storage failure — and the in-memory fallback that keeps a session usable
+ * when the browser refuses to persist it — is owned by the auth storage
+ * boundary. Nothing imported here can throw, so this provider needs no guards of
+ * its own and none are duplicated per component.
  */
-const listeners = new Set();
-
-function subscribe(listener) {
-  listeners.add(listener);
-  return () => listeners.delete(listener);
-}
-
-function emitChange() {
-  for (const listener of listeners) listener();
-}
-
-function getTokenSnapshot() {
-  return AuthStorage.getToken() || sessionStorage.getItem("token") || null;
-}
 
 // No browser storage exists while rendering on the server.
-function getServerTokenSnapshot() {
-  return null;
-}
-
-// Storage has been read once the client has taken over from the server markup.
-const getReadySnapshot = () => true;
+const getServerTokenSnapshot = () => null;
 const getServerReadySnapshot = () => false;
 
 export function AuthProvider({ children }) {
-  const token = useSyncExternalStore(subscribe, getTokenSnapshot, getServerTokenSnapshot);
-  const ready = useSyncExternalStore(subscribe, getReadySnapshot, getServerReadySnapshot);
+  const token = useSyncExternalStore(subscribeToken, getToken, getServerTokenSnapshot);
+  const ready = useSyncExternalStore(subscribeToken, isTokenReady, getServerReadySnapshot);
 
   function login(newToken, remember) {
-    if (remember) AuthStorage.setToken(newToken);
-    else sessionStorage.setItem("token", newToken);
-
-    emitChange();
+    saveToken(newToken, { remember });
   }
 
   function logout() {
-    AuthStorage.logout();
-    sessionStorage.removeItem("token");
-    emitChange();
+    clearToken();
   }
 
   return (

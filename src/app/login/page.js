@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 
 import styles from "./LoginPage.module.css";
 import { AuthAPI } from "@/lib/api/auth";
-import { AuthStorage } from "@/lib/auth/storage";
+import { saveToken } from "@/lib/auth/storage";
 import Toast from "@/components/ui/Toast";
 import { useTranslation } from "@/i18n/LocaleProvider";
 
@@ -62,9 +62,11 @@ export default function LoginPage() {
         const token = data?.token;
         if (!token) throw new Error(t("auth.validation.tokenMissing"));
 
-        // store token immediately
-        if (remember) AuthStorage.setToken(token);
-        else sessionStorage.setItem("token", token);
+        // Store the token immediately. This cannot throw: the auth storage
+        // boundary absorbs a blocked or full store and keeps the session in
+        // memory, so a browser that refuses persistence never surfaces here as
+        // a failed sign-in.
+        saveToken(token, { remember });
 
         // show toast here
         setToast(t("auth.login.toast"));

@@ -1,6 +1,16 @@
 .filters {
   display: grid;
   gap: 6px;
+  /* Section-local text tones. The option list needs three readable levels —
+     available label, facet count, unavailable option — and every one of them is
+     normal-size text that must clear 4.5:1 on the white panel surface. That
+     cannot be expressed as opacity steps off a single token, so the two quieter
+     levels are explicit colours measured against --surface-card.
+       label  var(--text-muted) #5b6673  5.84:1
+       count  #646f7d                    5.11:1 (4.59:1 on a selected row)
+       empty  #6b7684                    4.62:1                              */
+  --filter-count-text: #646f7d;
+  --filter-empty-text: #6b7684;
 }
 
 .group {
@@ -75,9 +85,13 @@
   color: var(--text-main);
 }
 
-/* Facets that would return nothing stay selectable but read as quiet. */
+/* Facets that would return nothing stay selectable but read as quiet. Opacity
+   used to carry that signal, and it dimmed the whole row: the label fell to
+   2.32:1 and the "0" to 1.74:1, both well under WCAG 2.2 AA. A dedicated tone
+   keeps the row secondary while staying readable, and leaves :hover, :checked
+   and the native control untouched. */
 .optionEmpty {
-  opacity: 0.55;
+  color: var(--filter-empty-text);
 }
 
 .optionLabel {
@@ -87,10 +101,17 @@
 
 .count {
   flex: 0 0 auto;
-  color: var(--text-soft);
+  color: var(--filter-count-text);
   font-size: 0.74rem;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+}
+
+/* The "0" is part of the zero-count option's text, so it has to clear 4.5:1 too.
+   Inheriting also means :hover and :checked lift the number with its label
+   instead of leaving it behind. */
+.optionEmpty .count {
+  color: inherit;
 }
 
 /* Native inputs, restyled — keeps keyboard behaviour and AT semantics. */

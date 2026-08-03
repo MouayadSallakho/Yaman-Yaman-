@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import styles from "./VerifyPage.module.css";
 import { AuthAPI } from "@/lib/api/auth";
-import { AuthStorage } from "@/lib/auth/storage";
+import { saveToken } from "@/lib/auth/storage";
 import Toast from "@/components/ui/Toast";
 import { useTranslation } from "@/i18n/LocaleProvider";
 
@@ -122,8 +122,10 @@ function VerifyForm() {
 
         if (!token) throw new Error(t("auth.validation.tokenMissing"));
 
-        // ✅ store token immediately
-        AuthStorage.setToken(token);
+        // ✅ store token immediately. Cannot throw — the auth storage boundary
+        // absorbs a blocked or full store, so a browser that refuses
+        // persistence is never reported as a failed verification.
+        saveToken(token, { remember: true });
 
         // ✅ show toast here (not in home)
         setToast(

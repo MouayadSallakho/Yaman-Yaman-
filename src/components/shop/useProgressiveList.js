@@ -1,6 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 
 /** Cards rendered on first paint. */
 export const INITIAL_COUNT = 12;
@@ -14,6 +20,25 @@ export const BATCH_SIZE = 8;
 const STORAGE_PREFIX = "mabco-shop-progress:";
 
 /**
+ * How many frames a restore will wait for the re-rendered grid to grow tall
+ * enough to hold the saved scroll position before applying it anyway.
+ */
+const RESTORE_MAX_FRAMES = 12;
+
+/**
+ * Whether the browser can append batches for us.
+ *
+ * Read through useSyncExternalStore rather than an effect: this is an immutable
+ * browser capability, not React state, and the store form is the one way to read
+ * it that keeps the server and the hydrating client in agreement without a
+ * cascading render. Support never changes, so nothing ever needs to notify.
+ */
+const subscribeToNothing = () => () => {};
+const readObserverSupport = () => typeof IntersectionObserver !== "undefined";
+/** The server has no observer; assume the common client case so markup matches. */
+const readObserverSupportOnServer = () => true;
+
+/**
  * Progressive reveal for a long product list.
  *
  * Hybrid by design: filters and sort live in the URL (shareable, Back-friendly)
@@ -24,8 +49,8 @@ const STORAGE_PREFIX = "mabco-shop-progress:";
  * request to wait for, therefore no latency to simulate and no spinner to show.
  *
  * Progress is stored as a single object carrying the query it belongs to. Every
- * update re-checks that key, so a batch resolving just as the user changes a
- * filter can never leak into the new result set.
+ * read and every update re-checks that key, so a batch resolving just as the user
+ * changes a filter can never leak into the new result set.
  *
  * @param {unknown[]} items  The full, already filtered + sorted list.
  * @param {string} queryKey  Changes whenever the query changes → resets.
@@ -38,15 +63,22 @@ export default function useProgressiveList(items, queryKey) {
     added: 0,
   });
 
+  const observerSupported = useSyncExternalStore(
+    subscribeToNothing,
+    readObserverSupport,
+    readObserverSupportOnServer,
+  );
+
   /**
-   * The sentinel is mounted by the caller only after the initial skeleton clears,
-   * which is later than this hook's first effect pass. A plain ref would already
-   * have been read as null by then and the observer would never attach, so the
-   * node is tracked as state and the observer effect re-runs when it arrives.
+   * The sentinel is mounted by the caller only while there is more to reveal, so
+   * it can arrive and disappear over the life of the hook. A plain ref would be
+   * read as null on the effect pass that matters, so the node is tracked as state
+   * and the observer effect re-runs when it arrives.
    */
   const [sentinelNode, setSentinelNode] = useState(null);
   const sentinelRef = useCallback((node) => setSentinelNode(node ?? null), []);
-  const restoredRef = useRef(false);
+  /** The query whose stored depth has already been applied. */
+  const restoredKeyRef = useRef(null);
   const itemsLengthRef = useRef(items.length);
 
   // The batch committer reads the length from a ref so it never has to be
@@ -55,35 +87,37 @@ export default function useProgressiveList(items, queryKey) {
     itemsLengthRef.current = items.length;
   }, [items.length]);
 
-  // Reset when the query changes. Adjusting state during render (rather than in
-  // an effect) means the first paint after a filter change already shows the
-  // first batch — no intermediate frame with a stale, longer list.
-  if (progress.key !== queryKey) {
-    setProgress({ key: queryKey, count: INITIAL_COUNT, added: 0 });
-  }
-
-  // Read the batch that belongs to this query; ignore a stale one mid-reset.
-  const visibleCount = progress.key === queryKey ? progress.count : INITIAL_COUNT;
-  const lastAdded = progress.key === queryKey ? progress.added : 0;
+  // Progress belonging to a previous query is simply not read, which is why no
+  // state has to be corrected during render: the first paint after a filter
+  // change already shows the first batch, with no intermediate stale frame.
+  const onCurrentQuery = progress.key === queryKey;
+  const visibleCount = onCurrentQuery ? progress.count : INITIAL_COUNT;
+  const lastAdded = onCurrentQuery ? progress.added : 0;
 
   const total = items.length;
   const hasMore = visibleCount < total;
 
   const loadMore = useCallback(() => {
     // Committed in one functional update, so an observer firing twice in the same
-    // frame cannot double-advance and no re-entry guard is needed.
+    // frame cannot double-advance and no re-entry guard is needed. Re-keying also
+    // happens here rather than during render: a batch requested while the stored
+    // progress still belongs to the previous query counts up from the start.
     setProgress((current) => {
-      if (current.key !== queryKey) return current;
-      const next = Math.min(current.count + BATCH_SIZE, itemsLengthRef.current);
-      if (next === current.count) return current;
-      return { ...current, count: next, added: next - current.count };
+      const base = current.key === queryKey ? current.count : INITIAL_COUNT;
+      const next = Math.min(base + BATCH_SIZE, itemsLengthRef.current);
+      if (next === base && current.key === queryKey) return current;
+      return { key: queryKey, count: next, added: next - base };
     });
   }, [queryKey]);
 
   // --- auto-append on scroll ------------------------------------------------
   useEffect(() => {
     if (!sentinelNode || !hasMore) return undefined;
-    if (typeof IntersectionObserver === "undefined") return undefined;
+
+    // Nothing can append automatically here. `observerSupported` already reads
+    // false, so the caller has revealed its manual control and the rest of the
+    // catalogue stays reachable.
+    if (!observerSupported) return undefined;
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -102,45 +136,61 @@ export default function useProgressiveList(items, queryKey) {
     // until the user scrolled once more. Re-observing after each committed batch
     // gives a fresh initial callback, which keeps filling until the sentinel
     // finally falls outside the margin or nothing matching is left.
-  }, [hasMore, loadMore, sentinelNode, visibleCount]);
+  }, [hasMore, loadMore, observerSupported, sentinelNode, visibleCount]);
 
   // --- restore how far the user had browsed --------------------------------
-  // Once, after mount, inside a rAF: reading sessionStorage during render would
-  // desync the SSR markup, and the scroll position can only be applied after
-  // the restored (taller) grid has been laid out.
+  // Keyed by query rather than latched once per mount, so returning to a query
+  // visited earlier in this session (A → B → A) restores A's depth again.
+  // Reading sessionStorage during render would desync the SSR markup, and the
+  // scroll position can only be applied once the restored grid has been laid out.
   useEffect(() => {
-    if (restoredRef.current) return undefined;
-    restoredRef.current = true;
+    if (restoredKeyRef.current === queryKey) return undefined;
+    restoredKeyRef.current = queryKey;
 
-    const key = queryKey;
-    let raf = 0;
-
+    let saved = null;
     try {
-      const raw = sessionStorage.getItem(STORAGE_PREFIX + key);
-      if (!raw) return undefined;
-      const saved = JSON.parse(raw);
-      if (!saved || typeof saved.count !== "number") return undefined;
-
-      raf = requestAnimationFrame(() => {
-        setProgress((current) =>
-          current.key !== key
-            ? current
-            : { ...current, count: Math.max(INITIAL_COUNT, Math.min(saved.count, items.length)) }
-        );
-        if (typeof saved.scrollY === "number") {
-          requestAnimationFrame(() =>
-            window.scrollTo({ top: saved.scrollY, behavior: "instant" })
-          );
-        }
-      });
+      const raw = sessionStorage.getItem(STORAGE_PREFIX + queryKey);
+      saved = raw ? JSON.parse(raw) : null;
     } catch {
       // Private-mode or quota failures must never break browsing.
+      return undefined;
     }
+    if (!saved || typeof saved.count !== "number") return undefined;
+
+    const targetCount = Math.max(
+      INITIAL_COUNT,
+      Math.min(saved.count, itemsLengthRef.current)
+    );
+
+    setProgress((current) =>
+      current.key === queryKey && current.count >= targetCount
+        ? current
+        : { key: queryKey, count: targetCount, added: 0 }
+    );
+
+    if (typeof saved.scrollY !== "number" || saved.scrollY <= 0) return undefined;
+
+    // The restored cards must be laid out before the offset is applied, or the
+    // browser clamps it to the height of the shorter document and the position
+    // is silently lost.
+    let raf = 0;
+    let frames = 0;
+    const applyScroll = () => {
+      if (restoredKeyRef.current !== queryKey) return; // a newer query took over
+      const reachable = document.documentElement.scrollHeight - window.innerHeight;
+      if (reachable < saved.scrollY && frames < RESTORE_MAX_FRAMES) {
+        frames += 1;
+        raf = requestAnimationFrame(applyScroll);
+        return;
+      }
+      window.scrollTo({ top: saved.scrollY, behavior: "instant" });
+    };
+    raf = requestAnimationFrame(applyScroll);
 
     return () => {
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [items.length, queryKey]);
+  }, [queryKey]);
 
   // --- persist browsing depth ----------------------------------------------
   useEffect(() => {
@@ -172,6 +222,8 @@ export default function useProgressiveList(items, queryKey) {
     lastAdded,
     loadMore,
     sentinelRef,
+    /** False once the observer effect has found no IntersectionObserver. */
+    observerSupported,
     remaining: Math.max(0, total - visibleCount),
   };
 }

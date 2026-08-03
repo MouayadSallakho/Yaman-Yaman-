@@ -43,7 +43,9 @@ export default function ShopToolbar({
           aria-label={t("shop.toolbar.openFilters")}
         >
           <FiSliders aria-hidden="true" />
-          <span>{t("shop.filters.title")}</span>
+          {/* Classed so the label can ellipsize instead of forcing the control
+              wider than the results column — the Arabic label is much longer. */}
+          <span className={styles.filterTriggerLabel}>{t("shop.filters.title")}</span>
           {activeFilterCount > 0 ? (
             <span className={styles.filterCount}>{activeFilterCount}</span>
           ) : null}

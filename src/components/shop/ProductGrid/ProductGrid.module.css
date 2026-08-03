@@ -1,36 +1,68 @@
 .wrap {
+  /* Positioned so the clipped fail-open control has a containing block. */
+  position: relative;
   display: grid;
+  /* An implicit `auto` track takes its minimum from the widest item's
+     min-content, which let the card push this wrapper past the results column at
+     320px. Every grid in the chain down to the card has to be shrinkable. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 22px;
 }
 
-/* Explicit column counts rather than auto-fill: auto-fill produced 5 narrow
-   columns at 1920px, which shrank the imagery and crowded the price/action row.
-   The pivots below were measured against the real results-column width (the
-   filter sidebar occupies space from ~992px up):
-     1920 -> 4 x 278px   1440 -> 4 x 250px   1280 -> 4 x 215px
-     1024 -> 3 x 222px    900 -> 3 x 270px    360 -> 1 x 313px */
+/* Column count comes from the RESULTS CONTAINER, not the viewport.
+ *
+ * Viewport breakpoints cannot see the filter sidebar, which takes ~270px out of
+ * the results column from 992px up. That is why widening the window used to make
+ * cards *narrower* — 3 x 272px at 900px became 3 x 214px at 992px, and the old
+ * four-column pivot at 1260px produced 214px cards, the narrowest in the whole
+ * range.
+ *
+ * Every threshold below is the measured safe minimum card width (257px, set by
+ * the widest price pair plus the docked cart control) multiplied out and added to
+ * the real gaps declared in this file:
+ *
+ *   2 columns: 2 x 257 + 1 x 16 =  530px
+ *   3 columns: 3 x 257 + 2 x 18 =  807px
+ *   4 columns: 4 x 257 + 3 x 20 = 1088px
+ *
+ * Gaps are fixed per step rather than a vw clamp so the arithmetic stays true —
+ * a viewport-derived gap would drift away from the thresholds it feeds.
+ */
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(12px, 1.4vw, 20px);
+  /* minmax(0, …) on every track, including this one: a bare `1fr` resolves its
+     minimum from the card's content, which pushed the single-column track 8.5px
+     wider than the 288px results column at 320px. */
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
 }
 
-@media (min-width: 600px) {
-  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@container shopResults (min-width: 530px) {
+  .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
 }
 
-@media (min-width: 900px) {
-  .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@container shopResults (min-width: 807px) {
+  .grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+  }
 }
 
-@media (min-width: 1260px) {
-  .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@container shopResults (min-width: 1088px) {
+  .grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+  }
 }
 
 /* List view is the same grid collapsed to a single column; the row composition
-   itself lives on the card, so there is only ever one product DOM tree. */
+   itself lives on the card, so there is only ever one product DOM tree.
+   Declared after the container queries so its gap wins on source order. */
 .list {
-  grid-template-columns: 1fr !important;
+  grid-template-columns: minmax(0, 1fr) !important;
   gap: 12px;
 }
 
@@ -47,9 +79,12 @@
 .grid > *:nth-child(5) { animation-delay: 150ms; }
 .grid > *:nth-child(n + 6) { animation-delay: 180ms; }
 
+/* Deliberately no `to` keyframe. An implicit final keyframe resolves to the
+   element's own computed values, so the forwards fill hands the card back its
+   declared opacity instead of pinning it at 1 — which is what silently defeated
+   the sold-out card's reduced emphasis. */
 @keyframes cardIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: none; }
 }
 
 /* Zero-height probe. It sits at the end of the list and the observer's generous
@@ -60,15 +95,59 @@
   pointer-events: none;
 }
 
-@media (max-width: 599.98px) {
-  .grid { gap: 12px; }
+/* ------------------------------------------------------- fail-open control */
+.loadMore {
+  justify-self: center;
+  min-height: 44px;
+  padding-inline: 22px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-button);
+  background: var(--surface-card);
+  color: var(--text-main);
+  font-size: 0.86rem;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.loadMore:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary-strong);
+}
+
+.loadMore:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* While the observer is appending batches this control must not read as a second
+   call to action — but it stays in the tab order so keyboard and screen-reader
+   users are never the ones who cannot reach the rest of the catalogue. Focusing
+   it returns it to the normal flow. */
+.loadMoreAuto:not(:focus) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.end {
+  padding-block: 4px;
+  color: var(--text-soft);
+  font-size: 0.82rem;
+  font-weight: 640;
+  text-align: center;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  /* Content must never depend on animation to become visible. */
+  /* Content must never depend on animation to become visible. Cancelling the
+     animation is enough — restating opacity/transform here would re-introduce
+     the override that the implicit keyframe above exists to avoid. */
   .grid > * {
     animation: none;
-    opacity: 1;
-    transform: none;
   }
 }
