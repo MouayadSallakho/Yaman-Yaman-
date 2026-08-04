@@ -518,3 +518,271 @@
 .searchSubmit:focus-visible {
   background: color-mix(in srgb, var(--color-header-text) 22%, transparent);
 }
+
+/* ============================================================
+   MOBILE HEADER — control deck
+   Scoped to the existing 1079.98px mobile-header breakpoint, so the accepted
+   desktop Navbar (links, search field, theme, language, cart, account) is
+   untouched. Appended last on purpose: the blocks above re-declare `.inner`
+   after their own media queries at equal specificity, so anything that must
+   beat them has to come afterwards.
+   ============================================================ */
+
+/* Hidden by default, which also keeps it out of the desktop grid's
+   auto-placement (a `display: none` item generates no grid box). */
+.mobileLead {
+  display: none;
+}
+
+@media (max-width: 1079.98px) {
+  /*
+    Deep navy surface in the same visual language as the mobile hero shell:
+    a near-neutral navy base with the active theme's primary driving the glow,
+    so the header re-tints with the theme instead of fighting it.
+  */
+  .header {
+    --nav-accent: #43b6e6;
+    --nav-accent: color-mix(in srgb, var(--color-primary) 58%, #9fe4ff);
+    --nav-icon: #e6effc;
+    --nav-hover: rgba(var(--color-primary-rgb), 0.2);
+    --nav-focus: rgba(var(--color-primary-rgb), 0.85);
+
+    min-height: 0;
+    /* Applied here and nowhere else in the header, so notch spacing is never
+       added twice. The drawer has its own inset on its own element. */
+    padding-top: env(safe-area-inset-top, 0px);
+    border-bottom: 0;
+    background:
+      radial-gradient(120% 150% at 50% -45%, rgba(var(--color-primary-rgb), 0.3), transparent 68%),
+      linear-gradient(180deg, #071433 0%, #050e26 100%);
+    box-shadow: 0 12px 28px rgba(2, 6, 18, 0.44);
+  }
+
+  /* Thin luminous divider — the seam that hands off to the hero. */
+  .header::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1px;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(var(--color-primary-rgb), 0.5) 18%,
+      var(--nav-accent) 50%,
+      rgba(var(--color-primary-rgb), 0.5) 82%,
+      transparent
+    );
+  }
+
+  /*
+    Bridges the page background between the header and the hero shell.
+
+    The approved reference sits on an all-navy page; this site's page is light
+    (established by the hero, and shared with New Arrivals, Today's Picks and the
+    rest — not this task's to change). Without this, the light gutter shows as a
+    pale strip across the seam and the two dark surfaces read as unrelated.
+
+    A navy-to-transparent fade below the header covers that strip edge to edge and
+    dissolves into the page, so the hero shell appears to emerge from the header.
+    It only ever overlays the light gutter or the shell's own navy, and takes no
+    pointer input.
+  */
+  .header::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 100%;
+    height: 18px;
+    pointer-events: none;
+    background: linear-gradient(180deg, #050e26 0%, rgba(5, 14, 38, 0.55) 45%, transparent 100%);
+  }
+
+  /*
+    TRUE VIEWPORT CENTERING
+
+    Both side zones are locked to the same width, so the centre track is
+    symmetric about the middle of `.inner` — and `.inner` is itself symmetric in
+    the viewport (full width, equal inline padding). The logo therefore sits on
+    the viewport centre regardless of how many controls each side holds, which a
+    `space-between` row or an `auto 1fr auto` grid cannot guarantee: the right
+    group is wider than the lone menu button and would drag the logo with it.
+
+    The side width is derived from the widest side (Search + Cart) rather than
+    hand-tuned, so adding or resizing a control keeps the maths honest.
+    `minmax(0, 1fr)` lets the centre track shrink instead of overflowing.
+  */
+  .inner {
+    --nav-control: 44px;
+    --nav-gap: 6px;
+    --nav-side: calc(var(--nav-control) * 2 + var(--nav-gap));
+
+    grid-template-columns: var(--nav-side) minmax(0, 1fr) var(--nav-side);
+    gap: 0;
+    min-height: 76px;
+    padding-inline: 12px;
+
+    /*
+      The approved reference defines a PHYSICAL arrangement — Menu left, logo
+      centre, Search and Cart right — in both languages. Grid columns, flex order
+      and logical insets all follow the writing direction, so in Arabic the whole
+      row would otherwise mirror and Menu would land on the right.
+
+      Pinning this row to `ltr` fixes the physical layout once, for the grid
+      columns, the Search/Cart order and the cart badge's corner alike. It is safe
+      here because the mobile header row contains no running text: the logo is an
+      image and the three controls are icons whose accessible names come from
+      `aria-label`, which direction does not affect. Anything text-bearing added
+      here later must set its own `direction`.
+
+      Scoped to the mobile header only — the desktop row keeps its RTL mirroring.
+    */
+    direction: ltr;
+  }
+
+  .mobileLead {
+    display: flex;
+    grid-column: 1;
+    align-items: center;
+    justify-self: start;
+  }
+
+  /*
+    `justify-self: center` centres the brand in its track but does NOT stop it
+    outgrowing it — a shrink-to-fit item happily overflows a grid area and would
+    collide with the side controls on narrow phones. `max-width` resolves against
+    the grid area, which is what actually bounds it; the inline padding then
+    guarantees clear space either side of the wordmark at every width.
+  */
+  .brand {
+    grid-column: 2;
+    justify-self: center;
+    max-width: 100%;
+    min-width: 0;
+    padding-inline: 6px;
+  }
+
+  .brand .brandLogo {
+    width: 144px;
+    max-width: 100%;
+  }
+
+  .mobileActions {
+    display: flex;
+    grid-column: 3;
+    align-items: center;
+    justify-self: end;
+    gap: var(--nav-gap);
+  }
+
+  /*
+    Bare icons with an invisible 44×44 target, matching the approved reference —
+    no persistent pill or border. `!important` is required to beat the shared
+    `.utilityButton`/`.menuButton` rules above, which use it themselves, and to
+    beat CartButton's own stylesheet whose module order is not guaranteed.
+  */
+  .navIcon {
+    display: inline-grid !important;
+    place-items: center;
+    width: var(--nav-control, 44px) !important;
+    height: var(--nav-control, 44px) !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 14px !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: var(--nav-icon) !important;
+    font-size: 1.24rem;
+    cursor: pointer;
+    transition:
+      color var(--motion-fast) var(--motion-ease),
+      background-color var(--motion-fast) var(--motion-ease);
+  }
+
+  .navIcon:hover,
+  .navIcon:focus-visible {
+    transform: none !important;
+    background: var(--nav-hover) !important;
+    color: #ffffff !important;
+  }
+
+  .navIcon:focus-visible {
+    outline: 2px solid var(--nav-focus) !important;
+    outline-offset: 2px;
+  }
+
+  /* The badge tracks the theme accent rather than the old header gradient, so
+     its outline still reads against the navy surface. */
+  .mobileActions .navIcon span {
+    box-shadow: 0 0 0 2px #071433 !important;
+  }
+}
+
+/*
+  Narrowest phones. Tighter gutters and gap buy back width for the wordmark,
+  which is the binding constraint here: with three 44px controls that may not
+  shrink, and side zones held equal so the logo stays centred, the widest a
+  non-overlapping centred logo can be at 320px is ~113px. The logo asks for
+  118px and the `max-width` above clamps it to whatever the track allows, so
+  this degrades by scaling rather than by colliding.
+*/
+@media (max-width: 359.98px) {
+  .inner {
+    --nav-gap: 2px;
+    min-height: 70px;
+    padding-inline: 6px;
+  }
+
+  /* Every pixel trimmed from the gutters and the brand's own breathing room goes
+     straight to the wordmark, which needs it more than the icons do here. */
+  .brand {
+    padding-inline: 4px;
+  }
+
+  .brand .brandLogo {
+    width: 118px;
+  }
+
+  .navIcon {
+    font-size: 1.16rem;
+  }
+}
+
+@media (min-width: 480px) and (max-width: 1079.98px) {
+  .inner {
+    --nav-control: 46px;
+    --nav-gap: 8px;
+    min-height: 80px;
+    padding-inline: 16px;
+  }
+
+  .brand .brandLogo {
+    width: 150px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navIcon {
+    transition: none;
+  }
+}
+
+/* The header's colour comes from custom properties that forced-colors mode does
+   not substitute, so the icons and their focus ring are mapped to system colours
+   explicitly. */
+@media (forced-colors: active) {
+  .navIcon {
+    color: ButtonText !important;
+  }
+
+  .navIcon:hover,
+  .navIcon:focus-visible {
+    color: SelectedItemText !important;
+    background: SelectedItem !important;
+  }
+
+  .navIcon:focus-visible {
+    outline-color: Highlight !important;
+  }
+}

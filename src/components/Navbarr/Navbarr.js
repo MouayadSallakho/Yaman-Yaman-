@@ -49,8 +49,13 @@ export default function Navbarr() {
   const accountWrapRef = useRef(null);
   const accountTriggerRef = useRef(null);
   const menuButtonRef = useRef(null);
+  const searchButtonRef = useRef(null);
   const mobileCloseButtonRef = useRef(null);
+  const mobileSearchInputRef = useRef(null);
   const mobilePanelRef = useRef(null);
+  // Which control opened the drawer, so focus lands on the matching target and
+  // returns to the right trigger on close.
+  const openIntentRef = useRef("menu");
   const accountMenuId = useId();
   const mobileMenuId = useId();
   const mobileAccountGroupId = useId();
@@ -64,8 +69,15 @@ export default function Navbarr() {
     setMobileGroup(null);
 
     if (restoreFocus) {
+      // Focus goes back to whichever control opened the drawer, not always the
+      // menu button — otherwise using Search would silently move the user's
+      // place in the header.
+      const trigger =
+        openIntentRef.current === "search"
+          ? searchButtonRef.current
+          : menuButtonRef.current;
       window.requestAnimationFrame(() =>
-        menuButtonRef.current?.focus({ preventScroll: true })
+        (trigger ?? menuButtonRef.current)?.focus({ preventScroll: true })
       );
     }
   }, []);
@@ -117,9 +129,15 @@ export default function Navbarr() {
         ) || []
       );
 
-    window.requestAnimationFrame(() =>
-      mobileCloseButtonRef.current?.focus({ preventScroll: true })
-    );
+    // Opening via Search puts the caret straight in the search field; opening
+    // via Menu starts at the close button as before.
+    window.requestAnimationFrame(() => {
+      const target =
+        openIntentRef.current === "search"
+          ? mobileSearchInputRef.current
+          : mobileCloseButtonRef.current;
+      (target ?? mobileCloseButtonRef.current)?.focus({ preventScroll: true });
+    });
 
     const onKeyDown = (event) => {
       if (event.key === "Escape") {
@@ -158,7 +176,19 @@ export default function Navbarr() {
     router.push(`/products?search=${encodeURIComponent(query)}`);
   }
 
-  function openMobile() {
+  /**
+   * Open the mobile drawer.
+   *
+   * Search has no separate overlay: the project's real compact mobile search is
+   * the form inside this drawer, so the header's Search control opens that same
+   * drawer with the field focused. This reuses the existing scroll lock, focus
+   * trap, Escape handling and submit logic rather than adding a second search
+   * surface.
+   *
+   * @param {"menu"|"search"} intent
+   */
+  function openMobile(intent = "menu") {
+    openIntentRef.current = intent;
     setDesktopMenu(null);
     setMobileOpen(true);
   }
@@ -216,6 +246,26 @@ export default function Navbarr() {
   return (
     <header className={styles.header}>
       <div className={styles.inner}>
+        {/*
+          Physical-left zone (mobile only — `display: none` on desktop, so it is
+          excluded from the desktop grid's auto-placement entirely). It comes
+          before the logo in the DOM so the tab order matches the visual order:
+          Menu → Logo → Search → Cart.
+        */}
+        <div className={styles.mobileLead}>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            className={styles.navIcon}
+            aria-label={t("navigation.openMenu")}
+            aria-expanded={mobileOpen}
+            aria-controls={mobileMenuId}
+            onClick={() => openMobile("menu")}
+          >
+            <FiMenu aria-hidden="true" />
+          </button>
+        </div>
+
         <Link
           href="/"
           className={styles.brand}
@@ -226,7 +276,7 @@ export default function Navbarr() {
             priority
             decorative
             className={styles.brandLogo}
-            sizes="(max-width: 575px) 108px, 132px"
+            sizes="(max-width: 359px) 120px, (max-width: 1079px) 144px, 132px"
           />
         </Link>
 
@@ -285,19 +335,20 @@ export default function Navbarr() {
           {renderAccountPopover()}
         </div>
 
+        {/* Physical-right zone: Search then Cart, matching the approved layout. */}
         <div className={styles.mobileActions}>
-          <CartButton className={styles.utilityButton} />
           <button
-            ref={menuButtonRef}
+            ref={searchButtonRef}
             type="button"
-            className={styles.menuButton}
-            aria-label={t("navigation.openMenu")}
+            className={styles.navIcon}
+            aria-label={t("common.search.ariaLabel")}
             aria-expanded={mobileOpen}
             aria-controls={mobileMenuId}
-            onClick={openMobile}
+            onClick={() => openMobile("search")}
           >
-            <FiMenu aria-hidden="true" />
+            <FiSearch aria-hidden="true" />
           </button>
+          <CartButton className={styles.navIcon} />
         </div>
       </div>
 
@@ -348,6 +399,7 @@ export default function Navbarr() {
               {t("common.search.ariaLabel")}
             </label>
             <input
+              ref={mobileSearchInputRef}
               id="site-search-mobile"
               type="search"
               value={searchText}
