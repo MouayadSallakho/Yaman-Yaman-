@@ -10,6 +10,8 @@ import CategoryReactor from "./CategoryReactor";
 import DealsMatrix from "./DealsMatrix";
 import TopSellerVault from "./TopSellerVault";
 import EnergyConnector from "./EnergyConnector";
+import MobilePulseHero from "./mobile/MobilePulseHero";
+import { useIsDesktopHero } from "./useHeroViewport";
 import styles from "./PulseCommerceHero.module.css";
 
 /**
@@ -20,13 +22,21 @@ import styles from "./PulseCommerceHero.module.css";
  * electrical signal drives the Deals Matrix, a second signal drives the Top
  * Seller Vault. All product content resolves from the shared, truthful
  * `data.js` model; the master GSAP orchestration lives in
- * `usePulseCommerceSequence`. Desktop-first (a safe stacked fallback keeps
- * narrow viewports usable until the dedicated responsive phase).
+ * `usePulseCommerceSequence`.
+ *
+ * TWO COMPOSITIONS, ONE DATA MODEL
+ * --------------------------------
+ * Below 1200px the mobile arc composition (`mobile/MobilePulseHero`) takes over
+ * completely — it is not this layout scaled down. Both trees are always
+ * rendered and CSS decides which is visible, so neither side flashes the wrong
+ * composition or shifts layout on hydration. `useIsDesktopHero` then makes sure
+ * only the visible composition's GSAP sequence actually runs.
  */
 export default function PulseCommerceHero() {
   const { t, dir } = useTranslation();
   const rootRef = useRef(null);
   const liveRef = useRef(null);
+  const isDesktop = useIsDesktopHero();
 
   const count = resolvedCollections.length;
 
@@ -41,8 +51,13 @@ export default function PulseCommerceHero() {
     []
   );
 
-  const { activeIndex, dealsIndex, sellersIndex, select } =
-    usePulseCommerceSequence({ rootRef, count, labelForIndex, liveRef });
+  const { activeIndex, dealsIndex, sellersIndex, select } = usePulseCommerceSequence({
+    rootRef,
+    count,
+    labelForIndex,
+    liveRef,
+    enabled: isDesktop,
+  });
 
   const activeCol = resolvedCollections[activeIndex];
   const dealsCol = resolvedCollections[dealsIndex];
@@ -59,7 +74,13 @@ export default function PulseCommerceHero() {
       {/* A controlled fluid container gives the commerce hero enough room for
           the target three-column composition while retaining responsive gutters. */}
       <Container fluid className={styles.container}>
-        <div className={styles.card}>
+        {/* Mobile arc composition — visible below 1200px. */}
+        <div className={styles.mobileOnly}>
+          <MobilePulseHero enabled={!isDesktop} />
+        </div>
+
+        {/* Desktop composition — unchanged, visible from 1200px up. */}
+        <div className={`${styles.card} ${styles.desktopOnly}`}>
           <div className={styles.grid}>
             <CategoryReactor
               collections={resolvedCollections}

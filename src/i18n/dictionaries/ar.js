@@ -485,6 +485,10 @@ const ar = {
       popular: "الأكثر رواجاً",
       "hot-deals": "عروض ساخنة",
     },
+    // Copy specific to the mobile arc composition of the hero.
+    mobile: {
+      reviews: "{count} تقييم",
+    },
   },
 
   cart: {

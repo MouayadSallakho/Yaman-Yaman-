@@ -1,0 +1,301 @@
+/* ============================================================
+   Mobile Category Reactor — top arc
+   Slot coordinates are percentages of .stage and live here (never inline) so
+   GSAP clearProps can never wipe a node's position. The arc SVG is drawn in the
+   same normalised 0–100 box, so both share one non-uniform scale and the curve
+   always passes through the node centres.
+   ============================================================ */
+.arc {
+  position: relative;
+  padding-block-start: 4px;
+}
+
+.viewAll {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-end: 2px;
+  z-index: 6;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 32px;
+  padding-inline: 10px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--m-accent-bright);
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease);
+}
+
+.viewAll svg {
+  font-size: 0.72em;
+}
+
+.viewAll:hover,
+.viewAll:focus-visible {
+  color: var(--m-text);
+  background: var(--m-accent-soft);
+}
+
+.viewAll:focus-visible {
+  outline: 2px solid var(--m-focus);
+  outline-offset: 2px;
+}
+
+.flip {
+  transform: scaleX(-1);
+}
+
+/* Arc box. The aspect ratio keeps the slot percentages resolving to a consistent
+   shape from 320px up; the height cap stops the arc growing into a huge dome on
+   tablets, where the box would otherwise be over 300px tall. Both the slot
+   coordinates and the arc path are percentage-based, so capping the height just
+   flattens the curve — the nodes stay on it. */
+.stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 100 / 47;
+  min-height: 132px;
+  max-height: 280px;
+  margin-block-start: 26px;
+}
+
+.rail {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.railBase {
+  fill: none;
+  stroke: var(--m-line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 3px var(--m-glow-strong));
+}
+
+/* Bright overlay the sequence sweeps along the arc on a category change. */
+.railCharge {
+  fill: none;
+  stroke: var(--m-accent-bright);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  stroke-dasharray: 26 100;
+  stroke-dashoffset: 100;
+  opacity: 0;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 3px var(--m-glow-strong));
+}
+
+/* Sized container for the labels below: `cqw` then resolves against the arc's
+   own width, which is what the label budget is actually a fraction of. */
+.nodes {
+  position: absolute;
+  inset: 0;
+  container-type: inline-size;
+}
+
+.node {
+  --node-size: 46px;
+  position: absolute;
+  width: var(--node-size);
+  height: var(--node-size);
+  transform: translate(-50%, -50%);
+}
+
+/* Five slots on the arc: centre highest, outers lowest — the approved shape.
+   Sampled from the same ellipse as ARC_PATH at ±58°, ±30° and 0°. The spread is
+   set by how much room the labels need before they touch, not by taste. */
+.slot0 { left: 8.5%; top: 51.27%; }
+.slot1 { left: 25.53%; top: 31.77%; }
+.slot2 { left: 50%; top: 24%; }
+.slot3 { left: 74.47%; top: 31.77%; }
+.slot4 { left: 91.5%; top: 51.27%; }
+
+.nodeBtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  /* 46px node already clears the 44px minimum; the padding box keeps the whole
+     touch target inside the button itself. */
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 1.5px solid var(--m-line);
+  border-radius: 50%;
+  background: var(--m-node-bg);
+  color: var(--m-text-dim);
+  font-size: 1.02rem;
+  cursor: pointer;
+  transition:
+    color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.nodeBtn svg {
+  position: relative;
+  z-index: 1;
+}
+
+.nodeGlow {
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle at 50% 50%, var(--m-glow-strong), transparent 70%);
+  transition: opacity var(--motion-medium) var(--motion-ease);
+}
+
+.nodeBtn:hover,
+.nodeBtn:focus-visible {
+  color: var(--m-text);
+  border-color: var(--m-accent-bright);
+}
+
+.nodeBtn:focus-visible {
+  outline: 2px solid var(--m-focus);
+  outline-offset: 3px;
+}
+
+/* Active node dominance: larger, brighter, ringed — the arc's focal point. */
+.node[data-active="true"] {
+  --node-size: 62px;
+  z-index: 3;
+}
+
+.node[data-active="true"] .nodeBtn {
+  border-color: var(--m-accent-bright);
+  border-width: 2px;
+  color: var(--m-text);
+  font-size: 1.32rem;
+  background: var(--m-node-bg-active);
+  box-shadow:
+    0 0 0 5px var(--m-accent-soft),
+    0 0 22px var(--m-glow-strong),
+    inset 0 0 16px var(--m-accent-soft);
+}
+
+.node[data-active="true"] .nodeGlow {
+  opacity: 0.85;
+}
+
+/*
+  Label widths are the binding constraint on the whole arc, and they are sized in
+  `cqw` (a fraction of the arc's width) so the constraint holds at every viewport
+  instead of being re-guessed per breakpoint.
+
+  The tightest pair is slot0↔slot1 — 17.03% of the arc apart, versus 24.47% for
+  every other neighbouring pair. Two inactive labels must therefore fit inside
+  17.03cqw, and an inactive plus the (much larger) active label inside 24.47cqw:
+
+    inactive 15.5cqw          → 15.5 < 17.03            ✓
+    inactive/2 + active/2     → 7.75 + 12 = 19.75 < 24.47 ✓
+
+  Both keep roughly 1.5cqw of clear space. Widening either one past this budget
+  is what makes labels touch.
+
+  `left`, not `inset-inline-start`: this is symmetric centring, and the paired
+  `translateX(-50%)` is not direction-aware. In RTL `inset-inline-start` becomes
+  `right`, so the two would compose into an offset of the label's own width
+  instead of a centre. The same applies to every centred decoration in this hero.
+*/
+.nodeLabel {
+  position: absolute;
+  inset-block-start: calc(100% + 6px);
+  left: 50%;
+  width: 15.5cqw;
+  transform: translateX(-50%);
+  font-size: 0.6rem;
+  font-weight: 650;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--m-text-dim);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.node[data-active="true"] .nodeLabel {
+  inset-block-start: calc(100% + 8px);
+  width: 24cqw;
+  font-size: 0.9rem;
+  font-weight: 800;
+  line-height: 1.14;
+  color: var(--m-text);
+}
+
+/* The point the pulse spine leaves the arc from, under the active node. */
+.tap {
+  position: absolute;
+  inset-block-start: 68%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--m-accent-bright);
+  box-shadow: 0 0 12px 2px var(--m-glow-strong);
+}
+
+/*
+  Narrowest phones. Below 360px the gap between slot centres drops under 67px,
+  which no pair of readable labels fits inside — so only the active label stays.
+  The icons still distinguish the nodes and every button keeps its `aria-label`,
+  so nothing is lost to assistive tech; this is a visual reduction only.
+*/
+@media (max-width: 359px) {
+  .node[data-active="false"] .nodeLabel {
+    display: none;
+  }
+
+  .node {
+    --node-size: 44px;
+  }
+
+  .node[data-active="true"] {
+    --node-size: 56px;
+  }
+
+  /* With no inactive labels there is nothing to collide with, so the active one
+     can take the room it needs to stay readable. */
+  .node[data-active="true"] .nodeLabel {
+    width: 46cqw;
+    font-size: 0.84rem;
+  }
+}
+
+@media (min-width: 480px) {
+  .node {
+    --node-size: 52px;
+  }
+
+  .node[data-active="true"] {
+    --node-size: 70px;
+  }
+
+  /* Widths stay on the cqw budget; only the type grows. */
+  .nodeLabel {
+    font-size: 0.68rem;
+  }
+
+  .node[data-active="true"] .nodeLabel {
+    font-size: 0.98rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nodeBtn,
+  .nodeGlow,
+  .viewAll {
+    transition: none;
+  }
+}

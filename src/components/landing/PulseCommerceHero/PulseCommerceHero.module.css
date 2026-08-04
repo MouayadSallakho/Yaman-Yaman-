@@ -158,3 +158,39 @@
   .container { padding-inline: 10px; }
   .card { padding: 16px 10px; border-radius: 22px; }
 }
+
+/* ============================================================
+   Composition gate
+   Both hero compositions are always rendered so neither can flash or shift on
+   hydration; exactly one is visible. `display: none` also removes the inactive
+   one from the accessibility tree, so nothing is announced twice.
+
+   These rules are appended intentionally: the trailing refinement blocks above
+   re-declare `.grid` after the media queries at equal specificity, so anything
+   that must beat them has to come last.
+   ============================================================ */
+.mobileOnly {
+  display: block;
+}
+
+.desktopOnly {
+  display: none;
+}
+
+@media (min-width: 1200px) {
+  .mobileOnly {
+    display: none;
+  }
+
+  .desktopOnly {
+    display: flex;
+  }
+}
+
+/* The mobile shell brings its own surface, so the hero section only supplies
+   page gutters below the breakpoint. */
+@media (max-width: 1199px) {
+  .hero {
+    padding-block: 12px 0;
+  }
+}

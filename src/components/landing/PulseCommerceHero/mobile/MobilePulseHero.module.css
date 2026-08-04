@@ -1,0 +1,244 @@
+/* ============================================================
+   Mobile Pulse Commerce hero — shell, spine and seam
+   ============================================================ */
+
+.root {
+  position: relative;
+}
+
+/*
+  Local token layer for the whole mobile hero.
+
+  The base is a deliberately near-neutral deep navy so the shell reads premium
+  under every installed theme, while every accent, glow and border derives from
+  `--color-primary-rgb`. Switching theme therefore re-tints the energy language
+  instead of fighting it, and the default Tech Blue theme lands on the approved
+  blue/cyan look.
+*/
+.shell {
+  --m-accent: var(--color-primary);
+  /* Energy highlight — a lighter tint of the active theme's primary. The plain
+     value is the fallback; browsers with color-mix() take the derived tint. */
+  --m-accent-bright: #43b6e6;
+  --m-accent-bright: color-mix(in srgb, var(--color-primary) 58%, #9fe4ff);
+  --m-accent-soft: rgba(var(--color-primary-rgb), 0.16);
+  --m-glow-strong: rgba(var(--color-primary-rgb), 0.42);
+  --m-line: rgba(var(--color-primary-rgb), 0.3);
+  --m-line-soft: rgba(var(--color-primary-rgb), 0.16);
+  --m-focus: rgba(var(--color-primary-rgb), 0.85);
+
+  --m-text: #eef4ff;
+  --m-text-dim: #9db1d2;
+  --m-text-faint: #6d80a1;
+
+  --m-card-bg: rgba(9, 21, 46, 0.72);
+  --m-card-shadow: 0 16px 34px rgba(2, 6, 18, 0.5);
+  --m-card-shadow-soft: 0 10px 22px rgba(2, 6, 18, 0.4);
+  --m-media-bg: rgba(6, 15, 36, 0.66);
+  --m-chip-bg: rgba(9, 21, 46, 0.66);
+  --m-node-bg: rgba(8, 19, 42, 0.86);
+  --m-node-bg-active: radial-gradient(
+    circle at 50% 32%,
+    rgba(var(--color-primary-rgb), 0.5),
+    rgba(6, 16, 38, 0.94) 78%
+  );
+  --m-rank-bg: rgba(6, 15, 36, 0.9);
+  --m-sheen: rgba(255, 255, 255, 0.07);
+  --m-hot: #ff8a3d;
+  --m-hot-glow: rgba(255, 138, 61, 0.45);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 16px 14px 0;
+  overflow: hidden;
+  isolation: isolate;
+  border-radius: 26px;
+  border: 1px solid var(--m-line-soft);
+  color: var(--m-text);
+  background:
+    radial-gradient(72% 40% at 50% 0%, rgba(var(--color-primary-rgb), 0.3), transparent 70%),
+    radial-gradient(60% 34% at 50% 46%, rgba(var(--color-primary-rgb), 0.14), transparent 72%),
+    linear-gradient(180deg, #071433 0%, #050e26 46%, #04091b 100%);
+  box-shadow:
+    0 26px 56px rgba(2, 6, 18, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+}
+
+/* ---- pulse spine -------------------------------------------------------
+   Spans the shell's content box behind every stage. A 2px vertical line and a
+   short travelling segment: no SVG path to distort, nothing to re-measure on
+   resize, and no pointer surface.
+
+   Centred with physical `left` + `translateX(-50%)`, never
+   `inset-inline-start` — the transform does not mirror in RTL, so the logical
+   property would push the spine off-centre by its own width. */
+.spine {
+  position: absolute;
+  z-index: 0;
+  inset-block: 132px 0;
+  left: 50%;
+  width: 2px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.spineBase {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px;
+  opacity: 0.45;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    var(--m-accent-bright) 6%,
+    rgba(var(--color-primary-rgb), 0.5) 50%,
+    rgba(var(--color-primary-rgb), 0.34) 88%,
+    transparent 100%
+  );
+}
+
+.spinePulse {
+  position: absolute;
+  inset-inline: -1px;
+  top: 0;
+  height: 74px;
+  opacity: 0;
+  border-radius: 3px;
+  background: linear-gradient(
+    180deg,
+    transparent,
+    var(--m-accent-bright) 46%,
+    #ffffff 62%,
+    var(--m-accent-bright) 74%,
+    transparent
+  );
+  box-shadow: 0 0 14px 3px var(--m-glow-strong);
+}
+
+/* Bloom where the spine meets each stage. */
+.junction {
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  width: 7px;
+  height: 7px;
+  margin-block: -12px;
+  border-radius: 50%;
+  background: var(--m-accent-bright);
+  box-shadow: 0 0 12px 2px var(--m-glow-strong);
+  pointer-events: none;
+}
+
+/* Stages sit above the spine. */
+.shell > :not(.spine) {
+  position: relative;
+  z-index: 1;
+}
+
+/* ---- bottom seam -------------------------------------------------------
+   The hand-off into New Arrivals. Bleeds to the shell edges so the glow reads
+   as the shell closing, not as another card. */
+.seam {
+  position: relative;
+  height: 46px;
+  margin-inline: -14px;
+  margin-block-start: 4px;
+  pointer-events: none;
+}
+
+.seamLine,
+.seamCharge {
+  position: absolute;
+  inset-block-end: 15px;
+  inset-inline: 8%;
+  height: 1px;
+}
+
+.seamLine {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(var(--color-primary-rgb), 0.55) 22%,
+    var(--m-accent-bright) 50%,
+    rgba(var(--color-primary-rgb), 0.55) 78%,
+    transparent
+  );
+}
+
+.seamCharge {
+  opacity: 0.5;
+  background: linear-gradient(90deg, transparent, #ffffff 50%, transparent);
+  filter: blur(1.5px);
+}
+
+.seamNode {
+  position: absolute;
+  inset-block-end: 9px;
+  left: 50%;
+  width: 13px;
+  height: 13px;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 1px solid var(--m-accent-bright);
+  background: radial-gradient(circle at 50% 50%, var(--m-accent-bright), rgba(4, 9, 27, 0.9) 74%);
+  box-shadow: 0 0 16px 3px var(--m-glow-strong);
+}
+
+@media (min-width: 480px) {
+  .shell {
+    gap: 24px;
+    padding: 20px 18px 0;
+    border-radius: 30px;
+  }
+
+  .spine {
+    inset-block-start: 150px;
+  }
+
+  .seam {
+    margin-inline: -18px;
+  }
+}
+
+/*
+  Tablet and small-laptop widths, up to the 1200px hand-off.
+
+  The composition stays the mobile one — it must not become an early, cramped
+  version of the desktop hero — but letting it stretch to 1100px turned the hero
+  into a 1600px-tall page of its own. Centring the stages in a fixed column keeps
+  the arc, the featured deal and the rails at readable proportions, and keeps the
+  pulse spine running down the middle of the content rather than the viewport.
+*/
+@media (min-width: 700px) {
+  .shell {
+    align-items: center;
+    padding-inline: 24px;
+  }
+
+  .shell > :not(.spine) {
+    width: 100%;
+    max-width: 660px;
+  }
+
+  /* The junction blooms are fixed-size dots, not stages — the column rule above
+     would otherwise stretch each one into a full-width bar. */
+  .shell > .junction {
+    width: 7px;
+  }
+
+  .seam {
+    /* Full-bleed again, so the closing glow spans the shell, not the column. */
+    max-width: none;
+    margin-inline: -24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Nothing is pre-hidden, so the hero is already in its final state. The
+     travelling pulse is the one purely animated element — retire it. */
+  .spinePulse {
+    display: none;
+  }
+}

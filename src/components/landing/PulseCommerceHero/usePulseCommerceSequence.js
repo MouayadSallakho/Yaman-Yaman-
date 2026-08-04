@@ -32,9 +32,20 @@ function shortestStep(current, targetAngle) {
  *   count: number,
  *   labelForIndex: (index: number) => string,
  *   liveRef: React.RefObject<HTMLElement>,
+ *   enabled?: boolean,
  * }} params
+ * @param {boolean} [params.enabled=true] Whether the desktop composition is the
+ *   visible one. Below the hero's breakpoint the desktop tree is `display: none`
+ *   and the mobile composition is in charge, so this hook stands down entirely
+ *   rather than auto-rotating collections and tweening hidden DOM.
  */
-export function usePulseCommerceSequence({ rootRef, count, labelForIndex, liveRef }) {
+export function usePulseCommerceSequence({
+  rootRef,
+  count,
+  labelForIndex,
+  liveRef,
+  enabled = true,
+}) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [dealsIndex, setDealsIndex] = useState(0);
   const [sellersIndex, setSellersIndex] = useState(0);
@@ -55,7 +66,7 @@ export function usePulseCommerceSequence({ rootRef, count, labelForIndex, liveRe
     (context, contextSafe) => {
       mountedRef.current = true;
       const root = rootRef.current;
-      if (!root) return undefined;
+      if (!root || !enabled) return undefined;
 
       const q = gsap.utils.selector(root);
       const angleStep = 360 / count;
@@ -373,7 +384,8 @@ export function usePulseCommerceSequence({ rootRef, count, labelForIndex, liveRe
         ambientRef.current = [];
       };
     },
-    { scope: rootRef }
+    // Crossing the hero's breakpoint tears this sequence down or brings it back.
+    { scope: rootRef, dependencies: [enabled], revertOnUpdate: true }
   );
 
   const select = useCallback((index, isManual = true) => {
