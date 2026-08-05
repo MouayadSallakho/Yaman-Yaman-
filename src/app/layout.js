@@ -68,9 +68,22 @@ const THEME_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var k=
   DEFAULT_THEME
 )};d.setAttribute('data-theme',t);document.cookie=k+'='+encodeURIComponent(t)+'; path=/; max-age=31536000; samesite=lax';}catch(e){}})();`;
 
-// Pre-paint gate: runs synchronously before hydration and before the first
-// meaningful paint, so the very first frame is already the correct state.
-const INTRO_BOOT_SCRIPT = `(function(){try{var d=document.documentElement;var r=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;var h=location.pathname==='/';var seen=sessionStorage.getItem('mabco-intro-seen')==='1';d.setAttribute('data-mabco-intro',(h&&!r&&!seen)?'show':'skip');}catch(e){try{document.documentElement.setAttribute('data-mabco-intro','skip');}catch(_){}}})();`;
+/*
+  Pre-paint gate: resolves the unresolved `checking` state that the server renders
+  on <html> into either `show` or `skip`.
+
+  Whether the intro is due depends on sessionStorage and the motion preference,
+  neither of which exists on the server — so the server cannot decide, and this
+  has to. What it must never do is let the *undecided* state look like the
+  homepage: it used to, because the attribute was simply absent until this ran,
+  and the stylesheet treated "not show" as "reveal the landing page". Any frame
+  painted before this script executed therefore showed the homepage, and the
+  intro then covered it — the "homepage → intro → homepage" flash.
+
+  Now `checking` is its own state with its own neutral, intro-coloured frame, so
+  the worst case is a neutral surface for a fraction of a frame, never content.
+*/
+const INTRO_BOOT_SCRIPT = `(function(){var d=document.documentElement;try{var r=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;var h=location.pathname==='/';var seen=sessionStorage.getItem('mabco-intro-seen')==='1';d.setAttribute('data-mabco-intro',(h&&!r&&!seen)?'show':'skip');}catch(e){try{d.setAttribute('data-mabco-intro','skip');}catch(_){}}})();`;
 
 export default async function RootLayout({ children }) {
   const { locale, dir, dict, t } = await getServerI18n();
@@ -85,6 +98,10 @@ export default async function RootLayout({ children }) {
       dir={dir}
       className={`${inter.variable} ${cairo.variable}`}
       data-theme={initialTheme}
+      /* Server-rendered so it is in the very first byte: the intro decision is
+         not yet made. The boot script below resolves it to `show` or `skip`
+         before hydration. See INTRO_BOOT_SCRIPT and the gate in globals.css. */
+      data-mabco-intro="checking"
       suppressHydrationWarning
     >
       <body>

@@ -5,7 +5,6 @@ import { useCallback, useEffect, useRef } from "react";
 import { useTranslation } from "@/i18n/LocaleProvider";
 import { resolvedCollections } from "../data";
 import MobileCategoryArc from "./MobileCategoryArc";
-import MobileFeaturedDeal from "./MobileFeaturedDeal";
 import MobileDealsRail from "./MobileDealsRail";
 import MobileTopSellersRail from "./MobileTopSellersRail";
 import { useMobilePulseSequence } from "./useMobilePulseSequence";
@@ -15,15 +14,19 @@ import styles from "./MobilePulseHero.module.css";
  * The mobile Pulse Commerce hero — one dark premium shell telling a single
  * connected commerce story:
  *
- *   Category arc → Featured Deal → Deals of the Day → Top Sellers → seam
+ *   Category arc → Deals of the Day → Top Sellers → seam
  *
  * A vertical pulse spine runs the full height of the shell and is the visual
- * proof that the four stages are one system: selecting a category sends energy
+ * proof that the three stages are one system: selecting a category sends energy
  * down it, and each stage updates as the energy arrives.
  *
- * All four stages read from the same `resolvedCollections` record, so the
- * featured product, the deals and the top sellers can never disagree about
- * which collection they are showing.
+ * The featured product deliberately has no mobile stage: the brief is that
+ * Categories, Deals and Top Sellers must all be reachable in the first screen,
+ * and the featured block alone cost ~270–450px of that budget. It remains part
+ * of the data model and of the desktop composition, which is unchanged.
+ *
+ * Both rails read from the same `resolvedCollections` record, so the deals and
+ * the top sellers can never disagree about which collection they are showing.
  *
  * @param {{ enabled: boolean }} props `false` above the hero's breakpoint, where
  *   this composition is `display: none` and the desktop hero is in charge — the
@@ -73,13 +76,6 @@ export default function MobilePulseHero({ enabled }) {
   return (
     <div className={styles.root} ref={rootRef}>
       <div className={styles.shell} data-m-shell>
-        {/* One continuous spine. A straight line under a non-uniform scale stays
-            a straight line, so this needs no per-breakpoint geometry. */}
-        <div className={styles.spine} aria-hidden="true">
-          <span className={styles.spineBase} data-m-spine-base />
-          <span className={styles.spinePulse} data-m-spine-pulse />
-        </div>
-
         <MobileCategoryArc
           collections={resolvedCollections}
           activeIndex={activeIndex}
@@ -91,32 +87,45 @@ export default function MobilePulseHero({ enabled }) {
           onSelect={select}
         />
 
-        <span className={styles.junction} data-m-junction="featured" aria-hidden="true" />
-        <MobileFeaturedDeal product={dealsCollection.featured} t={t} />
+        {/*
+          Everything the spine runs through, in one positioned region.
 
-        <span className={styles.junction} data-m-junction="deals" aria-hidden="true" />
-        <MobileDealsRail
-          deals={dealsCollection.deals}
-          viewAllHref={dealsCollection.viewAllHref}
-          t={t}
-          dir={dir}
-          onSwiper={handleDealsSwiper}
-        />
+          The spine is absolutely positioned to this wrapper's full height rather
+          than offset from the shell top by a hardcoded number, so compacting or
+          resizing the arc can never leave it starting in the wrong place.
+        */}
+        <div className={styles.flow}>
+          {/* One continuous spine. A straight line under a non-uniform scale
+              stays a straight line, so this needs no per-breakpoint geometry. */}
+          <div className={styles.spine} aria-hidden="true">
+            <span className={styles.spineBase} data-m-spine-base />
+            <span className={styles.spinePulse} data-m-spine-pulse />
+          </div>
 
-        <span className={styles.junction} data-m-junction="sellers" aria-hidden="true" />
-        <MobileTopSellersRail
-          topSellers={sellersCollection.topSellers}
-          viewAllHref={sellersCollection.viewAllHref}
-          t={t}
-          dir={dir}
-          onSwiper={handleSellersSwiper}
-        />
+          <span className={styles.junction} data-m-junction="deals" aria-hidden="true" />
+          <MobileDealsRail
+            deals={dealsCollection.deals}
+            viewAllHref={dealsCollection.viewAllHref}
+            t={t}
+            dir={dir}
+            onSwiper={handleDealsSwiper}
+          />
 
-        {/* Glowing seam that hands the page over to New Arrivals. */}
-        <div className={styles.seam} aria-hidden="true">
-          <span className={styles.seamLine} />
-          <span className={styles.seamCharge} data-m-seam-charge />
-          <span className={styles.seamNode} />
+          <span className={styles.junction} data-m-junction="sellers" aria-hidden="true" />
+          <MobileTopSellersRail
+            topSellers={sellersCollection.topSellers}
+            viewAllHref={sellersCollection.viewAllHref}
+            t={t}
+            dir={dir}
+            onSwiper={handleSellersSwiper}
+          />
+
+          {/* Glowing seam that hands the page over to New Arrivals. */}
+          <div className={styles.seam} aria-hidden="true">
+            <span className={styles.seamLine} />
+            <span className={styles.seamCharge} data-m-seam-charge />
+            <span className={styles.seamNode} />
+          </div>
         </div>
       </div>
 

@@ -130,16 +130,6 @@ export function useMobilePulseSequence({
             }
           )
         );
-        push(
-          gsap.to(q("[data-m-featured-img]"), {
-            y: -5,
-            duration: 3.8,
-            ease: "sine.inOut",
-            yoyo: true,
-            repeat: -1,
-          })
-        );
-
         ambientRef.current = tweens;
         setAmbient(ambientShouldRun());
       });
@@ -193,11 +183,14 @@ export function useMobilePulseSequence({
         }
       };
 
+      /*
+        Two commerce stages, not three: the featured block has no mobile
+        composition, so the pulse runs arc → Deals → Top Sellers and the whole
+        story settles in ~1.2s instead of ~1.7s.
+      */
       const buildMaster = (index) => {
         const dealCards = q("[data-m-deal-inner]");
         const sellerCards = q("[data-m-seller-inner]");
-        const featuredBody = q("[data-m-featured-body]");
-        const featuredStage = q("[data-m-featured-stage]");
         const charge = q("[data-m-arc-charge]");
 
         const tl = gsap.timeline({ onComplete: () => onMasterDone(index) });
@@ -209,58 +202,20 @@ export function useMobilePulseSequence({
             .to(charge, { opacity: 0, duration: 0.16 }, 0.44);
         }
 
-        // 2 — the pulse leaves the arc and reaches the Featured Deal.
-        tl.add(travel(0, 34, 0.42), 0.14);
-        tl.add(bloom("featured"), 0.5);
-
-        // 3 — Featured Deal swaps behind the bloom.
-        if (featuredBody.length) {
-          tl.to(featuredBody, { opacity: 0, y: 6, duration: 0.18, ease: "power2.in" }, 0.4);
-        }
-        if (featuredStage.length) {
-          tl.to(
-            featuredStage,
-            { opacity: 0, scale: 0.94, duration: 0.18, ease: "power2.in" },
-            0.4
-          );
-        }
-        tl.add(() => setState(setDealsIndex, index), 0.58);
-        if (featuredBody.length) {
-          tl.fromTo(
-            featuredBody,
-            { opacity: 0, y: 10 },
-            { opacity: 1, y: 0, duration: 0.34, ease: "power3.out" },
-            0.6
-          );
-        }
-        if (featuredStage.length) {
-          tl.fromTo(
-            featuredStage,
-            { opacity: 0, scale: 0.94 },
-            {
-              opacity: 1,
-              scale: 1,
-              duration: 0.4,
-              ease: "power3.out",
-              transformOrigin: "50% 60%",
-            },
-            0.6
-          );
-        }
-
-        // 4 — pulse continues to the Deals rail; the rail resets through Swiper.
-        tl.add(travel(34, 62, 0.34), 0.62);
-        tl.add(bloom("deals"), 0.94);
+        // 2 — the pulse leaves the arc and reaches the Deals rail.
+        tl.add(travel(0, 50, 0.4), 0.12);
+        tl.add(bloom("deals"), 0.46);
         if (dealCards.length) {
           tl.to(
             dealCards,
             { opacity: 0, y: 10, duration: 0.16, stagger: 0.03, ease: "power2.in" },
-            0.66
+            0.2
           );
         }
-        // Deals content already swapped with the featured product above (both
-        // come from the same collection), so only the rail position resets here.
-        tl.add(() => resetRail(dealsSwiperRef), 0.86);
+        tl.add(() => {
+          setState(setDealsIndex, index);
+          resetRail(dealsSwiperRef);
+        }, 0.42);
         if (dealCards.length) {
           tl.fromTo(
             dealCards,
@@ -268,28 +223,28 @@ export function useMobilePulseSequence({
             {
               opacity: 1,
               y: 0,
-              duration: 0.36,
+              duration: 0.34,
               stagger: { each: 0.05, from: "start" },
               ease: "power3.out",
             },
-            0.9
+            0.46
           );
         }
 
-        // 5 — pulse reaches Top Sellers.
-        tl.add(travel(62, 96, 0.34), 0.96);
-        tl.add(bloom("sellers"), 1.26);
+        // 3 — the pulse continues to Top Sellers.
+        tl.add(travel(50, 96, 0.36), 0.5);
+        tl.add(bloom("sellers"), 0.84);
         if (sellerCards.length) {
           tl.to(
             sellerCards,
             { opacity: 0, y: 10, duration: 0.16, stagger: 0.03, ease: "power2.in" },
-            1
+            0.56
           );
         }
         tl.add(() => {
           setState(setSellersIndex, index);
           resetRail(sellersSwiperRef);
-        }, 1.2);
+        }, 0.8);
         if (sellerCards.length) {
           tl.fromTo(
             sellerCards,
@@ -297,27 +252,27 @@ export function useMobilePulseSequence({
             {
               opacity: 1,
               y: 0,
-              duration: 0.36,
+              duration: 0.34,
               stagger: { each: 0.05, from: "start" },
               ease: "power3.out",
             },
-            1.24
+            0.84
           );
         }
 
-        // 6 — the seam acknowledges the new state and the story settles (~1.7s).
+        // 4 — the seam acknowledges the new state and the story settles (~1.2s).
         tl.fromTo(
           q("[data-m-seam-charge]"),
           { opacity: 0, scaleX: 0.6 },
           {
             opacity: 1,
             scaleX: 1,
-            duration: 0.3,
+            duration: 0.28,
             ease: "power2.out",
             transformOrigin: "50% 50%",
           },
-          1.3
-        ).to(q("[data-m-seam-charge]"), { opacity: 0.5, duration: 0.24 }, 1.6);
+          0.88
+        ).to(q("[data-m-seam-charge]"), { opacity: 0.5, duration: 0.22 }, 1.12);
 
         return tl;
       };
@@ -413,10 +368,9 @@ export function useMobilePulseSequence({
             { autoAlpha: 1, y: 0, duration: 0.42, stagger: 0.1, ease: "power3.out" },
             0.34
           )
-          .add(travel(0, 96, 0.7), 0.42)
-          .add(bloom("featured"), 0.62)
-          .add(bloom("deals"), 0.82)
-          .add(bloom("sellers"), 1);
+          .add(travel(0, 96, 0.66), 0.42)
+          .add(bloom("deals"), 0.7)
+          .add(bloom("sellers"), 0.92);
       });
 
       let introObserver = null;
@@ -435,7 +389,10 @@ export function useMobilePulseSequence({
 
         const html = document.documentElement;
         const introState = html.getAttribute("data-mabco-intro");
-        if (introState === "show") {
+        // `checking` means the intro decision is still pending, so wait for it
+        // exactly as we would for `show` — spending the entrance now could burn
+        // it behind an intro that is about to appear.
+        if (introState === "show" || introState === "checking") {
           // Wait for the cinematic intro to clear before spending the entrance.
           introObserver = new MutationObserver(() => {
             const next = html.getAttribute("data-mabco-intro");

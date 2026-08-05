@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { FaBolt, FaChevronRight } from "react-icons/fa6";
 
@@ -9,17 +9,58 @@ import "swiper/css";
 
 import AssetImage from "@/components/ui/AssetImage/AssetImage";
 import { formatPrice } from "../data";
+import { toPairedPages } from "./pairProducts";
 import { RAIL_SWIPER_PROPS, syncRailToFocus } from "./railConfig";
 import styles from "./MobileDealsRail.module.css";
 
 /**
- * Mobile "Deals of the Day" — a real Swiper rail.
+ * One product card. `eager` marks the first card of the first page, which is the
+ * mobile hero's LCP element now that the featured block is gone.
+ */
+function DealCard({ product, t, eager }) {
+  return (
+    <Link href={product.href} className={styles.card} data-m-deal-inner>
+      <span className={styles.media}>
+        <AssetImage
+          src={product.image}
+          alt={product.title}
+          fill
+          sizes="(max-width: 420px) 42vw, 220px"
+          wrapperClassName={styles.asset}
+          className={styles.image}
+          placeholderLabel={product.title}
+          placeholderTone="dark"
+          showPath={false}
+          priority={eager}
+        />
+        {product.discount ? (
+          <span className={styles.badge}>-{product.discount}%</span>
+        ) : null}
+      </span>
+
+      <span className={styles.title}>{product.title}</span>
+
+      <span className={styles.priceRow}>
+        <span className={styles.price}>{formatPrice(product.price)}</span>
+        {product.oldPrice ? (
+          <s className={styles.oldPrice}>
+            <span className="visually-hidden">{t("product.previousPrice")} </span>
+            {formatPrice(product.oldPrice)}
+          </s>
+        ) : null}
+      </span>
+    </Link>
+  );
+}
+
+/**
+ * Mobile "Deals of the Day" — a real Swiper rail paged two products at a time.
  *
- * One card reads as primary with the next partially previewed, so the rail
- * announces itself as swipeable without shrinking cards to fit. No wishlist
- * control: the catalogue has wishlist state but no wishlist route
- * (`WISHLIST_UI_ENABLED === false`), so the approved image's heart would be a
- * dead affordance.
+ * Each slide is a page laid out as [ slot | spine corridor | slot ], so the
+ * electric spine always runs through reserved empty space and the two cards stay
+ * symmetric about it. No wishlist control: the catalogue has wishlist state but
+ * no wishlist route (`WISHLIST_UI_ENABLED === false`), so a heart here would be
+ * a dead affordance.
  *
  * GSAP only ever animates `[data-m-deal-inner]` — never the slide or the track,
  * which Swiper owns exclusively.
@@ -34,10 +75,12 @@ import styles from "./MobileDealsRail.module.css";
  */
 export default function MobileDealsRail({ deals, viewAllHref, t, dir, onSwiper }) {
   const swiperRef = useRef(null);
+  const [page, setPage] = useState(0);
 
   const handleSwiper = useCallback(
     (swiper) => {
       swiperRef.current = swiper;
+      setPage(swiper.activeIndex);
       onSwiper(swiper);
     },
     [onSwiper]
@@ -48,15 +91,18 @@ export default function MobileDealsRail({ deals, viewAllHref, t, dir, onSwiper }
     []
   );
 
+  const handleSlideChange = useCallback((swiper) => {
+    setPage(swiper.activeIndex);
+  }, []);
+
   if (!deals.length) return null;
+  const pages = toPairedPages(deals);
 
   return (
     <section
       className={styles.rail}
       aria-labelledby="m-pulse-deals-heading"
       data-m-stage="deals"
-      // On the section, not on <Swiper>: Swiper's React wrapper does not forward
-      // DOM handlers to its container. Focus bubbles here either way.
       onFocus={handleFocus}
     >
       <div className={styles.head}>
@@ -80,47 +126,45 @@ export default function MobileDealsRail({ deals, viewAllHref, t, dir, onSwiper }
         key={dir}
         dir={dir}
         onSwiper={handleSwiper}
+        onSlideChange={handleSlideChange}
         className={styles.swiper}
         wrapperTag="ul"
         aria-label={t("commerce.dealsTitle")}
       >
-        {deals.map((product, index) => (
-          <SwiperSlide key={`${product.id}-${index}`} tag="li" className={styles.slide}>
-            <Link href={product.href} className={styles.card} data-m-deal-inner>
-              <span className={styles.media}>
-                <AssetImage
-                  src={product.image}
-                  alt={product.title}
-                  fill
-                  sizes="(max-width: 400px) 44vw, 190px"
-                  wrapperClassName={styles.asset}
-                  className={styles.image}
-                  placeholderLabel={product.title}
-                  placeholderTone="dark"
-                  showPath={false}
-                />
-                {product.discount ? (
-                  <span className={styles.badge}>-{product.discount}%</span>
-                ) : null}
+        {pages.map((pair, pageIndex) => (
+          <SwiperSlide key={pageIndex} tag="li" className={styles.slide}>
+            <span className={styles.page}>
+              <span className={styles.slot}>
+                <DealCard product={pair[0]} t={t} eager={pageIndex === 0} />
               </span>
-
-              <span className={styles.title}>{product.title}</span>
-
-              <span className={styles.priceRow}>
-                <span className={styles.price}>{formatPrice(product.price)}</span>
-                {product.oldPrice ? (
-                  <s className={styles.oldPrice}>
-                    <span className="visually-hidden">
-                      {t("product.previousPrice")}{" "}
-                    </span>
-                    {formatPrice(product.oldPrice)}
-                  </s>
-                ) : null}
+              {/*
+                The middle track is the spine's reserved corridor. It is a real
+                (empty) grid item rather than an implicit gap, so auto-placement
+                puts the second card in column 3 — and it mirrors correctly in
+                RTL without any column-number arithmetic.
+              */}
+              <span className={styles.corridor} />
+              <span className={styles.slot}>
+                {pair[1] ? <DealCard product={pair[1]} t={t} /> : null}
               </span>
-            </Link>
+            </span>
           </SwiperSlide>
         ))}
       </Swiper>
+
+      {/* Visual progress only: every card is reachable with Tab on any page, so
+          this carries no interaction and is hidden from assistive tech. */}
+      {pages.length > 1 ? (
+        <span className={styles.dots} aria-hidden="true">
+          {pages.map((_, i) => (
+            <span
+              key={i}
+              className={styles.dot}
+              data-active={i === page ? "true" : "false"}
+            />
+          ))}
+        </span>
+      ) : null}
     </section>
   );
 }

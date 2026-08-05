@@ -1,13 +1,14 @@
 /* ============================================================
-   Mobile Category Reactor — top arc
+   Mobile Category Reactor — top arc, draggable
    Slot coordinates are percentages of .stage and live here (never inline) so
    GSAP clearProps can never wipe a node's position. The arc SVG is drawn in the
    same normalised 0–100 box, so both share one non-uniform scale and the curve
-   always passes through the node centres.
+   always passes through the node centres. `useArcDrag` mirrors this table to
+   interpolate between slots while a gesture is in flight.
    ============================================================ */
 .arc {
   position: relative;
-  padding-block-start: 4px;
+  padding-block-start: 2px;
 }
 
 .viewAll {
@@ -18,10 +19,10 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  min-height: 32px;
+  min-height: 30px;
   padding-inline: 10px 8px;
   border-radius: var(--radius-pill);
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 700;
   color: var(--m-accent-bright);
   transition:
@@ -48,18 +49,24 @@
   transform: scaleX(-1);
 }
 
-/* Arc box. The aspect ratio keeps the slot percentages resolving to a consistent
-   shape from 320px up; the height cap stops the arc growing into a huge dome on
-   tablets, where the box would otherwise be over 300px tall. Both the slot
-   coordinates and the arc path are percentage-based, so capping the height just
-   flattens the curve — the nodes stay on it. */
+/*
+  Arc box. The aspect ratio keeps the slot percentages resolving to a consistent
+  shape; the height cap stops the arc growing into a huge dome on tablets. Both
+  the slot coordinates and the arc path are percentage-based, so capping the
+  height just flattens the curve — the nodes stay on it.
+
+  `touch-action: pan-y` is what makes the drag safe: the browser keeps vertical
+  scrolling for itself, so the page never feels stuck when a finger passes over
+  the arc, while horizontal movement is left to the pointer handlers.
+*/
 .stage {
   position: relative;
   width: 100%;
-  aspect-ratio: 100 / 47;
-  min-height: 132px;
-  max-height: 280px;
-  margin-block-start: 26px;
+  aspect-ratio: 100 / 40;
+  min-height: 112px;
+  max-height: 198px;
+  margin-block-start: 20px;
+  touch-action: pan-y;
 }
 
 .rail {
@@ -100,12 +107,26 @@
   container-type: inline-size;
 }
 
+/*
+  A node is a 44px+ interaction area; the visible circle inside it is smaller.
+  Shrinking the disc rather than the button is what buys vertical space without
+  ever dropping the touch target below the 44px minimum.
+
+  `--drag-p` is written by the drag hook: 1 when this node is at the centre of the
+  arc, 0 two slots away. Everything magnetic below is driven from it, so the
+  feedback costs no React work.
+*/
 .node {
   --node-size: 46px;
+  --disc-size: 36px;
+  --drag-p: 0;
   position: absolute;
   width: var(--node-size);
   height: var(--node-size);
   transform: translate(-50%, -50%);
+  /* Transform is written inline during a drag, so it must not be transitioned
+     here — the snap-back is handled by the committed re-render instead. */
+  transition: opacity var(--motion-medium) var(--motion-ease);
 }
 
 /* Five slots on the arc: centre highest, outers lowest — the approved shape.
@@ -117,64 +138,92 @@
 .slot3 { left: 74.47%; top: 31.77%; }
 .slot4 { left: 91.5%; top: 51.27%; }
 
+/* Buffer nodes rest just outside the arc so a drag always has one ready to enter.
+   Reflected from the outer slots; the hero shell's `overflow: hidden` clips them. */
+.slot-1 { left: -8.53%; top: 70.77%; }
+.slot5 { left: 108.53%; top: 70.77%; }
+
+.node[data-buffer="true"] {
+  /* Invisible at rest, revealed only as a gesture pulls them onto the arc. */
+  opacity: calc(var(--drag-p) * 1.6);
+  pointer-events: none;
+}
+
 .nodeBtn {
   position: relative;
   display: grid;
   place-items: center;
-  /* 46px node already clears the 44px minimum; the padding box keeps the whole
-     touch target inside the button itself. */
+  /* The whole 44px+ box is the target, even though the disc is smaller. */
   width: 100%;
   height: 100%;
   padding: 0;
-  border: 1.5px solid var(--m-line);
+  border: 0;
   border-radius: 50%;
-  background: var(--m-node-bg);
+  background: transparent;
   color: var(--m-text-dim);
-  font-size: 1.02rem;
   cursor: pointer;
-  transition:
-    color var(--motion-fast) var(--motion-ease),
-    border-color var(--motion-fast) var(--motion-ease),
-    background var(--motion-fast) var(--motion-ease),
-    box-shadow var(--motion-fast) var(--motion-ease);
+  transition: color var(--motion-fast) var(--motion-ease);
 }
 
-.nodeBtn svg {
+/* The visible circle. */
+.nodeDisc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--disc-size);
+  height: var(--disc-size);
+  border-radius: 50%;
+  border: 1.5px solid var(--m-line);
+  background: var(--m-node-bg);
+  /* Magnetic response: nodes swell and brighten as they approach the centre. */
+  transform: translate(-50%, -50%) scale(calc(1 + var(--drag-p) * 0.16));
+  box-shadow: 0 0 calc(var(--drag-p) * 18px) var(--m-glow-strong);
+  transition:
+    border-color var(--motion-fast) var(--motion-ease),
+    background var(--motion-fast) var(--motion-ease);
+}
+
+.nodeIcon {
   position: relative;
   z-index: 1;
-}
-
-.nodeGlow {
-  position: absolute;
-  inset: -1.5px;
-  border-radius: 50%;
-  opacity: 0;
-  background: radial-gradient(circle at 50% 50%, var(--m-glow-strong), transparent 70%);
-  transition: opacity var(--motion-medium) var(--motion-ease);
+  font-size: 0.95rem;
+  /* Outer nodes sit slightly back; the centre reads forward. */
+  opacity: calc(0.72 + var(--drag-p) * 0.28);
 }
 
 .nodeBtn:hover,
 .nodeBtn:focus-visible {
   color: var(--m-text);
+}
+
+.nodeBtn:hover .nodeDisc {
   border-color: var(--m-accent-bright);
 }
 
 .nodeBtn:focus-visible {
   outline: 2px solid var(--m-focus);
-  outline-offset: 3px;
+  outline-offset: 1px;
 }
 
 /* Active node dominance: larger, brighter, ringed — the arc's focal point. */
 .node[data-active="true"] {
-  --node-size: 62px;
+  --node-size: 56px;
+  --disc-size: 48px;
   z-index: 3;
 }
 
 .node[data-active="true"] .nodeBtn {
+  color: var(--m-text);
+}
+
+.node[data-active="true"] .nodeIcon {
+  font-size: 1.22rem;
+  opacity: 1;
+}
+
+.node[data-active="true"] .nodeDisc {
   border-color: var(--m-accent-bright);
   border-width: 2px;
-  color: var(--m-text);
-  font-size: 1.32rem;
   background: var(--m-node-bg-active);
   box-shadow:
     0 0 0 5px var(--m-accent-soft),
@@ -182,8 +231,16 @@
     inset 0 0 16px var(--m-accent-soft);
 }
 
-.node[data-active="true"] .nodeGlow {
-  opacity: 0.85;
+/* While dragging, the settled active styling would fight the live proximity
+   feedback, so the ring relaxes and `--drag-p` takes over. */
+.stage[data-dragging="true"] .node[data-active="true"] .nodeDisc {
+  box-shadow:
+    0 0 0 calc(var(--drag-p) * 5px) var(--m-accent-soft),
+    0 0 calc(var(--drag-p) * 22px) var(--m-glow-strong);
+}
+
+.stage[data-dragging="true"] .nodeBtn {
+  cursor: grabbing;
 }
 
 /*
@@ -208,15 +265,16 @@
 */
 .nodeLabel {
   position: absolute;
-  inset-block-start: calc(100% + 6px);
+  inset-block-start: calc(100% + 4px);
   left: 50%;
   width: 15.5cqw;
   transform: translateX(-50%);
-  font-size: 0.6rem;
+  font-size: 0.58rem;
   font-weight: 650;
   line-height: 1.15;
   text-align: center;
   color: var(--m-text-dim);
+  opacity: calc(0.62 + var(--drag-p) * 0.38);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -224,22 +282,27 @@
   overflow: hidden;
 }
 
+.node[data-buffer="true"] .nodeLabel {
+  display: none;
+}
+
 .node[data-active="true"] .nodeLabel {
-  inset-block-start: calc(100% + 8px);
+  inset-block-start: calc(100% + 6px);
   width: 24cqw;
-  font-size: 0.9rem;
+  font-size: 0.86rem;
   font-weight: 800;
   line-height: 1.14;
   color: var(--m-text);
+  opacity: 1;
 }
 
 /* The point the pulse spine leaves the arc from, under the active node. */
 .tap {
   position: absolute;
-  inset-block-start: 68%;
+  inset-block-start: 74%;
   left: 50%;
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   background: var(--m-accent-bright);
@@ -252,49 +315,117 @@
   The icons still distinguish the nodes and every button keeps its `aria-label`,
   so nothing is lost to assistive tech; this is a visual reduction only.
 */
-@media (max-width: 359px) {
+@media (max-width: 359.98px) {
   .node[data-active="false"] .nodeLabel {
     display: none;
   }
 
   .node {
     --node-size: 44px;
+    --disc-size: 34px;
   }
 
   .node[data-active="true"] {
-    --node-size: 56px;
+    --node-size: 50px;
+    --disc-size: 42px;
   }
 
-  /* With no inactive labels there is nothing to collide with, so the active one
-     can take the room it needs to stay readable. */
   .node[data-active="true"] .nodeLabel {
     width: 46cqw;
-    font-size: 0.84rem;
+    font-size: 0.8rem;
   }
 }
 
 @media (min-width: 480px) {
   .node {
-    --node-size: 52px;
+    --node-size: 50px;
+    --disc-size: 40px;
   }
 
   .node[data-active="true"] {
-    --node-size: 70px;
+    --node-size: 62px;
+    --disc-size: 54px;
   }
 
   /* Widths stay on the cqw budget; only the type grows. */
   .nodeLabel {
-    font-size: 0.68rem;
+    font-size: 0.66rem;
   }
 
   .node[data-active="true"] .nodeLabel {
+    font-size: 0.94rem;
+  }
+}
+
+/* Compact-height mode: the arc gives up dome height and disc size, never its
+   touch targets. */
+@media (max-height: 700px) {
+  .stage {
+    aspect-ratio: 100 / 34;
+    min-height: 96px;
+    max-height: 150px;
+    margin-block-start: 16px;
+  }
+
+  .node {
+    --disc-size: 32px;
+  }
+
+  .node[data-active="true"] {
+    --node-size: 50px;
+    --disc-size: 42px;
+  }
+
+  .node[data-active="true"] .nodeIcon {
+    font-size: 1.06rem;
+  }
+
+  .node[data-active="true"] .nodeLabel {
+    font-size: 0.78rem;
+  }
+
+  .nodeLabel {
+    inset-block-start: calc(100% + 2px);
+  }
+
+  .tap {
+    inset-block-start: 80%;
+  }
+}
+
+/* Very short viewports — the arc flattens further and the "View all" pill tucks
+   closer, but the nodes keep their 44px targets. */
+@media (max-height: 660px) {
+  .stage {
+    aspect-ratio: 100 / 28;
+    min-height: 84px;
+    max-height: 112px;
+    margin-block-start: 12px;
+  }
+
+  .viewAll {
+    min-height: 28px;
+    font-size: 0.74rem;
+  }
+
+  .node[data-active="true"] {
+    --node-size: 46px;
+    --disc-size: 38px;
+  }
+
+  .node[data-active="true"] .nodeIcon {
     font-size: 0.98rem;
+  }
+
+  .node[data-active="true"] .nodeLabel {
+    font-size: 0.74rem;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .nodeBtn,
-  .nodeGlow,
+  .nodeDisc,
+  .node,
   .viewAll {
     transition: none;
   }

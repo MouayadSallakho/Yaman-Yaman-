@@ -15,6 +15,7 @@ import {
 } from "react-icons/fa6";
 
 import { buildArcWindow, slotForPosition, stepIndex } from "./arcWindow";
+import { useArcDrag } from "./useArcDrag";
 import styles from "./MobileCategoryArc.module.css";
 
 /** Icon per real collection id (mirrors the desktop reactor's mapping). */
@@ -30,7 +31,7 @@ const COLLECTION_ICONS = {
 };
 
 /**
- * The arc the five visible nodes sit on.
+ * The arc the visible nodes sit on.
  *
  * Drawn in a normalised 0–100 box with `preserveAspectRatio="none"`, exactly
  * like the percentage slot coordinates in the stylesheet — so the same
@@ -45,12 +46,14 @@ const ARC_PATH = "M 8.5 51.27 A 48.94 58 0 0 1 91.5 51.27";
 
 /**
  * Mobile Category Reactor — a top arc of real buttons with the active
- * collection centred and dominant.
+ * collection centred and dominant, draggable with a magnetic snap.
  *
  * Only five of the eight real collections are on the arc at once (labels would
- * collide at 320px otherwise). The window wraps as the selection moves, and
- * arrow keys step one collection at a time, so every collection stays
- * reachable. Selection is delegated upward; all motion is owned by the mobile
+ * collide at 320px otherwise). The window wraps as the selection moves, arrow
+ * keys step one collection at a time, and the arc can be dragged directly — so
+ * every collection stays reachable by tap, keyboard and gesture alike.
+ *
+ * Selection is delegated upward; all sequence motion is owned by the mobile
  * sequence hook through the `data-m-*` hooks.
  *
  * @param {{
@@ -75,11 +78,20 @@ export default function MobileCategoryArc({
   onSelect,
 }) {
   const listRef = useRef(null);
-  const window = buildArcWindow(activeIndex, count);
+  const stageRef = useRef(null);
+  const window_ = buildArcWindow(activeIndex, count);
 
   // The arc is geometrically symmetric, so RTL needs no new coordinates — only
   // the reading order reverses, putting the first collection on the right.
-  const ordered = dir === "rtl" ? [...window].reverse() : window;
+  const ordered = dir === "rtl" ? [...window_].reverse() : window_;
+
+  const { dragging } = useArcDrag({
+    stageRef,
+    count,
+    activeIndex,
+    rtl: dir === "rtl",
+    onCommit: onSelect,
+  });
 
   // Roving arrow-key navigation walks the full catalogue, not just the window,
   // so keyboard users are never gated behind repeated tabbing.
@@ -109,8 +121,8 @@ export default function MobileCategoryArc({
     previously selected collection — now an inactive, `tabindex="-1"` node. This
     hands focus to whichever node is active once React has committed.
 
-    It only ever fires while the arc already owns focus, so a pointer tap never
-    pulls focus (or the viewport) anywhere.
+    It only ever fires while the arc already owns focus, so a pointer tap or a
+    drag never pulls focus (or the viewport) anywhere.
   */
   const previousActiveRef = useRef(activeIndex);
   useEffect(() => {
@@ -132,7 +144,11 @@ export default function MobileCategoryArc({
         />
       </Link>
 
-      <div className={styles.stage}>
+      <div
+        className={styles.stage}
+        ref={stageRef}
+        data-dragging={dragging ? "true" : "false"}
+      >
         {/* Decorative energy rail the nodes sit on. */}
         <svg
           className={styles.rail}
@@ -157,17 +173,28 @@ export default function MobileCategoryArc({
           aria-label={t("commerce.categoryLabel")}
           onKeyDown={handleKeyDown}
         >
-          {ordered.map((index, position) => {
+          {ordered.map(({ index, slot, buffer }) => {
             const collection = collections[index];
             const Icon = COLLECTION_ICONS[collection.id] ?? FaBolt;
-            const isActive = index === activeIndex;
+            const isActive = !buffer && index === activeIndex;
             const label = t(collection.labelKey);
-            const slot = slotForPosition(position, count);
+            const cssSlot = slotForPosition(slot, count);
             return (
               <div
+                /*
+                  Keyed by collection, never by slot: as the window shifts React
+                  then *moves* the existing node rather than unmounting it, so a
+                  node holding keyboard focus survives the change and the effect
+                  below can hand focus to the new centre. Keying by slot destroyed
+                  the focused element and dropped focus to <body>.
+                  `buildArcWindow` guarantees these ids are unique.
+                */
                 key={collection.id}
-                className={`${styles.node} ${styles[`slot${slot}`]}`}
+                className={`${styles.node} ${styles[`slot${cssSlot}`] ?? ""}`}
+                // The drag hook reads this to interpolate between slot centres.
+                data-slot={cssSlot}
                 data-m-node
+                data-buffer={buffer ? "true" : "false"}
                 data-active={isActive ? "true" : "false"}
               >
                 <button
@@ -175,12 +202,15 @@ export default function MobileCategoryArc({
                   className={styles.nodeBtn}
                   aria-pressed={isActive}
                   aria-label={label}
-                  // Roving tabindex: one arc stop, arrows move within it.
+                  // Roving tabindex: one arc stop, arrows move within it. Buffers
+                  // are duplicates of on-arc collections, so they stay out of the
+                  // tab order and out of the accessibility tree.
                   tabIndex={isActive ? 0 : -1}
+                  aria-hidden={buffer ? "true" : undefined}
                   onClick={() => onSelect(index)}
                 >
-                  <span className={styles.nodeGlow} aria-hidden="true" />
-                  <Icon aria-hidden="true" />
+                  <span className={styles.nodeDisc} aria-hidden="true" />
+                  <Icon aria-hidden="true" className={styles.nodeIcon} />
                 </button>
                 <span className={styles.nodeLabel} aria-hidden="true">
                   {isActive ? activeLabel : label}

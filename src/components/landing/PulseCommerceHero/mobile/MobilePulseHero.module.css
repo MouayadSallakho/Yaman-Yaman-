@@ -47,11 +47,18 @@
   --m-hot: #ff8a3d;
   --m-hot-glow: rgba(255, 138, 61, 0.45);
 
+  /*
+    Width of the central column both rails reserve for the electric spine.
+    Declared here, once, so the rails and the spine can never disagree about it.
+    Wide enough for the 2px line plus its glow without stealing card width.
+  */
+  --spine-corridor: clamp(22px, 7vw, 36px);
+
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  padding: 16px 14px 0;
+  gap: 14px;
+  padding: 10px 14px 0;
   overflow: hidden;
   isolation: isolate;
   border-radius: 26px;
@@ -66,10 +73,21 @@
     inset 0 1px 0 rgba(255, 255, 255, 0.07);
 }
 
+/* The region the spine runs through: the rails plus the closing seam. */
+.flow {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: inherit;
+}
+
 /* ---- pulse spine -------------------------------------------------------
-   Spans the shell's content box behind every stage. A 2px vertical line and a
-   short travelling segment: no SVG path to distort, nothing to re-measure on
-   resize, and no pointer surface.
+   A 2px vertical line and a short travelling segment: no SVG path to distort,
+   nothing to re-measure on resize, and no pointer surface.
+
+   `inset-block: 0` against `.flow` rather than a pixel offset from the shell
+   top — the arc's height changes with width and with compact-height mode, and a
+   hardcoded start would drift out of alignment with it.
 
    Centred with physical `left` + `translateX(-50%)`, never
    `inset-inline-start` — the transform does not mirror in RTL, so the logical
@@ -77,7 +95,7 @@
 .spine {
   position: absolute;
   z-index: 0;
-  inset-block: 132px 0;
+  inset-block: 0;
   left: 50%;
   width: 2px;
   transform: translateX(-50%);
@@ -124,7 +142,7 @@
   align-self: center;
   width: 7px;
   height: 7px;
-  margin-block: -12px;
+  margin-block: -9px;
   border-radius: 50%;
   background: var(--m-accent-bright);
   box-shadow: 0 0 12px 2px var(--m-glow-strong);
@@ -132,7 +150,7 @@
 }
 
 /* Stages sit above the spine. */
-.shell > :not(.spine) {
+.flow > :not(.spine) {
   position: relative;
   z-index: 1;
 }
@@ -142,16 +160,16 @@
    as the shell closing, not as another card. */
 .seam {
   position: relative;
-  height: 46px;
+  height: 30px;
   margin-inline: -14px;
-  margin-block-start: 4px;
+  margin-block-start: 2px;
   pointer-events: none;
 }
 
 .seamLine,
 .seamCharge {
   position: absolute;
-  inset-block-end: 15px;
+  inset-block-end: 11px;
   inset-inline: 8%;
   height: 1px;
 }
@@ -175,7 +193,7 @@
 
 .seamNode {
   position: absolute;
-  inset-block-end: 9px;
+  inset-block-end: 5px;
   left: 50%;
   width: 13px;
   height: 13px;
@@ -188,17 +206,79 @@
 
 @media (min-width: 480px) {
   .shell {
-    gap: 24px;
-    padding: 20px 18px 0;
+    gap: 18px;
+    padding: 14px 18px 0;
     border-radius: 30px;
   }
 
-  .spine {
-    inset-block-start: 150px;
+  .seam {
+    height: 36px;
+    margin-inline: -18px;
+  }
+}
+
+/*
+  COMPACT-HEIGHT MODE
+
+  The brief is that Categories, Deals and Top Sellers must all be reachable in
+  the first screen. On a short viewport (a 616px-tall phone, or any phone in
+  landscape) the ordinary spacing cannot deliver that, so the decorative budget
+  shrinks: gaps, shell padding and the closing seam. Nothing that carries meaning
+  or interaction gives way — the rails' own compact rules trim media boxes, and
+  every touch target stays at 44px.
+*/
+@media (max-height: 700px) {
+  .shell {
+    gap: 9px;
+    padding-block-start: 6px;
+    border-radius: 22px;
+  }
+
+  .junction {
+    margin-block: -6px;
   }
 
   .seam {
-    margin-inline: -18px;
+    height: 20px;
+    margin-block-start: 0;
+  }
+
+  .seamLine,
+  .seamCharge {
+    inset-block-end: 8px;
+  }
+
+  .seamNode {
+    inset-block-end: 3px;
+    width: 11px;
+    height: 11px;
+  }
+}
+
+/* Very short viewports — the last of the decorative spacing. */
+@media (max-height: 660px) {
+  .shell {
+    gap: 7px;
+    padding-block-start: 4px;
+  }
+
+  .junction {
+    margin-block: -5px;
+  }
+
+  .seam {
+    height: 16px;
+  }
+
+  .seamLine,
+  .seamCharge {
+    inset-block-end: 6px;
+  }
+
+  .seamNode {
+    inset-block-end: 1px;
+    width: 10px;
+    height: 10px;
   }
 }
 
@@ -208,8 +288,8 @@
   The composition stays the mobile one — it must not become an early, cramped
   version of the desktop hero — but letting it stretch to 1100px turned the hero
   into a 1600px-tall page of its own. Centring the stages in a fixed column keeps
-  the arc, the featured deal and the rails at readable proportions, and keeps the
-  pulse spine running down the middle of the content rather than the viewport.
+  the arc and the rails at readable proportions, and keeps the pulse spine
+  running down the middle of the content rather than the viewport.
 */
 @media (min-width: 700px) {
   .shell {

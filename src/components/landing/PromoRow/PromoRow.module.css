@@ -127,6 +127,33 @@
 .tileItem {
   display: flex;
   min-width: 0;
+
+  /*
+    Skip rendering these tiles until they approach the viewport.
+
+    The promo artwork is painted as a card-local CSS background (see PromoRow.js
+    for why). That buys layout stability and a graceful missing-file fallback,
+    but it also opts the artwork out of `loading="lazy"`: a background image is
+    fetched as soon as its box is rendered, no matter where the box sits. This
+    section is the last on the homepage — measured at 4,950px down, 6.8 viewport
+    heights below the fold on a 390x844 phone — yet its four files were being
+    downloaded during initial load: 687 KB, 52% of the entire page's 1,323 KB.
+    The `next/image` photographs in Brand Showcase, directly above, correctly
+    fetched nothing, which is what isolated the cause to the background layer.
+
+    Containment is the fix rather than a switch to `next/image`, because it keeps
+    every property the background approach was chosen for and needs no change to
+    the markup, the data or the assets. `contain-intrinsic-size` carries the
+    measured 176px tile height so the document keeps the height it had — no
+    scroll jump, no shift — and `auto` lets the browser substitute the real size
+    once a tile has been rendered, which covers the taller desktop grid.
+
+    176px is the tile's own box (`.tile` min-height at this breakpoint), not the
+    198px the surrounding grid measures: that figure includes the rail's
+    `padding-block`, which belongs to the grid and is still laid out normally.
+  */
+  content-visibility: auto;
+  contain-intrinsic-size: auto 176px;
 }
 
 .tile {

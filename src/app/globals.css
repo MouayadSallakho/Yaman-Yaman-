@@ -1,4 +1,19 @@
-@import "bootstrap/dist/css/bootstrap.min.css";
+/*
+  Bootstrap is used for exactly two things here: its Reboot layer (box-sizing,
+  typography and form resets the whole design is built on) and the layout
+  container behind react-bootstrap's <Container>/<Row>/<Col>.
+
+  The full bundle costs 226.7 KB uncompressed for that. Measured against this
+  homepage, 2,522 of its 2,642 rules never match a single node — every
+  component and utility layer is dead weight the browser still has to parse and
+  re-match on each style recalculation. Reboot + Grid keeps every Bootstrap
+  class the app can reach and drops the rest.
+
+  Grid omits `.visually-hidden` (it lives in the utilities layer), so it is
+  restated below, byte-for-byte as Bootstrap defines it.
+*/
+@import "bootstrap/dist/css/bootstrap-reboot.min.css";
+@import "bootstrap/dist/css/bootstrap-grid.min.css";
 @import "../styles/tokens.css";
 @import "../styles/themes.css";
 @import "../styles/legacy-tones.css";
@@ -77,6 +92,63 @@ html[data-mabco-intro="show"] body {
    removes it from view so the landing page is the first frame instead. */
 html:not([data-mabco-intro="show"]) .mabco-intro-shell {
   display: none !important;
+}
+
+/* ---- "checking": the decision has not been made yet --------------------
+   The server cannot know whether the intro is due (that depends on
+   sessionStorage and the motion preference), so it renders this state and the
+   boot script resolves it synchronously before hydration.
+
+   The state has to exist because the alternative — no attribute at all — was
+   indistinguishable from "skip" to the rules above, so every frame painted
+   before the script ran showed the homepage and the intro then covered it.
+   Holding a neutral, intro-coloured surface instead means the first frame is
+   either the intro or the page, and never the page followed by the intro. */
+html[data-mabco-intro="checking"] {
+  background-color: var(--color-cinematic-deep);
+}
+
+html[data-mabco-intro="checking"] body {
+  overflow: hidden;
+}
+
+/* Hide the page itself, not just the intro shell — `visibility` keeps the layout
+   intact so resolving the state costs no reflow and no shift. */
+html[data-mabco-intro="checking"] body > *:not(script) {
+  visibility: hidden;
+}
+
+/* Without scripting the attribute is never resolved, so `checking` would hide
+   the site permanently. Those users get the landing page directly. */
+@media (scripting: none) {
+  html[data-mabco-intro="checking"] body {
+    overflow: visible;
+  }
+
+  html[data-mabco-intro="checking"] body > *:not(script) {
+    visibility: visible;
+  }
+}
+
+/* Screen-reader-only text. Restated from Bootstrap's utilities layer, which the
+   Reboot + Grid pair above deliberately leaves out. Used by the hero's live
+   regions, price context and other assistive-tech-only copy, so it must keep
+   Bootstrap's exact semantics. */
+.visually-hidden,
+.visually-hidden-focusable:not(:focus):not(:focus-within) {
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.visually-hidden:not(caption),
+.visually-hidden-focusable:not(:focus):not(:focus-within):not(caption) {
+  position: absolute !important;
 }
 
 /* Accessible focus for keyboard users */

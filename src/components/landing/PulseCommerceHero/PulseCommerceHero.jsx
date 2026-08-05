@@ -11,7 +11,7 @@ import DealsMatrix from "./DealsMatrix";
 import TopSellerVault from "./TopSellerVault";
 import EnergyConnector from "./EnergyConnector";
 import MobilePulseHero from "./mobile/MobilePulseHero";
-import { useIsDesktopHero } from "./useHeroViewport";
+import { useHeroMode } from "./useHeroViewport";
 import styles from "./PulseCommerceHero.module.css";
 
 /**
@@ -29,14 +29,17 @@ import styles from "./PulseCommerceHero.module.css";
  * Below 1200px the mobile arc composition (`mobile/MobilePulseHero`) takes over
  * completely — it is not this layout scaled down. Both trees are always
  * rendered and CSS decides which is visible, so neither side flashes the wrong
- * composition or shifts layout on hydration. `useIsDesktopHero` then makes sure
- * only the visible composition's GSAP sequence actually runs.
+ * composition or shifts layout on hydration. `useHeroMode` then makes sure only
+ * the visible composition's GSAP sequence actually runs — and that neither runs
+ * while the answer is still the server's guess.
  */
 export default function PulseCommerceHero() {
   const { t, dir } = useTranslation();
   const rootRef = useRef(null);
   const liveRef = useRef(null);
-  const isDesktop = useIsDesktopHero();
+  // "unknown" on the hydration commit, so neither composition's GSAP sequence
+  // sets itself up against a tree that CSS is hiding. See useHeroViewport.
+  const heroMode = useHeroMode();
 
   const count = resolvedCollections.length;
 
@@ -56,7 +59,7 @@ export default function PulseCommerceHero() {
     count,
     labelForIndex,
     liveRef,
-    enabled: isDesktop,
+    enabled: heroMode === "desktop",
   });
 
   const activeCol = resolvedCollections[activeIndex];
@@ -76,7 +79,7 @@ export default function PulseCommerceHero() {
       <Container fluid className={styles.container}>
         {/* Mobile arc composition — visible below 1200px. */}
         <div className={styles.mobileOnly}>
-          <MobilePulseHero enabled={!isDesktop} />
+          <MobilePulseHero enabled={heroMode === "mobile"} />
         </div>
 
         {/* Desktop composition — unchanged, visible from 1200px up. */}
