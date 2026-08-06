@@ -239,6 +239,59 @@
     0 0 calc(var(--drag-p) * 22px) var(--m-glow-strong);
 }
 
+/*
+  ---- live preview while the finger is still down ------------------------
+  `data-preview` is written straight to the DOM by the drag hook on each frame:
+  it marks whichever node is nearest the centre right now, which is the one a
+  release would commit to. It carries the approved active treatment so the
+  choice is legible before lifting, while `data-active` keeps meaning
+  "committed" — so `aria-pressed`, the live announcement and the Deals/Top
+  Sellers content all stay on the settled collection until the snap lands.
+
+  Everything here is transform, opacity, colour and shadow only; nothing in this
+  block can move a sibling or trigger layout mid-gesture.
+*/
+.node[data-preview="true"] {
+  z-index: 4;
+}
+
+.node[data-preview="true"] .nodeBtn {
+  color: var(--m-text);
+}
+
+.node[data-preview="true"] .nodeIcon {
+  opacity: 1;
+}
+
+.node[data-preview="true"] .nodeDisc {
+  border-color: var(--m-accent-bright);
+  border-width: 2px;
+  background: var(--m-node-bg-active);
+  box-shadow:
+    0 0 0 4px var(--m-accent-soft),
+    0 0 20px var(--m-glow-strong),
+    inset 0 0 14px var(--m-accent-soft);
+}
+
+.node[data-preview="true"] .nodeLabel {
+  color: var(--m-text);
+  font-weight: 800;
+  opacity: 1;
+}
+
+/* The committed node steps back while a different one is being previewed, so
+   only one node ever reads as chosen. */
+.stage[data-dragging="true"] .node[data-active="true"]:not([data-preview="true"]) .nodeDisc {
+  border-color: var(--m-line);
+  background: var(--m-node-bg);
+  box-shadow: 0 0 calc(var(--drag-p) * 12px) var(--m-glow-strong);
+}
+
+.stage[data-dragging="true"] .node[data-active="true"]:not([data-preview="true"]) .nodeLabel {
+  color: var(--m-text-dim);
+  font-weight: 650;
+}
+
 .stage[data-dragging="true"] .nodeBtn {
   cursor: grabbing;
 }

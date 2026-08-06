@@ -99,7 +99,15 @@ export default function MobilePulseHero({ enabled }) {
               stays a straight line, so this needs no per-breakpoint geometry. */}
           <div className={styles.spine} aria-hidden="true">
             <span className={styles.spineBase} data-m-spine-base />
-            <span className={styles.spinePulse} data-m-spine-pulse />
+            {/*
+              The pulse rides a track that is exactly as tall as the spine, so a
+              `translateY` percentage on the track means the same thing the old
+              `top` percentage did — but as a compositor transform instead of a
+              layout property. The segment itself never moves within the track.
+            */}
+            <span className={styles.spineTrack} data-m-spine-track>
+              <span className={styles.spinePulse} data-m-spine-pulse />
+            </span>
           </div>
 
           <span className={styles.junction} data-m-junction="deals" aria-hidden="true" />

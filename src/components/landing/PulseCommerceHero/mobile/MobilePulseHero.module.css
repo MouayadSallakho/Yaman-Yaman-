@@ -117,6 +117,27 @@
   );
 }
 
+/*
+  Full-height carrier for the travelling segment.
+
+  The pulse used to be moved by animating its own `top` between two percentages.
+  That is a layout property, so every frame of the hero's signature animation
+  invalidated layout and was reported by Chrome as a layout shift — the whole of
+  a measured 0.02 CLS came from this one element, and the work landed on the
+  main thread at exactly the moment the rails are most likely to be swiped.
+
+  A track that is exactly as tall as the spine keeps the percentages meaningful:
+  `translateY(50%)` of a full-height track is the same distance the old
+  `top: 50%` produced, so the visual path, the junction timings and resize
+  behaviour are all unchanged — but it composites instead of laying out.
+*/
+.spineTrack {
+  position: absolute;
+  inset: 0;
+  display: block;
+  pointer-events: none;
+}
+
 .spinePulse {
   position: absolute;
   inset-inline: -1px;

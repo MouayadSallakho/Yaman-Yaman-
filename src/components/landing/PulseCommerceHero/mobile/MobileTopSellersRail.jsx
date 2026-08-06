@@ -10,7 +10,7 @@ import "swiper/css";
 import AssetImage from "@/components/ui/AssetImage/AssetImage";
 import { formatPrice } from "../data";
 import { toPairedPages } from "./pairProducts";
-import { RAIL_SWIPER_PROPS, syncRailToFocus } from "./railConfig";
+import { RAIL_SWIPER_PROPS, syncRailToFocus, useRailDirection } from "./railConfig";
 import styles from "./MobileTopSellersRail.module.css";
 
 function SellerCard({ product, rank, t }) {
@@ -109,6 +109,9 @@ export default function MobileTopSellersRail({
     setPage(swiper.activeIndex);
   }, []);
 
+  // Reconfigure the live instance instead of remounting it — see railConfig.
+  useRailDirection(swiperRef, dir);
+
   if (!topSellers.length) return null;
   const pages = toPairedPages(topSellers);
 
@@ -135,7 +138,7 @@ export default function MobileTopSellersRail({
 
       <Swiper
         {...RAIL_SWIPER_PROPS}
-        key={dir}
+        /* Not keyed by `dir` — see MobileDealsRail and railConfig for why. */
         dir={dir}
         onSwiper={handleSwiper}
         onSlideChange={handleSlideChange}

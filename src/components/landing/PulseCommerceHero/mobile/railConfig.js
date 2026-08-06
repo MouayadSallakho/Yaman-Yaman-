@@ -33,21 +33,87 @@
  * Swiper's Keyboard module is also left out: it binds arrow keys at the document
  * level, which would fight the category arc's own arrow-key navigation.
  */
+import { useEffect, useRef } from "react";
+
 export const RAIL_SWIPER_PROPS = {
   slidesPerView: 1,
   spaceBetween: 14,
   grabCursor: true,
   watchOverflow: true,
-  speed: 420,
+  /* Settle time after release. 420ms read as lag on a phone — the page had
+     visibly stopped following the finger while the transition ran out. */
+  speed: 320,
   autoplay: false,
   loop: false,
-  /* Only claim the gesture when it is clearly horizontal (default is 45°). */
-  touchAngle: 32,
+  /*
+    Swiper's default. It was narrowed to 32° to "only claim clearly horizontal
+    gestures", and that is exactly what made the rails feel broken on real
+    hardware: Swiper measures the angle of the opening movement and *silently
+    refuses* anything steeper, so the swipe simply did nothing.
+
+    Measured on the production build at 390x844, resetting to page 0 before each
+    gesture:
+
+        ~2°  (a DevTools mouse drag)  -> moves
+        ~15°                          -> moves
+        ~25°                          -> moves
+        ~35°                          -> REFUSED
+        ~45°                          -> REFUSED
+
+    A mouse travels at 0–2°, which is why emulation always felt smooth. A thumb
+    sweeping across a phone arcs through roughly 30–50°, so a large share of
+    real swipes fell in the refused band; the user swipes again and reads the
+    non-response as lag. 45° keeps clearly vertical gestures with the page.
+  */
+  touchAngle: 45,
   /* Let the page take over once the rail is at its end. */
   touchReleaseOnEdges: true,
   resistanceRatio: 0.6,
   threshold: 4,
 };
+
+/**
+ * Keep a live Swiper's reading direction in step with the document's.
+ *
+ * The rails used to carry `key={dir}`, which threw the whole instance away and
+ * built a new one whenever the language changed. That is what leaked: measured
+ * in place on the homepage across twenty English/Arabic switches, live
+ * ResizeObservers grew 2 -> 42, exactly two per switch — one per discarded rail
+ * — and the heap rose with them at roughly 0.2MB per switch while DOM nodes and
+ * listeners had already plateaued. The discarded instances kept their observers.
+ *
+ * `changeLanguageDirection` is Swiper's own answer to this: it flips `rtl`,
+ * recalculates the track and leaves the instance, its observers and its slides
+ * alone. Direction still changes exactly once per switch.
+ *
+ * Paging is reset to the first page because the rails already do that whenever
+ * their contents change collection; leaving a right-to-left track parked on
+ * page two of the previous reading order is the stale state the key was
+ * originally added to avoid.
+ *
+ * @param {import("react").RefObject<import("swiper").Swiper|null>} swiperRef
+ * @param {"ltr"|"rtl"} dir
+ */
+export function useRailDirection(swiperRef, dir) {
+  const appliedRef = useRef(null);
+
+  useEffect(() => {
+    const swiper = swiperRef.current;
+    if (!swiper || swiper.destroyed) return;
+
+    // First run just records the direction the instance was built with.
+    if (appliedRef.current === null) {
+      appliedRef.current = dir;
+      return;
+    }
+    if (appliedRef.current === dir) return;
+    appliedRef.current = dir;
+
+    swiper.changeLanguageDirection(dir);
+    swiper.slideTo(0, 0);
+    swiper.update();
+  }, [swiperRef, dir]);
+}
 
 /**
  * Bring the focused card into view.

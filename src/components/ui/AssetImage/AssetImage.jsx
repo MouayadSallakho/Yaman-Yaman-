@@ -25,6 +25,22 @@ const FIT_CLASS = {
 const failedSources = new Set();
 
 /**
+ * Whether this session has already seen `src` fail to load.
+ *
+ * Every product image on a page goes through `AssetImage`, so by the time a
+ * secondary surface (the full-size gallery, say) needs to know whether an asset
+ * exists, that question has usually already been answered for free. Exposing it
+ * saves those surfaces from re-probing the network to learn something the page
+ * has known since it rendered.
+ *
+ * A path that has not been attempted yet reports `false` — optimistic, which is
+ * the right default: the overwhelmingly common case is that the file is there.
+ */
+export function hasAssetFailed(src) {
+  return failedSources.has(src);
+}
+
+/**
  * Image boundary used across the storefront while the real visual assets are
  * being produced. The placeholder remains visible until the requested file
  * loads successfully. Dropping a file at the displayed /public path makes the

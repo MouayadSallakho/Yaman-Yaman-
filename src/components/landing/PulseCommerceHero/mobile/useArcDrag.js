@@ -46,12 +46,44 @@ const BUFFER_Y = 2 * SLOT_Y[0] - SLOT_Y[1];
 
 const CENTER_SLOT = 2;
 
-/** Movement before a gesture is judged to be a drag rather than a tap. */
-const INTENT_THRESHOLD_PX = 6;
-/** A gesture only becomes a drag if it is meaningfully more sideways than not. */
-const HORIZONTAL_BIAS = 1.25;
-/** px/ms past which a flick contributes one extra step. */
-const FLICK_VELOCITY = 0.55;
+/**
+ * Movement before a gesture is judged to be a drag rather than a tap. Touch slop
+ * on Android is around 8px, so anything under that is still a tap in the user's
+ * mind and, more importantly, in the browser's.
+ */
+const INTENT_THRESHOLD_PX = 8;
+
+/**
+ * How much more vertical than horizontal a gesture must be before the arc gives
+ * it up to the page.
+ *
+ * WHY THIS IS DELIBERATELY FORGIVING
+ * ----------------------------------
+ * The previous rule was the inverse — a gesture had to be 1.25x more horizontal
+ * than vertical *on the first sample past the threshold*, and failing it called
+ * a reset that cleared the tracked pointer id. Every later move for that same
+ * finger was then dropped by the id guard, so a thumb that started with any
+ * downward drift and then swept sideways was rejected outright and could not
+ * recover; the user had to lift and try again.
+ *
+ * Measured against the production build with synthetic touch pointers:
+ *
+ *     first sample (5,9) then turning horizontal -> never entered drag
+ *     a steady ~40° arc                          -> never entered drag
+ *     a near-perfect horizontal line (a mouse)   -> always worked
+ *
+ * which is precisely why the arc felt fine in DevTools and unreliable in a hand.
+ * Now the gesture is only surrendered when it is *clearly* vertical, and the
+ * decision stays open until one axis actually wins.
+ */
+const VERTICAL_YIELD_RATIO = 1.6;
+
+/**
+ * Vertical travel before the arc will consider surrendering the gesture. Well
+ * past touch slop, so a thumb that dips a few pixels on the way into a sideways
+ * sweep is not mistaken for someone scrolling the page.
+ */
+const VERTICAL_COMMIT_PX = 14;
 /** Never travel more than this many categories from one gesture. */
 const MAX_STEPS = 2;
 
@@ -108,6 +140,19 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
     countRef.current = count;
   }, [activeIndex, rtl, onCommit, count]);
 
+  /**
+   * The collection a release at this displacement would land on.
+   *
+   * Single source of truth for both the live preview and the commit. Dragging
+   * right brings the node on the left into the centre; in RTL the rendered
+   * window is reversed, so the same gesture walks the other way.
+   */
+  const targetIndexFor = useCallback((shift) => {
+    const steps = Math.max(-MAX_STEPS, Math.min(MAX_STEPS, Math.round(shift)));
+    const direction = rtlRef.current ? 1 : -1;
+    return wrapIndex(activeRef.current + direction * steps, countRef.current);
+  }, []);
+
   /** Paint the arc for a given continuous displacement. Transform-only. */
   const paint = useCallback(
     (shift) => {
@@ -117,6 +162,22 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       if (!rect.width || !rect.height) return;
 
       const nodes = stage.querySelectorAll("[data-m-node]");
+
+      /*
+        Live preview: the collection a release would land on is shown as active
+        *before* the finger lifts. It is derived from `targetIndexFor` — the same
+        function the commit uses — so the preview and the snap cannot disagree;
+        an earlier version recomputed the two independently and they drifted
+        apart whenever a flick was involved.
+
+        Done here rather than in React because this runs every animation frame of
+        the gesture: it is a couple of attribute writes, no reconciliation, and
+        the committed collection is untouched until the snap lands. `data-active`
+        therefore still means "committed", so `aria-pressed`, the polite
+        announcement and the two rails all stay on the settled collection.
+      */
+      const previewIndex = targetIndexFor(shift);
+
       nodes.forEach((node) => {
         const slot = Number(node.getAttribute("data-slot"));
         if (Number.isNaN(slot)) return;
@@ -132,9 +193,18 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
 
         node.style.transform = `translate(-50%, -50%) translate(${dx.toFixed(2)}px, ${dy.toFixed(2)}px)`;
         node.style.setProperty("--drag-p", proximity.toFixed(3));
+
+        // Buffers duplicate a collection already on the arc and are out of the
+        // accessibility tree, so they must never be shown as the preview.
+        const isPreview =
+          node.getAttribute("data-buffer") !== "true" &&
+          Number(node.getAttribute("data-index")) === previewIndex;
+
+        if (isPreview) node.setAttribute("data-preview", "true");
+        else if (node.hasAttribute("data-preview")) node.removeAttribute("data-preview");
       });
     },
-    [stageRef]
+    [stageRef, targetIndexFor]
   );
 
   /** Hand every node back to the stylesheet. */
@@ -144,6 +214,7 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
     stage.querySelectorAll("[data-m-node]").forEach((node) => {
       node.style.transform = "";
       node.style.removeProperty("--drag-p");
+      node.removeAttribute("data-preview");
     });
   }, [stageRef]);
 
@@ -173,6 +244,9 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       state.pointerId = null;
       state.shift = 0;
       state.velocity = 0;
+      // Hand every node back to the stylesheet on every exit path, so no inline
+      // transform and no `data-preview` can outlive the gesture that wrote it.
+      clearPaint();
       setDragging(false);
     };
 
@@ -196,6 +270,18 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       state.lastTime = event.timeStamp;
       state.velocity = 0;
       state.shift = 0;
+
+      // Capture immediately rather than once the drag is recognised. A fast
+      // flick can leave the stage's box within a frame or two of pointerdown,
+      // and without capture those moves are delivered to whatever is under the
+      // finger instead — the gesture would stall before it was ever classified.
+      // `touch-action: pan-y` on the stage still lets the page scroll away
+      // vertically, and the browser sends pointercancel when it does.
+      try {
+        stage.setPointerCapture(event.pointerId);
+      } catch {
+        /* capture is best-effort */
+      }
     };
 
     const onPointerMove = (event) => {
@@ -204,21 +290,34 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       const dy = event.clientY - state.startY;
 
       if (state.phase === "pressing") {
-        // Vertical scrolling wins until the gesture is clearly horizontal, so the
-        // page never feels sticky when the finger passes over the arc.
-        if (Math.abs(dx) < INTENT_THRESHOLD_PX) return;
-        if (Math.abs(dx) < Math.abs(dy) * HORIZONTAL_BIAS) {
-          reset();
+        /*
+          Keep the decision open until one axis actually wins. Three outcomes:
+
+            - clearly vertical  -> hand the gesture to the page and stop looking
+            - past the slop and at least as horizontal as vertical -> drag
+            - anything else     -> undecided, wait for the next sample
+
+          The undecided branch is the important one. It is what lets a thumb that
+          starts with a little downward drift and then sweeps sideways still be
+          recognised, instead of being written off on its first sample.
+        */
+        /*
+          Vertical has to be *committed*, not merely leading, before the arc lets
+          go: a decisive downward run, not one early sample that happened to
+          contain more dy than dx. Nothing latches — every sample is judged on
+          the movement so far, so a thumb that dips and then sweeps sideways is
+          still recognised. On a real device the browser is the authority anyway:
+          `touch-action: pan-y` lets it start scrolling and it then sends
+          pointercancel, which tears the gesture down properly.
+        */
+        if (Math.abs(dy) >= VERTICAL_COMMIT_PX && Math.abs(dy) > Math.abs(dx) * VERTICAL_YIELD_RATIO) {
           return;
         }
+
+        if (Math.abs(dx) < INTENT_THRESHOLD_PX || Math.abs(dx) < Math.abs(dy)) return;
+
         state.phase = "dragging";
         setDragging(true);
-        // Keep receiving moves even if the finger leaves the arc.
-        try {
-          stage.setPointerCapture(event.pointerId);
-        } catch {
-          /* capture is best-effort */
-        }
       }
 
       if (state.phase !== "dragging") return;
@@ -241,49 +340,59 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       schedule();
     };
 
+    const releaseCapture = (pointerId) => {
+      try {
+        stage.releasePointerCapture(pointerId);
+      } catch {
+        /* already released */
+      }
+    };
+
     const finish = (event) => {
       if (state.pointerId !== event.pointerId) return;
 
-      if (state.phase === "pressing") {
-        // Never moved far enough to be a drag — let the click through untouched.
+      if (state.phase === "pressing" || state.phase === "yielded") {
+        // Never became a drag — let the click through untouched (a tap must
+        // still select), and give the captured pointer back.
+        releaseCapture(event.pointerId);
         reset();
         return;
       }
       if (state.phase !== "dragging") return;
 
+      /*
+        A drag has happened, so the click the browser synthesises next is not a
+        tap on whichever node happened to be under the finger — acting on it
+        would override the category the snap just chose. The arc clears this flag
+        when it swallows that click. Same handshake the product gallery already
+        uses for its own drag surface.
+      */
+      stage.dataset.dragConsumed = "1";
+
       cancelFrame();
       state.phase = "snapping";
       setDragging(false);
 
-      const shift = state.shift;
-      let steps = Math.round(shift);
-      // A flick may carry one extra category, and no more.
-      if (Math.abs(state.velocity) > FLICK_VELOCITY) {
-        const flick = Math.sign(state.velocity);
-        if (flick === Math.sign(shift) || steps === 0) steps += flick;
-      }
-      steps = Math.max(-MAX_STEPS, Math.min(MAX_STEPS, steps));
+      /*
+        The release commits exactly the displacement the arc was last showing.
 
-      try {
-        stage.releasePointerCapture(event.pointerId);
-      } catch {
-        /* already released */
-      }
+        A flick used to add one extra category on top of it. That made sense when
+        the gesture was blind, but the arc now previews its destination live, and
+        an overshoot past the category the user is looking at is precisely the
+        unpredictability the preview exists to remove — you would aim at one
+        collection and land on its neighbour. Travel is unchanged for deliberate
+        drags: MAX_STEPS still allows two categories in one sweep.
+      */
+      releaseCapture(event.pointerId);
 
-      if (steps === 0) {
+      const next = targetIndexFor(state.shift);
+
+      if (next === activeRef.current) {
         // Nothing changes collection, so settle the arc back ourselves.
         clearPaint();
         reset();
         return;
       }
-
-      // Dragging right brings the node on the left into the centre. In RTL the
-      // rendered window is reversed, so the same gesture walks the other way.
-      const direction = rtlRef.current ? 1 : -1;
-      const next = wrapIndex(
-        activeRef.current + direction * steps,
-        countRef.current
-      );
 
       // Let the committed re-render own the resting positions: the new window
       // puts the chosen collection in the centre slot, so clearing the inline
@@ -328,7 +437,7 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       window.removeEventListener("resize", onResize);
       clearPaint();
     };
-  }, [stageRef, paint, clearPaint]);
+  }, [stageRef, paint, clearPaint, targetIndexFor]);
 
   // A committed change re-renders the window; make sure no inline transform from
   // the gesture survives into the new resting layout.

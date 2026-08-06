@@ -10,7 +10,7 @@ import "swiper/css";
 import AssetImage from "@/components/ui/AssetImage/AssetImage";
 import { formatPrice } from "../data";
 import { toPairedPages } from "./pairProducts";
-import { RAIL_SWIPER_PROPS, syncRailToFocus } from "./railConfig";
+import { RAIL_SWIPER_PROPS, syncRailToFocus, useRailDirection } from "./railConfig";
 import styles from "./MobileDealsRail.module.css";
 
 /**
@@ -95,6 +95,9 @@ export default function MobileDealsRail({ deals, viewAllHref, t, dir, onSwiper }
     setPage(swiper.activeIndex);
   }, []);
 
+  // Reconfigure the live instance instead of remounting it — see railConfig.
+  useRailDirection(swiperRef, dir);
+
   if (!deals.length) return null;
   const pages = toPairedPages(deals);
 
@@ -121,9 +124,17 @@ export default function MobileDealsRail({ deals, viewAllHref, t, dir, onSwiper }
 
       <Swiper
         {...RAIL_SWIPER_PROPS}
-        // `key` on dir makes Swiper rebuild for the new reading direction rather
-        // than keeping a stale RTL/LTR track.
-        key={dir}
+        /*
+          Deliberately NOT keyed by `dir`.
+
+          Keying it remounted the whole rail on every language change, and the
+          discarded instance's ResizeObserver was never disconnected: measured
+          in place on the homepage, ResizeObservers climbed 2 -> 42 across
+          twenty locale switches (exactly two per switch, one per rail) with the
+          heap tracking them linearly. `useRailDirection` below reconfigures the
+          live instance through Swiper's own `changeLanguageDirection`, so the
+          direction still changes exactly once and nothing is thrown away.
+        */
         dir={dir}
         onSwiper={handleSwiper}
         onSlideChange={handleSlideChange}

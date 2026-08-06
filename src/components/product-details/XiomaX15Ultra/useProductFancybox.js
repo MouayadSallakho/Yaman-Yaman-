@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef } from "react";
 
-const availabilityCache = new Map();
+import { hasAssetFailed } from "@/components/ui/AssetImage/AssetImage";
 
 function escapeHtml(value) {
   return String(value)
@@ -33,18 +33,6 @@ function placeholderThumb(label, index, palette) {
   return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
 }
 
-async function assetExists(src) {
-  if (availabilityCache.has(src)) return availabilityCache.get(src);
-  try {
-    const response = await fetch(src, { method: "HEAD", cache: "no-store" });
-    availabilityCache.set(src, response.ok);
-    return response.ok;
-  } catch {
-    availabilityCache.set(src, false);
-    return false;
-  }
-}
-
 function placeholderSlide(item, index, label, helper, palette) {
   return {
     html: `<div class="mabco-fancybox-placeholder"><div class="mabco-fancybox-placeholder__orb"><span>${String(index + 1).padStart(2, "0")}</span></div><strong>${escapeHtml(label)}</strong><p>${escapeHtml(helper)}</p><code>${escapeHtml(item.src)}</code></div>`,
@@ -61,12 +49,24 @@ export default function useProductFancybox({ gallery, t, dir }) {
     try {
       const { Fancybox } = await import("@fancyapps/ui/dist/fancybox/");
       const palette = getThemePalette();
-      const availability = await Promise.all(gallery.map((item) => assetExists(item.src)));
+      /*
+        Availability comes from what the page already rendered, not from the
+        network. Opening used to await a `HEAD` request per image with
+        `cache: "no-store"` — eight blocking round trips before the gallery could
+        appear, every one of which succeeds for this product because all eight
+        files exist. On a phone that was the whole of the "slow to open" feeling.
+
+        The inline deck renders all eight images (plus eight thumbnails) through
+        `AssetImage`, so a missing file has already been discovered by the time
+        anyone taps to expand, and the placeholder path still works. A path that
+        has not been attempted yet is treated as present, which is both the
+        common case and recoverable.
+      */
       const slides = gallery.map((item, index) => {
         const alt = t(item.altKey);
-        return availability[index]
-          ? { src: item.src, type: "image", caption: t(item.captionKey), thumbSrc: item.src, thumbAlt: alt }
-          : placeholderSlide(item, index, alt, t("productDemo.gallery.placeholderMessage"), palette);
+        return hasAssetFailed(item.src)
+          ? placeholderSlide(item, index, alt, t("productDemo.gallery.placeholderMessage"), palette)
+          : { src: item.src, type: "image", caption: t(item.captionKey), thumbSrc: item.src, thumbAlt: alt };
       });
 
       instanceRef.current?.close?.();

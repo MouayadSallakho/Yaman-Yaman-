@@ -93,6 +93,24 @@ export default function MobileCategoryArc({
     onCommit: onSelect,
   });
 
+  /*
+    A drag ends with the browser synthesising a click on whichever node the
+    finger happened to be over. Acting on it would select that node and throw
+    away the category the magnetic snap just committed to, so the first click
+    after a drag is swallowed. A real tap never sets the flag.
+  */
+  const handleNodeClick = useCallback(
+    (index) => {
+      const stage = stageRef.current;
+      if (stage?.dataset.dragConsumed) {
+        delete stage.dataset.dragConsumed;
+        return;
+      }
+      onSelect(index);
+    },
+    [onSelect]
+  );
+
   // Roving arrow-key navigation walks the full catalogue, not just the window,
   // so keyboard users are never gated behind repeated tabbing.
   const handleKeyDown = useCallback(
@@ -193,6 +211,9 @@ export default function MobileCategoryArc({
                 className={`${styles.node} ${styles[`slot${cssSlot}`] ?? ""}`}
                 // The drag hook reads this to interpolate between slot centres.
                 data-slot={cssSlot}
+                // The drag hook marks the preview by collection, so it needs the
+                // collection this node stands for — not just where it sits.
+                data-index={index}
                 data-m-node
                 data-buffer={buffer ? "true" : "false"}
                 data-active={isActive ? "true" : "false"}
@@ -207,7 +228,7 @@ export default function MobileCategoryArc({
                   // tab order and out of the accessibility tree.
                   tabIndex={isActive ? 0 : -1}
                   aria-hidden={buffer ? "true" : undefined}
-                  onClick={() => onSelect(index)}
+                  onClick={() => handleNodeClick(index)}
                 >
                   <span className={styles.nodeDisc} aria-hidden="true" />
                   <Icon aria-hidden="true" className={styles.nodeIcon} />

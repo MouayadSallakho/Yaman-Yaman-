@@ -141,13 +141,22 @@ export function useMobilePulseSequence({
        * no pixel path to keep in sync.
        */
       const travel = (from, to, duration) => {
+        const track = q("[data-m-spine-track]");
         const pulse = q("[data-m-spine-pulse]");
-        if (!pulse.length) return gsap.timeline();
+        if (!track.length || !pulse.length) return gsap.timeline();
+        /*
+          `yPercent` resolves against the element's own height, and the track is
+          exactly as tall as the spine — so these are the same fractions the old
+          `top` animation used, expressed as a transform. Moving the track rather
+          than the segment keeps this off the layout path entirely: no per-frame
+          reflow, and no layout shift for Chrome to attribute to the pulse.
+        */
         return gsap
           .timeline()
-          .set(pulse, { top: `${from}%`, opacity: 0 }, 0)
+          .set(track, { yPercent: from, force3D: true }, 0)
+          .set(pulse, { opacity: 0 }, 0)
           .to(pulse, { opacity: 1, duration: 0.1, ease: "power1.out" }, 0)
-          .to(pulse, { top: `${to}%`, duration, ease: "power2.inOut" }, 0)
+          .to(track, { yPercent: to, duration, ease: "power2.inOut", force3D: true }, 0)
           .to(pulse, { opacity: 0, duration: 0.14, ease: "power1.in" }, duration - 0.05);
       };
 
