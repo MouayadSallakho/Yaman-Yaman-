@@ -119,6 +119,11 @@ export function useNewArrivalsMotion({ rootRef, dir }) {
         timeline?.kill();
       };
     },
-    { scope: rootRef, dependencies: [dir] }
+    /* `revertOnUpdate` so the cleanup — and its `observer.disconnect()` — runs
+       when `dir` changes on a language switch. This section usually peeks into
+       view at rest, so its observer self-disconnects and it was not one of the
+       two measured leakers; it shares the same defect regardless, and would
+       leak whenever the section happens to start below the fold. */
+    { scope: rootRef, dependencies: [dir], revertOnUpdate: true }
   );
 }

@@ -113,6 +113,22 @@ export function useTodaysPicksMotion({ rootRef, dir }) {
         timeline?.kill();
       };
     },
-    { scope: rootRef, dependencies: [dir] }
+    /*
+      `revertOnUpdate` is what makes the cleanup above actually run.
+
+      `dir` changes on every language switch, so this callback re-runs — but
+      without this flag useGSAP re-runs it *without* reverting the previous
+      gsap.context, and the cleanup function the callback returned is never
+      invoked. The IntersectionObserver created on the previous pass therefore
+      stayed connected while a fresh one was created beside it.
+
+      Measured in place on the homepage across twenty English/Arabic switches,
+      live IntersectionObservers grew 5 -> 45. This section and Brand Showcase
+      were the two that leaked per switch: both sit below the fold, so their
+      observers never intersect and never reach the self-disconnect inside the
+      callback. New Arrivals peeks into view at rest and disconnected itself,
+      which is why the growth measured +2 per switch rather than +3.
+    */
+    { scope: rootRef, dependencies: [dir], revertOnUpdate: true }
   );
 }

@@ -134,6 +134,11 @@ export function useBrandShowcaseMotion({ rootRef, dir }) {
         timeline?.kill();
       };
     },
-    { scope: rootRef, dependencies: [dir] }
+    /* `revertOnUpdate` so the cleanup — and its `observer.disconnect()` — runs
+       when `dir` changes on a language switch. Without it useGSAP re-runs this
+       callback without reverting the previous context, leaving the old
+       IntersectionObserver connected. See useTodaysPicksMotion for the
+       measurement that isolated this section as one of the two leaking. */
+    { scope: rootRef, dependencies: [dir], revertOnUpdate: true }
   );
 }
