@@ -124,7 +124,7 @@
   padding: 16px;
   border: 1px solid var(--tone-2575e0-0p16);
   border-radius: var(--radius-card);
-  background: var(--tone-ffffff-0p72);
+  background: var(--color-surface-glass);
   box-shadow: 0 12px 30px var(--tone-19497e-0p08);
 }
 

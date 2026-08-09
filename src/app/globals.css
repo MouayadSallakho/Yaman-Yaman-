@@ -17,6 +17,9 @@
 @import "../styles/tokens.css";
 @import "../styles/themes.css";
 @import "../styles/legacy-tones.css";
+/* Last: the appearance layer overrides the light baseline the files above
+   establish, so it has to win on source order at equal specificity. */
+@import "../styles/appearance.css";
 
 /* Colour and geometry tokens are centralized in src/styles/. */
 h1, h2, h3, h4 {
@@ -159,14 +162,24 @@ html[data-mabco-intro="checking"] body > *:not(script) {
 }
 
 /* Skip link: visually hidden until focused */
+/*
+  Skip link.
+
+  `--brand-ink` is the *ink* colour, so it inverts with the appearance: in dark
+  mode it resolves to a near-white, which paired with `--text-on-dark` produced
+  a white-on-white, invisible skip link — the one control a keyboard user hits
+  first. The accent pair is used instead because it is contrast-guaranteed in
+  both appearances by construction (--color-primary-contrast always clears
+  4.5:1 against --color-on-primary).
+*/
 .skip-link {
   position: absolute;
   inset-inline-start: 12px;
   top: -48px;
   z-index: var(--z-skip-link);
   padding: 10px 16px;
-  background: var(--brand-ink);
-  color: var(--text-on-dark);
+  background: var(--color-primary-contrast);
+  color: var(--color-on-primary);
   font-weight: 700;
   font-size: 14px;
   border-radius: var(--radius-button);

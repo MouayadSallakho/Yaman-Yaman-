@@ -59,11 +59,26 @@ const ar = {
   theme: {
     chooseTheme: "اختر سمة الألوان",
     currentTheme: "السمة الحالية",
+    accentLabel: "لون التمييز",
     options: {
       originalTechBlue: "الأزرق التقني الأصلي",
       auroraCyan: "سيان أورورا",
       royalViolet: "البنفسجي الملكي",
+      emeraldPulse: "نبض الزمرد",
+      graphiteAmber: "الجرافيت والكهرمان",
     },
+  },
+
+  appearance: {
+    label: "المظهر",
+    chooseAppearance: "اختر المظهر",
+    options: {
+      light: "فاتح",
+      system: "النظام",
+      dark: "داكن",
+    },
+    systemResolvedLight: "النظام، فاتح حاليًا",
+    systemResolvedDark: "النظام، داكن حاليًا",
   },
 
   navigation: {

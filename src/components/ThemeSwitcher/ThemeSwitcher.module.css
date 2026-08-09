@@ -148,42 +148,117 @@
   background: transparent;
 }
 
+/* ============================================================
+   INLINE MODE (mobile drawer)
+
+   Five themes, so the card-per-theme treatment the popover uses is too heavy:
+   at 320px it filled the panel and pushed the language control off-screen. This
+   is a compact row list instead — dots, name, tick — sized so all five read at
+   a glance and the whole group costs roughly what two of the old cards did.
+
+   Rows rather than a 2-up grid on purpose: "Original Tech Blue" and the Arabic
+   labels do not fit two-to-a-line at 320px without truncating, and a truncated
+   theme name is worse than a taller list the drawer can scroll.
+   ============================================================ */
 .inline {
   display: grid;
-  gap: 12px;
-  padding: 15px;
-  border: 1px solid var(--color-header-border);
-  border-radius: 18px;
-  background: var(--color-on-dark-surface-very-subtle);
+  gap: 10px;
 }
 
 .inlineHeading {
   display: flex;
   align-items: center;
-  gap: 9px;
-  color: var(--color-header-text);
+  gap: 8px;
+  color: var(--color-drawer-text-muted);
+}
+
+.inlineHeading svg {
+  font-size: 0.9rem;
 }
 
 .inlineHeading h2 {
-  font-size: 0.82rem;
-  font-weight: 820;
-  letter-spacing: 0.02em;
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.inline .options {
+  gap: 2px;
 }
 
 .inline .option {
-  border-color: var(--color-on-dark-border);
-  background: var(--color-on-dark-surface-subtle);
-  color: var(--color-header-text);
+  grid-template-columns: auto minmax(0, 1fr) 20px;
+  gap: 10px;
+  min-height: 44px;
+  padding: 6px 10px;
+  border-color: transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--color-drawer-text);
 }
 
-.inline .option:hover,
+.inline .option:hover {
+  transform: none;
+  border-color: transparent;
+  background: var(--color-nav-hover);
+}
+
 .inline .option.selected {
-  border-color: var(--color-on-dark-border-hover);
-  background: var(--color-on-dark-surface-medium);
+  border-color: var(--color-nav-selected-mark);
+  background: var(--color-nav-selected);
+  font-weight: 800;
+}
+
+.inline .option:focus-visible {
+  outline: 2px solid var(--color-nav-selected-mark);
+  outline-offset: -2px;
+  box-shadow: none;
 }
 
 .inline .swatches i {
-  border-color: var(--color-on-dark-solid-soft);
+  width: 16px;
+  height: 16px;
+  border-color: var(--color-drawer-surface);
+  box-shadow: 0 0 0 1px var(--color-drawer-border);
+}
+
+.inline .optionLabel {
+  font-size: 0.84rem;
+}
+
+/* Selection is carried by the tick, the tinted surface AND the border, so it
+   survives greyscale and forced colours - never colour alone. */
+.inline .check {
+  width: 20px;
+  height: 20px;
+  font-size: 0.72rem;
+  background: var(--color-nav-selected-mark);
+  color: var(--color-on-primary);
+}
+
+/* Must be restated for the inline variant: `.check:empty` and `.inline .check`
+   have the same specificity, so the later rule above would otherwise paint a
+   filled accent dot on every UNSELECTED row. */
+.inline .check:empty {
+  background: transparent;
+}
+
+@media (forced-colors: active) {
+  .inline .option.selected {
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .inline .check {
+    background: HighlightText;
+    color: Highlight;
+  }
+
+  .inline .option:focus-visible {
+    outline-color: Highlight;
+  }
 }
 
 @keyframes themePopoverIn {

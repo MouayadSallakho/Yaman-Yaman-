@@ -1,0 +1,132 @@
+.root {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Geometry comes from the shared .utilityButton the header passes in; this only
+   adds the states that rule does not cover. */
+.trigger {
+  cursor: pointer;
+}
+
+.trigger:focus-visible {
+  box-shadow: 0 0 0 3px var(--color-on-dark-focus-ring);
+}
+
+.popover {
+  position: absolute;
+  z-index: var(--z-popover);
+  top: calc(100% + 12px);
+  inset-inline-end: 0;
+  width: min(230px, calc(100vw - 32px));
+  padding: 12px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 18px;
+  background: var(--color-surface-glass-strong);
+  box-shadow: var(--shadow-large);
+  color: var(--color-text-primary);
+  backdrop-filter: blur(16px);
+  animation: appearancePopoverIn 180ms var(--motion-ease) both;
+}
+
+.heading {
+  padding: 2px 3px 10px;
+}
+
+.heading span {
+  font-size: 0.9rem;
+  font-weight: 820;
+}
+
+.options {
+  display: grid;
+  gap: 4px;
+}
+
+.option {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 22px;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 10px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  background: transparent;
+  color: var(--color-text-primary);
+  text-align: start;
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast) var(--motion-ease),
+    background-color var(--motion-fast) var(--motion-ease);
+}
+
+.option:hover {
+  background: var(--color-primary-softer);
+}
+
+.option.selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.option:focus-visible {
+  box-shadow: var(--focus-ring);
+}
+
+.optionIcon {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
+
+.option.selected .optionIcon {
+  color: var(--color-primary);
+}
+
+.optionLabel {
+  overflow: hidden;
+  font-size: 0.82rem;
+  font-weight: 740;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.check {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-on-primary);
+  font-size: 0.72rem;
+}
+
+.check:empty {
+  background: transparent;
+}
+
+@keyframes appearancePopoverIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (forced-colors: active) {
+  .option.selected {
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .option.selected .optionIcon,
+  .check {
+    color: HighlightText;
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover { animation: none; }
+  .option { transition: none; }
+}

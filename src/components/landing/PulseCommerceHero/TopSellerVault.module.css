@@ -90,7 +90,7 @@
   border-color: var(--tone-0492d0-0p34);
   background:
     radial-gradient(circle at 80% 0%, var(--tone-67cdf8-0p13), transparent 35%),
-    linear-gradient(135deg, var(--tone-ffffff-1p0) 0%, var(--tone-eef8fe-1p0) 100%);
+    linear-gradient(135deg, var(--color-card-background) 0%, var(--tone-eef8fe-1p0) 100%);
   box-shadow: 0 15px 32px var(--tone-0492d0-0p15);
 }
 
@@ -106,7 +106,7 @@
   border-radius: 50%;
   border: 1.5px solid var(--tone-0492d0-0p34);
   color: var(--brand-primary-strong);
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   box-shadow: 0 5px 12px var(--tone-0e1b2a-0p12);
   font-size: 0.8rem;
   font-weight: 850;

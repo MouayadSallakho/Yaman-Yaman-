@@ -1,0 +1,792 @@
+/* ============================================================
+   Techno Solutions appearance axis (light / dark)
+
+   Accent theme and appearance are INDEPENDENT axes:
+
+     html[data-theme]      -> which accent identity  (5 values)
+     html[data-appearance] -> resolved light or dark (2 values)
+
+   `data-appearance` is always the RESOLVED value. The user's *preference*
+   (light | system | dark) lives in the cookie and in the provider; "system" is
+   resolved to light or dark before it ever reaches the DOM, so stylesheets
+   only ever see two states and no rule has to know that "system" exists.
+
+   themes.css holds the light baseline for all five accents. This file holds
+   the extra semantic contract shared by both appearances, plus the dark
+   override for each accent. Nothing here re-declares an accent's identity -
+   only how that identity renders on a dark foundation.
+   ============================================================ */
+
+/* ------------------------------------------------------------------
+   1. Shared semantic contract
+   Added tokens the light baseline did not name explicitly. Defaults are
+   expressed in terms of tokens themes.css already defines, so every accent
+   inherits a sane value and only genuine exceptions are overridden below.
+   ------------------------------------------------------------------ */
+:root {
+  /* FOUNDATION */
+  --color-surface-inset: var(--color-surface-soft);
+
+  /* TEXT */
+  --color-text-disabled: var(--color-text-muted);
+
+  /* BORDERS - `--color-border` (subtle) and `--color-border-strong` already
+     exist; this names the middle step so the three-step scale is complete. */
+  --color-border-default: var(--color-divider);
+
+  /* INTERACTION
+     `--color-primary` is the brand identity and is used for borders, icons,
+     indicators and fills that carry no text. Text-bearing accent surfaces use
+     --color-primary-contrast instead, which is guaranteed to clear 4.5:1
+     against --color-on-primary. For three of the five accents they are the
+     same colour; Tech Blue and Aurora Cyan need the darker step. */
+  --color-primary-contrast: var(--color-primary);
+
+  /* NAVIGATION */
+  --color-drawer-surface: var(--color-surface-primary);
+  --color-drawer-elevated: var(--color-surface-secondary);
+  --color-drawer-border: var(--color-border);
+  --color-drawer-text: var(--color-text-primary);
+  --color-drawer-text-muted: var(--color-text-secondary);
+  --color-nav-hover: var(--color-primary-softer);
+  --color-nav-selected: var(--color-primary-soft);
+  --color-nav-selected-mark: var(--color-primary);
+
+  /* PRODUCT */
+  --color-price: var(--color-text-primary);
+  --color-price-old: var(--color-text-muted);
+  --color-badge: var(--color-primary-contrast);
+  --color-badge-text: var(--color-on-primary);
+}
+
+/* White text fails AA on these two brand primaries (3.48:1 and 3.92:1). The
+   brand hue is kept; only the fill under text is stepped down to the theme's
+   own hover value, which already clears 4.5:1 (4.70 and 5.34). */
+html[data-theme="original-tech-blue"] { --color-primary-contrast: #037bb0; }
+html[data-theme="aurora-cyan"] { --color-primary-contrast: #06777b; }
+
+/* ------------------------------------------------------------------
+   2. Appearance = light
+   The baseline in themes.css is already the light appearance, so this only
+   has to state the colour-scheme. It is declared explicitly rather than left
+   to themes.css because that file sets it on `:root`, which would otherwise
+   keep reporting "light" to the browser while dark tokens are in force.
+   ------------------------------------------------------------------ */
+html[data-appearance="light"] {
+  color-scheme: light;
+}
+
+/* ------------------------------------------------------------------
+   3. Appearance = dark
+   Shared dark behaviour first, then the per-accent palettes.
+   ------------------------------------------------------------------ */
+html[data-appearance="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces are opaque in dark mode. Translucent "glass" over a dark page
+     reads as muddy grey and destroys the elevation ladder, so both glass
+     tokens resolve to real surfaces. */
+  --color-surface-glass: var(--color-surface-secondary);
+  --color-surface-glass-strong: var(--color-surface-elevated);
+
+  --color-text-inverse: #0a0f18;
+  --color-text-disabled: color-mix(in srgb, var(--color-text-muted) 55%, transparent);
+
+  /* Depth in dark mode comes from luminance steps plus a hairline border, not
+     from heavy shadow: large soft shadows are invisible on a dark ground and
+     only cost paint. Shadows stay for dialogs, scaled down. */
+  --shadow-small: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --shadow-medium: 0 6px 18px rgba(0, 0, 0, 0.46);
+  --shadow-large: 0 16px 40px rgba(0, 0, 0, 0.54);
+  --shadow-section-value: 0 20px 48px rgba(0, 0, 0, 0.42);
+
+  /* Media chrome. Skeleton and MediaFallback are token-driven, so they follow
+     the appearance without either component knowing it exists. */
+  --color-media-fallback-bg: var(--color-surface-inset);
+
+  /* Product imagery is never recoloured - only the surfaces behind it. */
+  --color-price: var(--color-text-primary);
+  --color-badge: var(--color-primary);
+  --color-badge-text: var(--color-on-primary);
+}
+
+/* ---- Original Tech Blue - dark ---- */
+html[data-appearance="dark"][data-theme="original-tech-blue"],
+html[data-appearance="dark"]:not([data-theme]) {
+  --color-primary: #3fb6ea;
+  --color-primary-rgb: 63, 182, 234;
+  --color-primary-hover: #62c6f0;
+  --color-primary-active: #86d4f5;
+  --color-primary-soft: rgba(63, 182, 234, 0.16);
+  --color-primary-softer: rgba(63, 182, 234, 0.08);
+  --color-primary-contrast: #3fb6ea;
+  --color-on-primary: #04121c;
+  --color-accent: #5ad8c5;
+  --color-accent-rgb: 90, 216, 197;
+  --color-accent-hover: #7ce3d3;
+  --color-accent-soft: rgba(90, 216, 197, 0.16);
+
+  --color-page-background: #0b1220;
+  --color-page-background-start: #0b1220;
+  --color-page-background-end: #080d18;
+  --color-page-glow: rgba(63, 182, 234, 0.09);
+  --color-surface-primary: #141d2e;
+  --color-surface-secondary: #182236;
+  --color-surface-elevated: #1b2639;
+  --color-surface-muted: #131c2c;
+  --color-surface-soft: #101827;
+  --color-surface-inset: #0d1523;
+
+  --color-text-primary: #e9eef7;
+  --color-text-primary-rgb: 233, 238, 247;
+  --color-brand-ink: #e9eef7;
+  --color-text-secondary: #a7b4c8;
+  --color-text-muted: #7b8aa0;
+
+  --color-border: rgba(233, 238, 247, 0.1);
+  --color-border-default: rgba(233, 238, 247, 0.15);
+  --color-border-strong: rgba(233, 238, 247, 0.24);
+  --color-divider: rgba(233, 238, 247, 0.12);
+  --color-focus-ring: rgba(63, 182, 234, 0.6);
+  --color-overlay: rgba(2, 6, 14, 0.72);
+  --color-shadow-tint: rgba(0, 0, 0, 0.5);
+
+  --color-card-background: #141d2e;
+  --color-card-border: rgba(233, 238, 247, 0.1);
+  --color-card-hover-border: rgba(63, 182, 234, 0.42);
+  --color-input-background: #0f1826;
+  --color-input-border: rgba(233, 238, 247, 0.18);
+  --color-input-focus: #3fb6ea;
+  --color-skeleton-base: #172033;
+  --color-skeleton-highlight: #202c43;
+  --color-media-fallback-mark: #566579;
+
+  --color-header-background-start: #101a2c;
+  --color-header-background-mid: #0d1524;
+  --color-header-background-end: #0a1120;
+  --color-header-text: #e9eef7;
+  --color-header-text-muted: rgba(233, 238, 247, 0.72);
+  --color-header-border: rgba(233, 238, 247, 0.12);
+  --color-header-control: rgba(233, 238, 247, 0.07);
+  --color-header-control-hover: rgba(233, 238, 247, 0.14);
+
+  --color-footer-background-start: #080d18;
+  --color-footer-background-mid: #0b1220;
+  --color-footer-background-end: #101a2c;
+  --color-footer-text: #e9eef7;
+  --color-footer-text-muted: rgba(233, 238, 247, 0.66);
+  --color-footer-border: rgba(63, 182, 234, 0.2);
+
+  --color-drawer-surface: #0d1523;
+  --color-drawer-elevated: #162032;
+  --color-drawer-border: rgba(233, 238, 247, 0.1);
+  --color-drawer-text: #e9eef7;
+  --color-drawer-text-muted: rgba(233, 238, 247, 0.66);
+  --color-nav-hover: rgba(233, 238, 247, 0.07);
+  --color-nav-selected: rgba(63, 182, 234, 0.16);
+  --color-nav-selected-mark: #3fb6ea;
+}
+
+/* ---- Aurora Cyan - dark ---- */
+html[data-appearance="dark"][data-theme="aurora-cyan"] {
+  --color-primary: #2fc4c8;
+  --color-primary-rgb: 47, 196, 200;
+  --color-primary-hover: #55d3d6;
+  --color-primary-active: #7ce0e2;
+  --color-primary-soft: rgba(47, 196, 200, 0.16);
+  --color-primary-softer: rgba(47, 196, 200, 0.08);
+  --color-primary-contrast: #2fc4c8;
+  --color-on-primary: #04191a;
+  --color-accent: #58a6ff;
+  --color-accent-rgb: 88, 166, 255;
+  --color-accent-hover: #7db8ff;
+  --color-accent-soft: rgba(88, 166, 255, 0.16);
+
+  --color-page-background: #08161a;
+  --color-page-background-start: #08161a;
+  --color-page-background-end: #061114;
+  --color-page-glow: rgba(47, 196, 200, 0.09);
+  --color-surface-primary: #102227;
+  --color-surface-secondary: #13272d;
+  --color-surface-elevated: #152c32;
+  --color-surface-muted: #0f2126;
+  --color-surface-soft: #0c1b20;
+  --color-surface-inset: #0a181c;
+
+  --color-text-primary: #e4f2f3;
+  --color-text-primary-rgb: 228, 242, 243;
+  --color-brand-ink: #e4f2f3;
+  --color-text-secondary: #a0b8bc;
+  --color-text-muted: #748f94;
+
+  --color-border: rgba(228, 242, 243, 0.1);
+  --color-border-default: rgba(228, 242, 243, 0.15);
+  --color-border-strong: rgba(228, 242, 243, 0.24);
+  --color-divider: rgba(228, 242, 243, 0.12);
+  --color-focus-ring: rgba(47, 196, 200, 0.6);
+  --color-overlay: rgba(2, 10, 12, 0.72);
+  --color-shadow-tint: rgba(0, 0, 0, 0.5);
+
+  --color-card-background: #102227;
+  --color-card-border: rgba(228, 242, 243, 0.1);
+  --color-card-hover-border: rgba(47, 196, 200, 0.42);
+  --color-input-background: #0b1d21;
+  --color-input-border: rgba(228, 242, 243, 0.18);
+  --color-input-focus: #2fc4c8;
+  --color-skeleton-base: #132529;
+  --color-skeleton-highlight: #1b3339;
+  --color-media-fallback-mark: #526a6f;
+
+  --color-header-background-start: #0d1f24;
+  --color-header-background-mid: #0a191d;
+  --color-header-background-end: #081418;
+  --color-header-text: #e4f2f3;
+  --color-header-text-muted: rgba(228, 242, 243, 0.72);
+  --color-header-border: rgba(228, 242, 243, 0.12);
+  --color-header-control: rgba(228, 242, 243, 0.07);
+  --color-header-control-hover: rgba(228, 242, 243, 0.14);
+
+  --color-footer-background-start: #061114;
+  --color-footer-background-mid: #08161a;
+  --color-footer-background-end: #0d1f24;
+  --color-footer-text: #e4f2f3;
+  --color-footer-text-muted: rgba(228, 242, 243, 0.66);
+  --color-footer-border: rgba(47, 196, 200, 0.2);
+
+  --color-drawer-surface: #0a181c;
+  --color-drawer-elevated: #11242a;
+  --color-drawer-border: rgba(228, 242, 243, 0.1);
+  --color-drawer-text: #e4f2f3;
+  --color-drawer-text-muted: rgba(228, 242, 243, 0.66);
+  --color-nav-hover: rgba(228, 242, 243, 0.07);
+  --color-nav-selected: rgba(47, 196, 200, 0.16);
+  --color-nav-selected-mark: #2fc4c8;
+}
+
+/* ---- Royal Violet - dark ---- */
+html[data-appearance="dark"][data-theme="royal-violet"] {
+  --color-primary: #9b8bff;
+  --color-primary-rgb: 155, 139, 255;
+  --color-primary-hover: #b0a3ff;
+  --color-primary-active: #c5bbff;
+  --color-primary-soft: rgba(155, 139, 255, 0.17);
+  --color-primary-softer: rgba(155, 139, 255, 0.085);
+  --color-primary-contrast: #9b8bff;
+  --color-on-primary: #120d2e;
+  --color-accent: #c4a7ff;
+  --color-accent-rgb: 196, 167, 255;
+  --color-accent-hover: #d3bcff;
+  --color-accent-soft: rgba(196, 167, 255, 0.16);
+
+  --color-page-background: #100e1d;
+  --color-page-background-start: #100e1d;
+  --color-page-background-end: #0c0a17;
+  --color-page-glow: rgba(155, 139, 255, 0.09);
+  --color-surface-primary: #1a1730;
+  --color-surface-secondary: #1e1b37;
+  --color-surface-elevated: #221e3d;
+  --color-surface-muted: #18152d;
+  --color-surface-soft: #141225;
+  --color-surface-inset: #121020;
+
+  --color-text-primary: #ece9fb;
+  --color-text-primary-rgb: 236, 233, 251;
+  --color-brand-ink: #ece9fb;
+  --color-text-secondary: #b0a9cd;
+  --color-text-muted: #8781a3;
+
+  --color-border: rgba(236, 233, 251, 0.1);
+  --color-border-default: rgba(236, 233, 251, 0.15);
+  --color-border-strong: rgba(236, 233, 251, 0.24);
+  --color-divider: rgba(236, 233, 251, 0.12);
+  --color-focus-ring: rgba(155, 139, 255, 0.6);
+  --color-overlay: rgba(6, 4, 16, 0.72);
+  --color-shadow-tint: rgba(0, 0, 0, 0.5);
+
+  --color-card-background: #1a1730;
+  --color-card-border: rgba(236, 233, 251, 0.1);
+  --color-card-hover-border: rgba(155, 139, 255, 0.42);
+  --color-input-background: #151228;
+  --color-input-border: rgba(236, 233, 251, 0.18);
+  --color-input-focus: #9b8bff;
+  --color-skeleton-base: #1d1a35;
+  --color-skeleton-highlight: #272248;
+  --color-media-fallback-mark: #635d84;
+
+  --color-header-background-start: #171430;
+  --color-header-background-mid: #131027;
+  --color-header-background-end: #0f0d1f;
+  --color-header-text: #ece9fb;
+  --color-header-text-muted: rgba(236, 233, 251, 0.72);
+  --color-header-border: rgba(236, 233, 251, 0.12);
+  --color-header-control: rgba(236, 233, 251, 0.07);
+  --color-header-control-hover: rgba(236, 233, 251, 0.14);
+
+  --color-footer-background-start: #0c0a17;
+  --color-footer-background-mid: #100e1d;
+  --color-footer-background-end: #171430;
+  --color-footer-text: #ece9fb;
+  --color-footer-text-muted: rgba(236, 233, 251, 0.66);
+  --color-footer-border: rgba(155, 139, 255, 0.2);
+
+  --color-drawer-surface: #121020;
+  --color-drawer-elevated: #1b1832;
+  --color-drawer-border: rgba(236, 233, 251, 0.1);
+  --color-drawer-text: #ece9fb;
+  --color-drawer-text-muted: rgba(236, 233, 251, 0.66);
+  --color-nav-hover: rgba(236, 233, 251, 0.07);
+  --color-nav-selected: rgba(155, 139, 255, 0.17);
+  --color-nav-selected-mark: #9b8bff;
+}
+
+/* ---- Emerald Pulse - dark ---- */
+html[data-appearance="dark"][data-theme="emerald-pulse"] {
+  --color-primary: #2fd4a8;
+  --color-primary-rgb: 47, 212, 168;
+  --color-primary-hover: #55dfba;
+  --color-primary-active: #7ce8cb;
+  --color-primary-soft: rgba(47, 212, 168, 0.16);
+  --color-primary-softer: rgba(47, 212, 168, 0.08);
+  --color-primary-contrast: #2fd4a8;
+  --color-on-primary: #03201a;
+  --color-accent: #7ce8cb;
+  --color-accent-rgb: 124, 232, 203;
+  --color-accent-hover: #9aefd9;
+  --color-accent-soft: rgba(124, 232, 203, 0.16);
+
+  --color-page-background: #08170f;
+  --color-page-background-start: #08170f;
+  --color-page-background-end: #06120c;
+  --color-page-glow: rgba(47, 212, 168, 0.09);
+  --color-surface-primary: #102419;
+  --color-surface-secondary: #13291d;
+  --color-surface-elevated: #152f21;
+  --color-surface-muted: #0f2218;
+  --color-surface-soft: #0c1c13;
+  --color-surface-inset: #0a1911;
+
+  --color-text-primary: #e4f4ec;
+  --color-text-primary-rgb: 228, 244, 236;
+  --color-brand-ink: #e4f4ec;
+  --color-text-secondary: #a2bdb1;
+  --color-text-muted: #769488;
+
+  --color-border: rgba(228, 244, 236, 0.1);
+  --color-border-default: rgba(228, 244, 236, 0.15);
+  --color-border-strong: rgba(228, 244, 236, 0.24);
+  --color-divider: rgba(228, 244, 236, 0.12);
+  --color-focus-ring: rgba(47, 212, 168, 0.6);
+  --color-overlay: rgba(2, 11, 7, 0.72);
+  --color-shadow-tint: rgba(0, 0, 0, 0.5);
+
+  --color-card-background: #102419;
+  --color-card-border: rgba(228, 244, 236, 0.1);
+  --color-card-hover-border: rgba(47, 212, 168, 0.42);
+  --color-input-background: #0b1e14;
+  --color-input-border: rgba(228, 244, 236, 0.18);
+  --color-input-focus: #2fd4a8;
+  --color-skeleton-base: #13271b;
+  --color-skeleton-highlight: #1b3626;
+  --color-media-fallback-mark: #547066;
+
+  --color-header-background-start: #0d2117;
+  --color-header-background-mid: #0a1a12;
+  --color-header-background-end: #08150e;
+  --color-header-text: #e4f4ec;
+  --color-header-text-muted: rgba(228, 244, 236, 0.72);
+  --color-header-border: rgba(228, 244, 236, 0.12);
+  --color-header-control: rgba(228, 244, 236, 0.07);
+  --color-header-control-hover: rgba(228, 244, 236, 0.14);
+
+  --color-footer-background-start: #06120c;
+  --color-footer-background-mid: #08170f;
+  --color-footer-background-end: #0d2117;
+  --color-footer-text: #e4f4ec;
+  --color-footer-text-muted: rgba(228, 244, 236, 0.66);
+  --color-footer-border: rgba(47, 212, 168, 0.2);
+
+  --color-drawer-surface: #0a1911;
+  --color-drawer-elevated: #11261a;
+  --color-drawer-border: rgba(228, 244, 236, 0.1);
+  --color-drawer-text: #e4f4ec;
+  --color-drawer-text-muted: rgba(228, 244, 236, 0.66);
+  --color-nav-hover: rgba(228, 244, 236, 0.07);
+  --color-nav-selected: rgba(47, 212, 168, 0.16);
+  --color-nav-selected-mark: #2fd4a8;
+}
+
+/* ---- Graphite Amber - dark ---- */
+html[data-appearance="dark"][data-theme="graphite-amber"] {
+  --color-primary: #f2b84b;
+  --color-primary-rgb: 242, 184, 75;
+  --color-primary-hover: #f7cd7a;
+  --color-primary-active: #fadb9c;
+  --color-primary-soft: rgba(242, 184, 75, 0.16);
+  --color-primary-softer: rgba(242, 184, 75, 0.08);
+  --color-primary-contrast: #f2b84b;
+  --color-on-primary: #1e1503;
+  --color-accent: #f7cd7a;
+  --color-accent-rgb: 247, 205, 122;
+  --color-accent-hover: #fadb9c;
+  --color-accent-soft: rgba(247, 205, 122, 0.16);
+
+  --color-page-background: #111317;
+  --color-page-background-start: #111317;
+  --color-page-background-end: #0d0f12;
+  --color-page-glow: rgba(242, 184, 75, 0.07);
+  --color-surface-primary: #1a1d23;
+  --color-surface-secondary: #1e2128;
+  --color-surface-elevated: #22262e;
+  --color-surface-muted: #181b21;
+  --color-surface-soft: #14171c;
+  --color-surface-inset: #121419;
+
+  --color-text-primary: #eceef2;
+  --color-text-primary-rgb: 236, 238, 242;
+  --color-brand-ink: #eceef2;
+  --color-text-secondary: #b0b6c0;
+  --color-text-muted: #868d99;
+
+  --color-border: rgba(236, 238, 242, 0.1);
+  --color-border-default: rgba(236, 238, 242, 0.15);
+  --color-border-strong: rgba(236, 238, 242, 0.24);
+  --color-divider: rgba(236, 238, 242, 0.12);
+  --color-focus-ring: rgba(242, 184, 75, 0.6);
+  --color-overlay: rgba(5, 6, 8, 0.72);
+  --color-shadow-tint: rgba(0, 0, 0, 0.5);
+
+  --color-card-background: #1a1d23;
+  --color-card-border: rgba(236, 238, 242, 0.1);
+  --color-card-hover-border: rgba(242, 184, 75, 0.4);
+  --color-input-background: #15181d;
+  --color-input-border: rgba(236, 238, 242, 0.18);
+  --color-input-focus: #f2b84b;
+  --color-skeleton-base: #1d2027;
+  --color-skeleton-highlight: #282c35;
+  --color-media-fallback-mark: #626976;
+
+  --color-header-background-start: #191c22;
+  --color-header-background-mid: #15181d;
+  --color-header-background-end: #111317;
+  --color-header-text: #eceef2;
+  --color-header-text-muted: rgba(236, 238, 242, 0.72);
+  --color-header-border: rgba(236, 238, 242, 0.12);
+  --color-header-control: rgba(236, 238, 242, 0.07);
+  --color-header-control-hover: rgba(236, 238, 242, 0.14);
+
+  --color-footer-background-start: #0d0f12;
+  --color-footer-background-mid: #111317;
+  --color-footer-background-end: #191c22;
+  --color-footer-text: #eceef2;
+  --color-footer-text-muted: rgba(236, 238, 242, 0.66);
+  --color-footer-border: rgba(242, 184, 75, 0.2);
+
+  --color-drawer-surface: #121419;
+  --color-drawer-elevated: #1c1f26;
+  --color-drawer-border: rgba(236, 238, 242, 0.1);
+  --color-drawer-text: #eceef2;
+  --color-drawer-text-muted: rgba(236, 238, 242, 0.66);
+  --color-nav-hover: rgba(236, 238, 242, 0.07);
+  --color-nav-selected: rgba(242, 184, 75, 0.16);
+  --color-nav-selected-mark: #f2b84b;
+}
+
+/* ------------------------------------------------------------------
+   4. Status colours in dark
+   The status tokens in tokens.css are tuned for light surfaces and are too
+   dark to read on a dark page. Meaning is preserved (green = success, red =
+   error); only luminance is lifted.
+   ------------------------------------------------------------------ */
+html[data-appearance="dark"] {
+  --color-success: #3ecf8e;
+  --color-success-soft: rgba(62, 207, 142, 0.16);
+  --color-warning: #e2a03f;
+  --color-warning-soft: rgba(226, 160, 63, 0.16);
+  --color-error: #ff6369;
+  --color-error-soft: rgba(255, 99, 105, 0.16);
+  --color-info: #58a6ff;
+  --color-rating: #f5b544;
+}
+
+/* ------------------------------------------------------------------
+   5. Appearance transition
+   A short paint-only fade so switching does not snap, restricted to the
+   properties that actually change colour. Layout properties are never
+   transitioned, and the whole thing is dropped under reduced motion.
+
+   Deliberately NOT a View Transition: reliability matters more than flourish
+   here, and a full-page snapshot would fight the sticky header and the
+   drawer's own transform.
+   ------------------------------------------------------------------ */
+/*
+  Scope matters here, and it was measured.
+
+  The first version of this rule applied a colour transition to every element
+  (`body *`). On the homepage that is ~1,250 elements, and it more than doubled
+  the cost of a switch: median style-recalc went from 30.9ms to 77.2ms with the
+  rule active, because every element carried transition data the engine had to
+  evaluate on each recalc - a cost paid on ordinary interaction, not just when
+  the appearance changed.
+
+  Only the page-level surfaces are transitioned now. Components already declare
+  their own background/colour transitions where they want them, so the result
+  looks the same while the switch stays cheap. Anything not listed here changes
+  immediately, which Part 36 explicitly permits.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  html[data-appearance-ready] body {
+    transition:
+      background-color 180ms var(--motion-ease),
+      color 180ms var(--motion-ease);
+  }
+}
+
+/* ------------------------------------------------------------------
+   6. Forced colours
+   In forced-colors mode the OS supplies the palette. Custom properties are not
+   substituted, so surfaces are mapped to system keywords and the accent is
+   dropped rather than fighting the user's chosen scheme.
+   ------------------------------------------------------------------ */
+@media (forced-colors: active) {
+  html[data-appearance] {
+    --color-drawer-surface: Canvas;
+    --color-drawer-elevated: Canvas;
+    --color-drawer-text: CanvasText;
+    --color-drawer-text-muted: CanvasText;
+    --color-drawer-border: CanvasText;
+    --color-nav-selected: Highlight;
+    --color-nav-selected-mark: Highlight;
+    --color-nav-hover: Highlight;
+  }
+
+  /*
+    Selected states, measured in Chrome forced-colors emulation.
+
+    The UA repaints the selected row's background as Highlight and its text as
+    HighlightText, which is correct - but it ALSO draws its text "backplate" in
+    Canvas behind that text. HighlightText on a Canvas backplate is white on
+    white, so the current route, the selected appearance and the selected accent
+    theme rendered as blank blocks while every unselected label stayed readable.
+    Selection was still exposed to assistive tech (role=radio + aria-checked,
+    aria-current, aria-pressed), but it was not legible on screen.
+
+    Opting these rows out of forced-color-adjust and stating the Highlight /
+    HighlightText pair explicitly is the documented way to keep a selected state
+    intact: the colours still come from the user's own system palette, so no
+    author colour is being smuggled back in.
+
+    Targeted by ARIA state rather than by class so the rule is independent of
+    CSS-module hashing and covers the drawer, the desktop nav and both switchers
+    from one place.
+
+    `!important` is deliberate and is confined to this media block. The selected
+    states are styled by component rules with higher specificity than any
+    state-attribute selector can reach (e.g. `.mobileNav > a.active`), and
+    without it those rules keep painting their own dark-theme colours straight
+    through forced-colors mode - measured: the current nav row came back as
+    rgb(233,238,247) on rgba(233,238,247,0.14) instead of the system pair.
+  */
+  a[aria-current="page"],
+  [role="radio"][aria-checked="true"],
+  [aria-pressed="true"] {
+    forced-color-adjust: none !important;
+    background: Highlight !important;
+    background-image: none !important;
+    color: HighlightText !important;
+    border-color: Highlight !important;
+  }
+
+  a[aria-current="page"] *,
+  [role="radio"][aria-checked="true"] *,
+  [aria-pressed="true"] * {
+    forced-color-adjust: none !important;
+    background: transparent !important;
+    color: HighlightText !important;
+    fill: currentColor !important;
+    stroke: currentColor !important;
+  }
+}
+
+
+/* ------------------------------------------------------------------
+   6b. Legacy tone registry - light appearance text corrections
+
+   Three tones in the registry are consumed as TEXT colour rather than as a
+   surface (verified: one consumer each, all `color:`):
+
+     --tone-8d99ab-1p0  NewArrivals  .productOldPrice
+     --tone-8a95a7-1p0  TodaysPicks  .previousPrice
+     --tone-8190a7-1p0  TodaysPicks  (meta line)
+
+   The registry values were sampled from the original light comps and measured
+   1.95-3.53:1 against the light page background - below AA for ordinary small
+   text. They are corrected here rather than in legacy-tones.css because that
+   file's values are shared by BOTH appearances: on a dark page the original
+   pale values are correct and darkening them there would break dark mode.
+   Scoping the fix to the light appearance keeps each appearance right.
+   ------------------------------------------------------------------ */
+html[data-appearance="light"] {
+  --tone-8d99ab-1p0: #646d7a;
+  --tone-8a95a7-1p0: #656d7a;
+  --tone-8190a7-1p0: #626d7e;
+}
+html[data-appearance="light"][data-theme="aurora-cyan"] {
+  --tone-8d99ab-1p0: #527476;
+  --tone-8a95a7-1p0: #517476;
+  --tone-8190a7-1p0: #4f7477;
+}
+html[data-appearance="light"][data-theme="royal-violet"] {
+  --tone-8d99ab-1p0: #6d6596;
+  --tone-8a95a7-1p0: #6d6598;
+  --tone-8190a7-1p0: #6e649c;
+}
+html[data-appearance="light"][data-theme="emerald-pulse"] {
+  --tone-8d99ab-1p0: #51746a;
+  --tone-8a95a7-1p0: #50746a;
+  --tone-8190a7-1p0: #4d7569;
+}
+html[data-appearance="light"][data-theme="graphite-amber"] {
+  --tone-8d99ab-1p0: #786b51;
+  --tone-8a95a7-1p0: #786b50;
+  --tone-8190a7-1p0: #796b4e;
+}
+
+/* ------------------------------------------------------------------
+   7. Legacy tone registry - dark appearance
+
+   The tone registry is a light-mode skeleton: every value below is a
+   pale surface that only ever appears as a background, a border or a
+   shadow. Each was verified to have NO text/fill usage anywhere in the
+   codebase, which is what makes redefining them here safe - the 65
+   places that paint white TEXT use --tone-ffffff-1p0, which is
+   deliberately NOT redefined and stays white in both appearances.
+
+   Values point at the dark surface ladder rather than at literals, so
+   one declaration serves all five accents.
+   ------------------------------------------------------------------ */
+html[data-appearance="dark"] {
+  --tone-b8d7ee-1p0: var(--color-surface-inset);
+  --tone-cbd5e1-1p0: var(--color-surface-inset);
+  --tone-cfe9f7-1p0: var(--color-surface-muted);
+  --tone-d6eaf6-1p0: var(--color-surface-muted);
+  --tone-d6effd-0p95: var(--color-surface-muted);
+  --tone-d7eaf7-1p0: var(--color-surface-muted);
+  --tone-d9e9f8-1p0: var(--color-surface-muted);
+  --tone-d9edf8-1p0: var(--color-surface-muted);
+  --tone-dbe7f4-1p0: var(--color-surface-muted);
+  --tone-dce6f2-1p0: var(--color-surface-muted);
+  --tone-dcecf7-1p0: var(--color-surface-muted);
+  --tone-dcecf8-1p0: var(--color-surface-muted);
+  --tone-dcecff-1p0: var(--color-surface-secondary);
+  --tone-dcf7ee-1p0: var(--color-surface-muted);
+  --tone-dfeaf5-1p0: var(--color-surface-muted);
+  --tone-e0eaf4-1p0: var(--color-surface-muted);
+  --tone-e0eaf5-1p0: var(--color-surface-muted);
+  --tone-e1eaf4-1p0: var(--color-surface-muted);
+  --tone-e2f0fc-0p96: var(--color-surface-secondary);
+  --tone-e2f2fc-0p88: var(--color-surface-secondary);
+  --tone-e2f7ed-1p0: var(--color-surface-muted);
+  --tone-e5edf6-1p0: var(--color-surface-secondary);
+  --tone-e7eef6-1p0: var(--color-surface-secondary);
+  --tone-e7f1f8-1p0: var(--color-surface-secondary);
+  --tone-e7f2fa-1p0: var(--color-surface-secondary);
+  --tone-e7f2fc-1p0: var(--color-surface-secondary);
+  --tone-e7f4ff-0p98: var(--color-surface-secondary);
+  --tone-e7f5fc-1p0: var(--color-surface-secondary);
+  --tone-e8f2fc-0p96: var(--color-surface-secondary);
+  --tone-e8f3fb-1p0: var(--color-surface-secondary);
+  --tone-e8f3fc-1p0: var(--color-surface-secondary);
+  --tone-e8f5fc-1p0: var(--color-surface-secondary);
+  --tone-e8f5ff-1p0: var(--color-surface-secondary);
+  --tone-e9eef5-1p0: var(--color-surface-secondary);
+  --tone-e9f1fa-0p96: var(--color-surface-secondary);
+  --tone-e9f5ff-1p0: var(--color-surface-secondary);
+  --tone-e9f6fd-1p0: var(--color-surface-secondary);
+  --tone-e9f7ff-0p95: var(--color-surface-secondary);
+  --tone-eaf2fa-0p96: var(--color-surface-secondary);
+  --tone-eaf4ff-1p0: var(--color-surface-secondary);
+  --tone-eaf5fc-1p0: var(--color-surface-secondary);
+  --tone-eaf5ff-1p0: var(--color-surface-secondary);
+  --tone-eaf6ff-1p0: var(--color-surface-secondary);
+  --tone-ebeef6-1p0: var(--color-surface-secondary);
+  --tone-edf6fd-0p92: var(--color-surface-secondary);
+  --tone-edf6ff-1p0: var(--color-surface-secondary);
+  --tone-edf7fd-1p0: var(--color-surface-secondary);
+  --tone-edf7ff-1p0: var(--color-surface-secondary);
+  --tone-eef5fb-1p0: var(--color-surface-secondary);
+  --tone-eef6fd-0p94: var(--color-surface-secondary);
+  --tone-eef7fc-1p0: var(--color-surface-secondary);
+  --tone-eef7ff-1p0: var(--color-surface-secondary);
+  --tone-eef8fe-1p0: var(--color-surface-secondary);
+  --tone-f0f8ff-1p0: var(--color-card-background);
+  --tone-f1f5fa-1p0: var(--color-surface-secondary);
+  --tone-f2f8fc-1p0: var(--color-surface-secondary);
+  --tone-f2f8ff-0p9: var(--color-card-background);
+  --tone-f2f9ff-1p0: var(--color-card-background);
+  --tone-f3fbf3-1p0: var(--color-surface-secondary);
+  --tone-f4f9fd-1p0: var(--color-card-background);
+  --tone-f4f9ff-0p94: var(--color-card-background);
+  --tone-f4f9ff-1p0: var(--color-card-background);
+  --tone-f4faff-1p0: var(--color-card-background);
+  --tone-f4fbff-1p0: var(--color-card-background);
+  --tone-f5f9fc-1p0: var(--color-card-background);
+  --tone-f5faff-1p0: var(--color-card-background);
+  --tone-f6fafe-1p0: var(--color-card-background);
+  --tone-f6faff-0p92: var(--color-card-background);
+  --tone-f6fbff-0p96: var(--color-card-background);
+  --tone-f6fbff-1p0: var(--color-card-background);
+  --tone-f7fbff-0p92: var(--color-card-background);
+  --tone-f7fbff-1p0: var(--color-card-background);
+  --tone-f7fcff-0p95: var(--color-card-background);
+  --tone-f8fbff-0p9: var(--color-card-background);
+  --tone-f8fcff-0p98: var(--color-card-background);
+  --tone-f8fcff-1p0: var(--color-card-background);
+  --tone-f9fbff-1p0: var(--color-card-background);
+  --tone-f9fcff-1p0: var(--color-card-background);
+  --tone-fafdff-0p84: var(--color-card-background);
+  --tone-fbfdff-1p0: var(--color-card-background);
+  --tone-fef5f4-1p0: var(--color-card-background);
+  --tone-ffffff-0p8: var(--color-card-background);
+  --tone-ffffff-0p82: var(--color-card-background);
+  --tone-ffffff-0p84: var(--color-card-background);
+  --tone-ffffff-0p85: var(--color-card-background);
+  --tone-ffffff-0p86: var(--color-card-background);
+  --tone-ffffff-0p88: var(--color-card-background);
+  --tone-ffffff-0p9: var(--color-card-background);
+  --tone-ffffff-0p92: var(--color-card-background);
+  --tone-ffffff-0p93: var(--color-card-background);
+  --tone-ffffff-0p94: var(--color-card-background);
+  --tone-ffffff-0p95: var(--color-card-background);
+  --tone-ffffff-0p96: var(--color-card-background);
+  --tone-ffffff-0p97: var(--color-card-background);
+  --tone-ffffff-0p98: var(--color-card-background);
+
+  /* Shadow-only tones: a pale shadow is invisible on a dark ground and
+     an opaque one reads as a hard edge, so these become real shadow. */
+  --tone-bdcadb-1p0: rgba(0, 0, 0, 0.5);
+}
+
+/* Translucent light surfaces (alpha 0.45-0.80).
+   Missed by the first pass, which only considered near-opaque tones; a 76%-
+   white panel is still a light panel on a dark page. Same rule as above:
+   background-only usage, verified no text/fill usage. */
+html[data-appearance="dark"] {
+  --tone-90d6ff-0p72: var(--color-surface-inset);
+  --tone-a3dcff-0p72: var(--color-surface-inset);
+  --tone-bee2ff-0p55: var(--color-surface-inset);
+  --tone-dcf0fa-0p72: var(--color-surface-muted);
+  --tone-e8f0f9-0p72: var(--color-surface-secondary);
+  --tone-f1f7fd-0p45: var(--color-surface-secondary);
+  --tone-f3f8fc-0p5: var(--color-card-background);
+  --tone-f7fbff-0p76: var(--color-card-background);
+  --tone-ffffff-0p5: var(--color-card-background);
+  --tone-ffffff-0p52: var(--color-card-background);
+  --tone-ffffff-0p55: var(--color-card-background);
+  --tone-ffffff-0p56: var(--color-card-background);
+  --tone-ffffff-0p6: var(--color-card-background);
+  --tone-ffffff-0p66: var(--color-card-background);
+  --tone-ffffff-0p7: var(--color-card-background);
+  --tone-ffffff-0p75: var(--color-card-background);
+  --tone-ffffff-0p76: var(--color-card-background);
+  --tone-ffffff-0p78: var(--color-card-background);
+}

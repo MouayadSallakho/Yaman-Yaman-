@@ -686,7 +686,7 @@
   border: 1px solid var(--tone-2a75d6-0p14);
   border-radius: 50%;
   color: var(--arrival-blue);
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   box-shadow: 0 9px 20px var(--tone-1f5ba4-0p09);
   font-size: 1.05rem;
   transition:

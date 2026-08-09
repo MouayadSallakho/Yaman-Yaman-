@@ -120,7 +120,7 @@
   padding: 0;
   border: 1px solid var(--tone-2575e0-0p2);
   border-radius: 12px;
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   color: var(--tone-12406b-1p0);
   font-size: 1.05rem;
   box-shadow: 0 6px 16px var(--tone-093666-0p08);

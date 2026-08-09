@@ -152,7 +152,7 @@
   border: 1px solid var(--tone-2a6bc4-0p13);
   border-radius: 999px;
   color: var(--tone-5a6981-1p0);
-  background: var(--tone-ffffff-0p72);
+  background: var(--color-surface-glass);
   font-size: 0.8rem;
   font-weight: 690;
   white-space: nowrap;
@@ -506,7 +506,7 @@
   padding: 14px 16px;
   border: 1px solid rgba(var(--accent-rgb), 0.13);
   border-radius: 15px;
-  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), var(--tone-ffffff-0p72));
+  background: linear-gradient(135deg, rgba(var(--accent-rgb), 0.08), var(--color-surface-glass));
   box-shadow: inset 0 1px 0 var(--tone-ffffff-0p82);
 }
 
@@ -670,7 +670,7 @@
   border: 1px solid var(--tone-2c69bb-0p12);
   border-radius: 15px;
   color: var(--tone-2e3c56-1p0);
-  background: var(--tone-ffffff-0p72);
+  background: var(--color-surface-glass);
   box-shadow:
     0 10px 22px var(--tone-20487e-0p06),
     inset 0 1px 0 var(--tone-ffffff-0p88);

@@ -10,17 +10,24 @@ import {
   useState,
 } from "react";
 import {
+  FiArrowRight,
   FiChevronDown,
+  FiGrid,
+  FiHome,
+  FiMail,
   FiMenu,
   FiSearch,
   FiUser,
   FiX,
 } from "react-icons/fi";
 
+import AppearanceSwitcher from "@/components/AppearanceSwitcher/AppearanceSwitcher";
+import AppearanceToggle from "@/components/AppearanceSwitcher/AppearanceToggle";
 import LanguageSwitcher from "@/components/LanguageSwitcher/LanguageSwitcher";
 import ThemeSwitcher from "@/components/ThemeSwitcher/ThemeSwitcher";
 import TechnoLogo from "@/components/brand/TechnoLogo/TechnoLogo";
 import CartButton from "@/components/cart/CartButton/CartButton";
+import { useAppearance } from "@/context/AppearanceContext";
 import { useTranslation } from "@/i18n/LocaleProvider";
 import styles from "./Navbarr.module.css";
 
@@ -41,6 +48,14 @@ export default function Navbarr() {
   const router = useRouter();
   const pathname = usePathname();
   const { t, dir } = useTranslation();
+  /*
+    The drawer surface follows the appearance, so the wordmark has to as well:
+    the light drawer is a cool white panel on which the light (knock-out) logo
+    would be invisible. The header row is unaffected — it keeps its approved
+    navy surface and its light logo in both appearances.
+  */
+  const { resolved: resolvedAppearance } = useAppearance();
+  const drawerLogoVariant = resolvedAppearance === "dark" ? "light" : "dark";
   const [searchText, setSearchText] = useState("");
   const [desktopMenu, setDesktopMenu] = useState(null);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -341,6 +356,7 @@ export default function Navbarr() {
               <FiSearch aria-hidden="true" />
             </button>
           </form>
+          <AppearanceToggle className={styles.utilityButton} />
           <ThemeSwitcher />
           <LanguageSwitcher />
           <CartButton className={styles.utilityButton} />
@@ -392,12 +408,16 @@ export default function Navbarr() {
               onClick={() => closeMobile(false)}
               aria-label={t("branding.homeLabel")}
             >
-              <TechnoLogo variant="light" decorative />
+              <TechnoLogo
+                variant={drawerLogoVariant}
+                decorative
+                className={styles.mobileBrandLogo}
+              />
             </Link>
             <button
               ref={mobileCloseButtonRef}
               type="button"
-              className={styles.closeButton}
+              className={styles.drawerClose}
               aria-label={t("navigation.closeMenu")}
               onClick={() => closeMobile(true)}
             >
@@ -405,6 +425,9 @@ export default function Navbarr() {
             </button>
           </div>
 
+          {/* Same form, same action/method and same submit handler as before —
+              only the presentation changed, so the pre-hydration native GET and
+              the hydrated push both behave exactly as they did. */}
           <form
             className={styles.mobileSearch}
             onSubmit={submitSearch}
@@ -412,7 +435,7 @@ export default function Navbarr() {
             action="/products"
             method="get"
           >
-            <FiSearch aria-hidden="true" />
+            <FiSearch className={styles.mobileSearchIcon} aria-hidden="true" />
             <label className={styles.srOnly} htmlFor="site-search-mobile">
               {t("common.search.ariaLabel")}
             </label>
@@ -425,7 +448,9 @@ export default function Navbarr() {
               onChange={(event) => setSearchText(event.target.value)}
               placeholder={t("common.search.placeholder")}
             />
-            <button type="submit">{t("common.search.submit")}</button>
+            <button type="submit" aria-label={t("common.search.submit")}>
+              <FiArrowRight aria-hidden="true" />
+            </button>
           </form>
 
           <nav
@@ -437,7 +462,8 @@ export default function Navbarr() {
               onClick={() => closeMobile(false)}
               aria-current={pathname === "/" ? "page" : undefined}
             >
-              {t("common.nav.home")}
+              <FiHome aria-hidden="true" />
+              <span>{t("common.nav.home")}</span>
             </Link>
             <Link
               href="/products"
@@ -446,7 +472,8 @@ export default function Navbarr() {
                 pathname.startsWith("/products") ? "page" : undefined
               }
             >
-              {t("common.nav.products")}
+              <FiGrid aria-hidden="true" />
+              <span>{t("common.nav.products")}</span>
             </Link>
 
             <div className={styles.mobileGroup}>
@@ -461,8 +488,12 @@ export default function Navbarr() {
                   )
                 }
               >
-                {t("navigation.groups.account")}
-                <FiChevronDown aria-hidden="true" />
+                <FiUser aria-hidden="true" />
+                <span>{t("navigation.groups.account")}</span>
+                <FiChevronDown
+                  className={styles.disclosureChevron}
+                  aria-hidden="true"
+                />
               </button>
               {mobileGroup === "account" ? (
                 <div
@@ -491,11 +522,13 @@ export default function Navbarr() {
               onClick={() => closeMobile(false)}
               aria-current={pathname === "/contact" ? "page" : undefined}
             >
-              {t("common.nav.contact")}
+              <FiMail aria-hidden="true" />
+              <span>{t("common.nav.contact")}</span>
             </Link>
           </nav>
 
           <div className={styles.mobileUtilities}>
+            <AppearanceSwitcher />
             <ThemeSwitcher mode="inline" />
             <div className={styles.mobileLanguage}>
               <span>{t("common.language.change")}</span>

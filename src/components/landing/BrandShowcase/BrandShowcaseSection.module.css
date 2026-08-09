@@ -504,7 +504,7 @@
   border-radius: 19px;
   background:
     radial-gradient(90% 78% at 88% 16%, var(--card-accent-soft), transparent 64%),
-    linear-gradient(155deg, var(--tone-ffffff-1p0) 0%, var(--tone-f9fbff-1p0) 100%);
+    linear-gradient(155deg, var(--color-card-background) 0%, var(--tone-f9fbff-1p0) 100%);
   box-shadow:
     0 14px 30px var(--tone-1a4b8b-0p085),
     inset 0 1px 0 var(--tone-ffffff-0p92);

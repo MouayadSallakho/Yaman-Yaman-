@@ -6,7 +6,9 @@
    ============================================================ */
 :root,
 html[data-theme="original-tech-blue"] {
-  color-scheme: light;
+  /* `color-scheme` is owned by the appearance axis, not by an accent theme —
+     see appearance.css. Declaring it here would pin every theme to light and
+     leave native controls and scrollbars light while dark tokens were active. */
   --color-primary: #0492d0;
   --color-primary-rgb: 4, 146, 208;
   --color-primary-hover: #037bb0;
@@ -35,7 +37,11 @@ html[data-theme="original-tech-blue"] {
   --color-text-primary-rgb: 18, 22, 29;
   --color-brand-ink: #0e1b2a;
   --color-text-secondary: #5b6673;
-  --color-text-muted: #8b96a5;
+  /* Reaches ~22 components through --text-soft (tokens.css) and is used for
+     ordinary small text (old prices, meta, captions), so it has to clear 4.5:1
+     against the darkest light surface, not just against white. #8b96a5 was
+     2.57:1 on --color-page-background. */
+  --color-text-muted: #656d78;
   --color-text-inverse: #ffffff;
 
   --color-border: rgba(14, 27, 42, 0.08);
@@ -45,9 +51,15 @@ html[data-theme="original-tech-blue"] {
   --color-overlay: rgba(3, 10, 20, 0.58);
   --color-shadow-tint: rgba(14, 27, 42, 0.12);
 
-  --color-header-background-start: #078ac6;
-  --color-header-background-mid: #0879b3;
-  --color-header-background-end: #075f98;
+  /* Header luminance is set by contrast, not by taste: the nav links, the
+     active pill and the EN/AR control all paint white-ish text directly on
+     this gradient (and on --color-header-control, an 8% white chip over it).
+     At the original values even pure white peaked at 3.85:1, so no text token
+     could have fixed it. Hue is unchanged; only luminance steps down until the
+     0.82-alpha header text clears 4.5:1 on the chip, the tightest case. */
+  --color-header-background-start: #055f88;
+  --color-header-background-mid: #06537b;
+  --color-header-background-end: #054169;
   --color-header-text: #ffffff;
   --color-header-text-muted: rgba(255, 255, 255, 0.82);
   --color-header-border: rgba(255, 255, 255, 0.16);
@@ -144,7 +156,7 @@ html[data-theme="aurora-cyan"] {
   --color-text-primary-rgb: 16, 42, 51;
   --color-brand-ink: #102a33;
   --color-text-secondary: #536a70;
-  --color-text-muted: #82969b;
+  --color-text-muted: #617074;
   --color-text-inverse: #ffffff;
 
   --color-border: rgba(16, 42, 51, 0.09);
@@ -154,9 +166,9 @@ html[data-theme="aurora-cyan"] {
   --color-overlay: rgba(4, 26, 31, 0.58);
   --color-shadow-tint: rgba(16, 57, 66, 0.12);
 
-  --color-header-background-start: #0a9694;
-  --color-header-background-mid: #087f8d;
-  --color-header-background-end: #096786;
+  --color-header-background-start: #076665;
+  --color-header-background-mid: #055760;
+  --color-header-background-end: #06465b;
   --color-header-text: #ffffff;
   --color-header-text-muted: rgba(255, 255, 255, 0.84);
   --color-header-border: rgba(255, 255, 255, 0.18);
@@ -252,7 +264,7 @@ html[data-theme="royal-violet"] {
   --color-text-primary-rgb: 39, 37, 53;
   --color-brand-ink: #272535;
   --color-text-secondary: #656171;
-  --color-text-muted: #918c9d;
+  --color-text-muted: #6d6a76;
   --color-text-inverse: #ffffff;
 
   --color-border: rgba(39, 37, 53, 0.09);
@@ -329,4 +341,218 @@ html[data-theme="royal-violet"] {
   --shadow-large: 0 18px 38px rgba(44, 35, 87, 0.13);
   --shadow-accent: 0 30px 60px rgba(91, 75, 216, 0.18);
   --shadow-section-value: 0 24px 64px rgba(65, 51, 125, 0.13);
+}
+
+html[data-theme="emerald-pulse"] {
+  --color-primary: #0d7a63;
+  --color-primary-rgb: 13, 122, 99;
+  --color-primary-hover: #0a6552;
+  --color-primary-active: #085142;
+  --color-primary-soft: rgba(13, 122, 99, 0.13);
+  --color-primary-softer: rgba(13, 122, 99, 0.065);
+  --color-on-primary: #ffffff;
+  --color-accent: #2dd4bf;
+  --color-accent-rgb: 45, 212, 191;
+  --color-accent-hover: #21b8a5;
+  --color-accent-soft: rgba(45, 212, 191, 0.14);
+
+  --color-page-background: #e8f1ee;
+  --color-page-background-start: #eff7f4;
+  --color-page-background-end: #e4eeea;
+  --color-page-glow: rgba(45, 190, 160, 0.12);
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f3f9f7;
+  --color-surface-elevated: #ffffff;
+  --color-surface-muted: #edf7f4;
+  --color-surface-soft: #e5f2ee;
+  --color-surface-glass: rgba(255, 255, 255, 0.94);
+  --color-surface-glass-strong: rgba(255, 255, 255, 0.98);
+
+  --color-text-primary: #0f2621;
+  --color-text-primary-rgb: 15, 38, 33;
+  --color-brand-ink: #0f2621;
+  --color-text-secondary: #4f6a63;
+  --color-text-muted: #5d716c;
+  --color-text-inverse: #ffffff;
+
+  --color-border: rgba(15, 38, 33, 0.09);
+  --color-border-strong: rgba(15, 38, 33, 0.17);
+  --color-divider: rgba(15, 38, 33, 0.1);
+  --color-focus-ring: rgba(13, 122, 99, 0.45);
+  --color-overlay: rgba(4, 24, 19, 0.58);
+  --color-shadow-tint: rgba(14, 52, 43, 0.12);
+
+  --color-header-background-start: #0b6854;
+  --color-header-background-mid: #095746;
+  --color-header-background-end: #074538;
+  --color-header-text: #ffffff;
+  --color-header-text-muted: rgba(255, 255, 255, 0.84);
+  --color-header-border: rgba(255, 255, 255, 0.18);
+  --color-header-control: rgba(255, 255, 255, 0.08);
+  --color-header-control-hover: rgba(255, 255, 255, 0.18);
+
+  --color-footer-background-start: #05221b;
+  --color-footer-background-mid: #073a2e;
+  --color-footer-background-end: #085746;
+  --color-footer-text: #ffffff;
+  --color-footer-text-muted: rgba(226, 246, 240, 0.74);
+  --color-footer-border: rgba(45, 212, 191, 0.22);
+
+  --color-card-background: #ffffff;
+  --color-card-border: rgba(15, 38, 33, 0.09);
+  --color-card-hover-border: rgba(13, 122, 99, 0.34);
+  --color-input-background: #ffffff;
+  --color-input-border: rgba(15, 38, 33, 0.17);
+  --color-input-focus: #0d7a63;
+  --color-skeleton-base: #dfebe7;
+  --color-skeleton-highlight: #f6fbf9;
+  --color-media-fallback-bg: #e7f0ed;
+  --color-media-fallback-mark: #93aea6;
+
+  --color-cinematic-deep: #03130e;
+  --color-cinematic-mid: #063a2e;
+  --color-cinematic-panel: #0a4f3f;
+  --color-cinematic-glow: rgba(13, 122, 99, 0.32);
+  --color-intro-transparent: rgba(5, 36, 29, 0);
+  --color-intro-glow-center: rgba(70, 221, 187, 0.55);
+  --color-intro-dot-glow: rgba(91, 230, 199, 0.72);
+  --color-intro-focus-ring: rgba(91, 230, 199, 0.7);
+
+  --color-intro-backdrop-deep: #031a14;
+  --color-intro-tagline: #79e5c8;
+  --color-footer-action: #75e4c2;
+  --color-footer-action-border: rgba(45, 212, 191, 0.62);
+
+  --color-fancybox-background: rgba(3, 25, 20, 0.9);
+  --color-fancybox-button: rgba(255, 255, 255, 0.12);
+  --color-fancybox-button-hover: rgba(255, 255, 255, 0.22);
+  --color-fancybox-border: rgba(255, 255, 255, 0.2);
+  --color-fancybox-shadow: rgba(0, 0, 0, 0.42);
+  --color-fancybox-text: #eafcf6;
+  --color-fancybox-thumb-active: #55dfb8;
+  --color-fancybox-thumb-surface: #eaf8f4;
+  --color-fancybox-grid: rgba(72, 210, 178, 0.09);
+  --color-fancybox-radial: rgba(61, 210, 172, 0.3);
+  --color-fancybox-panel-start: #062d23;
+  --color-fancybox-panel-end: #0b4d3e;
+  --color-fancybox-orb-border: rgba(116, 231, 200, 0.7);
+  --color-fancybox-orb-glow: rgba(35, 194, 160, 0.45);
+  --color-fancybox-orb-inner: rgba(72, 216, 183, 0.22);
+  --color-fancybox-muted: #b9ddd2;
+  --color-fancybox-code: #76e4c6;
+  --color-fancybox-code-border: rgba(255, 255, 255, 0.16);
+  --color-fancybox-code-surface: rgba(0, 0, 0, 0.22);
+
+  --shadow-small: 0 8px 22px rgba(14, 52, 43, 0.07);
+  --shadow-medium: 0 12px 30px rgba(14, 52, 43, 0.09);
+  --shadow-large: 0 18px 38px rgba(14, 52, 43, 0.13);
+  --shadow-accent: 0 30px 60px rgba(13, 122, 99, 0.17);
+  --shadow-section-value: 0 24px 64px rgba(20, 92, 76, 0.13);
+}
+
+html[data-theme="graphite-amber"] {
+  --color-primary: #8a5d00;
+  --color-primary-rgb: 138, 93, 0;
+  --color-primary-hover: #7a5200;
+  --color-primary-active: #674500;
+  --color-primary-soft: rgba(138, 93, 0, 0.12);
+  --color-primary-softer: rgba(138, 93, 0, 0.06);
+  --color-on-primary: #ffffff;
+  --color-accent: #f2b84b;
+  --color-accent-rgb: 242, 184, 75;
+  --color-accent-hover: #dda233;
+  --color-accent-soft: rgba(242, 184, 75, 0.16);
+
+  --color-page-background: #eceef1;
+  --color-page-background-start: #f3f5f7;
+  --color-page-background-end: #e8ebef;
+  --color-page-glow: rgba(242, 184, 75, 0.1);
+  --color-surface-primary: #ffffff;
+  --color-surface-secondary: #f6f7f9;
+  --color-surface-elevated: #ffffff;
+  --color-surface-muted: #f4f5f7;
+  --color-surface-soft: #eef0f3;
+  --color-surface-glass: rgba(255, 255, 255, 0.94);
+  --color-surface-glass-strong: rgba(255, 255, 255, 0.98);
+
+  --color-text-primary: #1b1e23;
+  --color-text-primary-rgb: 27, 30, 35;
+  --color-brand-ink: #1b1e23;
+  --color-text-secondary: #5c626c;
+  --color-text-muted: #686c75;
+  --color-text-inverse: #ffffff;
+
+  --color-border: rgba(27, 30, 35, 0.09);
+  --color-border-strong: rgba(27, 30, 35, 0.17);
+  --color-divider: rgba(27, 30, 35, 0.1);
+  --color-focus-ring: rgba(138, 93, 0, 0.45);
+  --color-overlay: rgba(12, 14, 17, 0.6);
+  --color-shadow-tint: rgba(27, 30, 35, 0.13);
+
+  --color-header-background-start: #2c313a;
+  --color-header-background-mid: #242830;
+  --color-header-background-end: #1b1e24;
+  --color-header-text: #ffffff;
+  --color-header-text-muted: rgba(255, 255, 255, 0.82);
+  --color-header-border: rgba(255, 255, 255, 0.16);
+  --color-header-control: rgba(255, 255, 255, 0.08);
+  --color-header-control-hover: rgba(255, 255, 255, 0.17);
+
+  --color-footer-background-start: #101216;
+  --color-footer-background-mid: #1a1d23;
+  --color-footer-background-end: #262a32;
+  --color-footer-text: #ffffff;
+  --color-footer-text-muted: rgba(238, 240, 244, 0.72);
+  --color-footer-border: rgba(242, 184, 75, 0.2);
+
+  --color-card-background: #ffffff;
+  --color-card-border: rgba(27, 30, 35, 0.09);
+  --color-card-hover-border: rgba(138, 93, 0, 0.32);
+  --color-input-background: #ffffff;
+  --color-input-border: rgba(27, 30, 35, 0.17);
+  --color-input-focus: #8a5d00;
+  --color-skeleton-base: #e6e8ec;
+  --color-skeleton-highlight: #f8f9fb;
+  --color-media-fallback-bg: #eceef1;
+  --color-media-fallback-mark: #a1a7b1;
+
+  --color-cinematic-deep: #0c0e11;
+  --color-cinematic-mid: #21252c;
+  --color-cinematic-panel: #2c313a;
+  --color-cinematic-glow: rgba(242, 184, 75, 0.26);
+  --color-intro-transparent: rgba(18, 20, 24, 0);
+  --color-intro-glow-center: rgba(242, 184, 75, 0.5);
+  --color-intro-dot-glow: rgba(247, 205, 122, 0.7);
+  --color-intro-focus-ring: rgba(242, 184, 75, 0.62);
+
+  --color-intro-backdrop-deep: #0e1013;
+  --color-intro-tagline: #f2b84b;
+  --color-footer-action: #f7cd7a;
+  --color-footer-action-border: rgba(242, 184, 75, 0.6);
+
+  --color-fancybox-background: rgba(11, 13, 16, 0.9);
+  --color-fancybox-button: rgba(255, 255, 255, 0.12);
+  --color-fancybox-button-hover: rgba(255, 255, 255, 0.22);
+  --color-fancybox-border: rgba(255, 255, 255, 0.2);
+  --color-fancybox-shadow: rgba(0, 0, 0, 0.42);
+  --color-fancybox-text: #f5f6f8;
+  --color-fancybox-thumb-active: #f2b84b;
+  --color-fancybox-thumb-surface: #f2f3f5;
+  --color-fancybox-grid: rgba(242, 184, 75, 0.09);
+  --color-fancybox-radial: rgba(242, 184, 75, 0.24);
+  --color-fancybox-panel-start: #16191e;
+  --color-fancybox-panel-end: #2a2f38;
+  --color-fancybox-orb-border: rgba(247, 205, 122, 0.66);
+  --color-fancybox-orb-glow: rgba(242, 184, 75, 0.4);
+  --color-fancybox-orb-inner: rgba(242, 184, 75, 0.2);
+  --color-fancybox-muted: #c9cdd4;
+  --color-fancybox-code: #f7cd7a;
+  --color-fancybox-code-border: rgba(255, 255, 255, 0.16);
+  --color-fancybox-code-surface: rgba(0, 0, 0, 0.22);
+
+  --shadow-small: 0 8px 22px rgba(20, 22, 27, 0.08);
+  --shadow-medium: 0 12px 30px rgba(20, 22, 27, 0.1);
+  --shadow-large: 0 18px 38px rgba(20, 22, 27, 0.14);
+  --shadow-accent: 0 30px 60px rgba(138, 93, 0, 0.16);
+  --shadow-section-value: 0 24px 64px rgba(40, 44, 52, 0.13);
 }

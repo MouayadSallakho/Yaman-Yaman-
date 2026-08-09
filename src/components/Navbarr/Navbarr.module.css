@@ -254,32 +254,45 @@
   opacity: 1;
 }
 
+/* ============================================================
+   MOBILE DRAWER
+
+   Rebuilt on the semantic drawer tokens rather than the header gradient. The
+   old panel painted the entire surface with the theme's header gradient, which
+   is why it read as one saturated slab: every row, the search field and the
+   theme cards all had to fight that background for contrast, and adding a
+   fourth and fifth theme would only have made it denser.
+
+   Now the panel is a calm neutral foundation — cool white in light, deep navy
+   / graphite in dark — and the accent is spent only on selection, focus and
+   the active-route marker. That is what lets five themes and a three-way
+   appearance control sit in the same panel without crowding.
+   ============================================================ */
 .mobilePanel {
   position: absolute;
   inset-block: 0;
   inset-inline-start: 0;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  width: min(420px, 92vw);
-  padding: max(18px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
+  gap: 22px;
+  width: min(400px, 90vw);
+  /* Bottom inset keeps the last control clear of the home indicator; the
+     drawer scrolls internally rather than shrinking type to fit. */
+  padding: max(16px, env(safe-area-inset-top)) 16px
+    max(20px, env(safe-area-inset-bottom));
   overflow-y: auto;
-  border-inline-end: 1px solid var(--color-header-border);
-  background: linear-gradient(
-    155deg,
-    var(--color-header-background-start) 0%,
-    var(--color-header-background-mid) 55%,
-    var(--color-header-background-end) 100%
-  );
-  box-shadow: 28px 0 70px color-mix(in srgb, var(--color-overlay) 52%, transparent);
+  overscroll-behavior: contain;
+  border-inline-end: 1px solid var(--color-drawer-border);
+  background: var(--color-drawer-surface);
+  box-shadow: 24px 0 60px var(--color-overlay);
   transform: translateX(-104%);
   transition: transform 320ms var(--motion-ease);
 }
 
 [dir="rtl"] .mobilePanel {
-  border-inline-start: 1px solid var(--color-header-border);
+  border-inline-start: 1px solid var(--color-drawer-border);
   border-inline-end: 0;
-  box-shadow: -28px 0 70px color-mix(in srgb, var(--color-overlay) 52%, transparent);
+  box-shadow: -24px 0 60px var(--color-overlay);
   transform: translateX(104%);
 }
 
@@ -288,29 +301,83 @@
   transform: translateX(0);
 }
 
+/* ---- Brand row ---- */
 .mobileHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 18px;
+  gap: 16px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--color-drawer-border);
 }
 
 .mobileHeader a {
   display: inline-flex;
+  min-width: 0;
 }
 
+.mobileBrandLogo {
+  width: 132px;
+  max-width: 100%;
+}
+
+.drawerClose {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--color-drawer-border);
+  border-radius: 12px;
+  background: var(--color-drawer-elevated);
+  color: var(--color-drawer-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.drawerClose:hover,
+.drawerClose:focus-visible {
+  border-color: var(--color-nav-selected-mark);
+  background: var(--color-nav-hover);
+}
+
+.drawerClose:focus-visible {
+  outline: 2px solid var(--color-nav-selected-mark);
+  outline-offset: 2px;
+  box-shadow: none;
+}
+
+/* ---- Search ----
+   One field, one submit affordance. The old full-height accent button was the
+   loudest element in the drawer; the arrow reads as "go" at a fraction of the
+   visual weight and leaves the accent free to mean "selected". */
 .mobileSearch {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: 9px;
+  gap: 10px;
   min-height: 48px;
-  padding-inline-start: 14px;
-  overflow: hidden;
-  border: 1px solid var(--color-header-border);
-  border-radius: 15px;
-  background: var(--color-header-control);
-  color: var(--color-header-text-muted);
+  padding-inline: 14px 6px;
+  border: 1px solid var(--color-input-border);
+  border-radius: 14px;
+  background: var(--color-input-background);
+  color: var(--color-drawer-text-muted);
+  transition: border-color var(--motion-fast) var(--motion-ease);
+}
+
+.mobileSearch:focus-within {
+  border-color: var(--color-nav-selected-mark);
+  box-shadow: 0 0 0 3px var(--color-focus-ring);
+}
+
+.mobileSearchIcon {
+  flex: none;
+  font-size: 1rem;
+  color: var(--color-drawer-text-muted);
 }
 
 .mobileSearch input {
@@ -319,99 +386,207 @@
   border: 0;
   outline: 0;
   background: transparent;
-  color: var(--color-header-text);
+  color: var(--color-drawer-text);
+  font-size: 0.9rem;
 }
 
 .mobileSearch input::placeholder {
-  color: var(--color-header-text-muted);
+  color: var(--color-drawer-text-muted);
 }
 
+/*
+  Visually 38px so it sits inside the field without inflating it, but the
+  pressable area is expanded to the full 44px minimum by an overlay. Growing the
+  button itself would force the search field to ~56px and unbalance the row.
+*/
 .mobileSearch button {
-  align-self: stretch;
-  padding-inline: 16px;
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 38px;
+  height: 38px;
+  padding: 0;
   border: 0;
-  background: var(--brand-logo-accent);
-  color: var(--color-text-primary);
-  font-size: 0.76rem;
-  font-weight: 820;
+  border-radius: 10px;
+  background: var(--color-primary-contrast);
+  color: var(--color-on-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--motion-ease);
 }
 
+.mobileSearch button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+.mobileSearch button:hover,
+.mobileSearch button:focus-visible {
+  background: var(--color-primary-hover);
+}
+
+/* The arrow points the way the language reads, so it means "forward" in both. */
+[dir="rtl"] .mobileSearch button svg {
+  transform: scaleX(-1);
+}
+
+/* ---- Primary navigation ---- */
 .mobileNav {
   display: grid;
-  gap: 5px;
+  gap: 2px;
 }
 
 .mobileNav > a,
 .mobileGroup > button {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 12px;
   width: 100%;
-  min-height: 48px;
-  padding: 0 14px;
-  border: 1px solid transparent;
-  border-radius: 13px;
+  min-height: 46px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 11px;
   background: transparent;
-  color: var(--color-header-text);
+  color: var(--color-drawer-text);
   font-size: 0.9rem;
-  font-weight: 750;
+  font-weight: 700;
   text-align: start;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.mobileNav > a > svg,
+.mobileGroup > button > svg {
+  flex: none;
+  font-size: 1.05rem;
+  color: var(--color-drawer-text-muted);
+  transition: color var(--motion-fast) var(--motion-ease);
+}
+
+.mobileNav > a > span,
+.mobileGroup > button > span {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .mobileNav > a:hover,
-.mobileNav > a:focus-visible,
-.mobileNav > a[aria-current="page"],
-.mobileGroup > button:hover,
-.mobileGroup > button:focus-visible,
-.mobileGroup > button[aria-expanded="true"],
-.mobileGroupActive {
-  border-color: var(--color-header-border);
-  background: var(--color-header-control-hover);
+.mobileGroup > button:hover {
+  background: var(--color-nav-hover);
 }
 
-.mobileGroup > button svg {
+.mobileNav > a:focus-visible,
+.mobileGroup > button:focus-visible {
+  outline: 2px solid var(--color-nav-selected-mark);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+/*
+  Active route. The marker is a solid accent bar plus a tinted surface plus a
+  heavier weight — three signals, so the current page is unmistakable without
+  relying on colour alone and without every row becoming a filled card.
+*/
+.mobileNav > a[aria-current="page"],
+.mobileGroupActive {
+  background: var(--color-nav-selected);
+  color: var(--color-drawer-text);
+  font-weight: 820;
+}
+
+.mobileNav > a[aria-current="page"] > svg,
+.mobileGroupActive > svg {
+  color: var(--color-nav-selected-mark);
+}
+
+.mobileNav > a[aria-current="page"]::before,
+.mobileGroupActive::before {
+  content: "";
+  position: absolute;
+  inset-block: 10px;
+  inset-inline-start: 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--color-nav-selected-mark);
+}
+
+[dir="rtl"] .mobileNav > a[aria-current="page"]::before,
+[dir="rtl"] .mobileGroupActive::before {
+  border-radius: 3px 0 0 3px;
+}
+
+.disclosureChevron {
+  flex: none;
+  font-size: 1rem;
   transition: transform var(--motion-fast) var(--motion-ease);
 }
 
-.mobileGroup > button[aria-expanded="true"] svg {
+.mobileGroup > button[aria-expanded="true"] .disclosureChevron {
   transform: rotate(180deg);
 }
 
+.mobileGroup > button[aria-expanded="true"] {
+  background: var(--color-nav-hover);
+}
+
+/* ---- Account disclosure ----
+   Indented and rule-marked so the expanded state is obvious structurally, not
+   only through the chevron. */
 .mobileSubmenu {
   display: grid;
-  gap: 3px;
-  margin: 4px 0 9px;
-  padding-inline-start: 16px;
+  gap: 1px;
+  margin: 2px 0 6px;
+  padding-inline-start: 22px;
+  border-inline-start: 1px solid var(--color-drawer-border);
+  margin-inline-start: 21px;
 }
 
 .mobileSubmenu a {
+  display: flex;
+  align-items: center;
   min-height: 42px;
-  padding: 11px 13px;
-  border-radius: 11px;
-  color: var(--color-header-text-muted);
-  font-size: 0.82rem;
-  font-weight: 680;
+  padding: 0 12px;
+  border-radius: 9px;
+  color: var(--color-drawer-text-muted);
+  font-size: 0.84rem;
+  font-weight: 650;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
 }
 
-.mobileSubmenu a:hover,
-.mobileSubmenu a:focus-visible,
+.mobileSubmenu a:hover {
+  color: var(--color-drawer-text);
+  background: var(--color-nav-hover);
+}
+
+.mobileSubmenu a:focus-visible {
+  outline: 2px solid var(--color-nav-selected-mark);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
 .mobileSubmenu a[aria-current="page"] {
-  color: var(--color-header-text);
-  background: var(--color-header-control);
+  color: var(--color-drawer-text);
+  background: var(--color-nav-selected);
+  font-weight: 760;
 }
 
-.mobileSubmenu a[aria-current="page"] {
-  box-shadow: inset 3px 0 0 var(--brand-logo-accent);
-}
-
-[dir="rtl"] .mobileSubmenu a[aria-current="page"] {
-  box-shadow: inset -3px 0 0 var(--brand-logo-accent);
-}
-
+/* ---- Utilities ---- */
 .mobileUtilities {
   display: grid;
-  gap: 14px;
+  gap: 18px;
   margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-drawer-border);
 }
 
 .mobileLanguage {
@@ -419,16 +594,55 @@
   align-items: center;
   justify-content: space-between;
   gap: 14px;
-  padding: 12px 14px;
-  border: 1px solid var(--color-header-border);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--color-header-control) 72%, transparent);
-  color: var(--color-header-text);
+  min-height: 44px;
+  color: var(--color-drawer-text);
 }
 
 .mobileLanguage > span {
-  font-size: 0.8rem;
-  font-weight: 760;
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-drawer-text-muted);
+}
+
+/*
+  The shared LanguageSwitcher sizes its buttons for the desktop header, where
+  they sit in a denser control cluster. In the drawer they are a primary touch
+  target, so the minimum is enforced here rather than by changing the shared
+  component and disturbing the header.
+*/
+.mobileLanguage button {
+  min-width: 44px;
+  min-height: 44px;
+}
+
+/* The drawer wordmark is a link to Home; give it the full target height too. */
+.mobileHeader a {
+  min-height: 44px;
+  align-items: center;
+}
+
+@media (forced-colors: active) {
+  .mobilePanel {
+    border-inline-end: 1px solid CanvasText;
+  }
+
+  .mobileNav > a[aria-current="page"],
+  .mobileGroupActive,
+  .mobileSubmenu a[aria-current="page"] {
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .mobileNav > a[aria-current="page"] > svg,
+  .mobileGroupActive > svg {
+    color: HighlightText;
+  }
+
+  .mobileSearch button {
+    border: 1px solid ButtonText;
+  }
 }
 
 .srOnly {

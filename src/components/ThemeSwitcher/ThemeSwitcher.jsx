@@ -135,7 +135,9 @@ export default function ThemeSwitcher({ mode = "popover", onSelect }) {
       <section className={styles.inline} aria-labelledby={labelId}>
         <div className={styles.inlineHeading}>
           <FiDroplet aria-hidden="true" />
-          <h2 id={labelId}>{t("theme.chooseTheme")}</h2>
+          {/* "Accent theme" in the drawer, where it sits directly beneath the
+              Appearance control and the two must not read as the same setting. */}
+          <h2 id={labelId}>{t("theme.accentLabel")}</h2>
         </div>
         {options}
       </section>

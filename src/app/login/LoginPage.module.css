@@ -158,7 +158,7 @@
   font-size: 14px;
   outline: none;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
 }
 
 .input:focus{
@@ -262,7 +262,7 @@
   height: 46px;
   border-radius: 14px;
   border: 1px solid var(--tone-000000-0p12);
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   font-family: Inter, sans-serif;
   font-weight: 900;
   font-size: 13px;

@@ -61,11 +61,29 @@ const en = {
   theme: {
     chooseTheme: "Choose color theme",
     currentTheme: "Current theme",
+    accentLabel: "Accent theme",
     options: {
       originalTechBlue: "Original Tech Blue",
       auroraCyan: "Aurora Cyan",
       royalViolet: "Royal Violet",
+      emeraldPulse: "Emerald Pulse",
+      graphiteAmber: "Graphite Amber",
     },
+  },
+
+  appearance: {
+    label: "Appearance",
+    chooseAppearance: "Choose appearance",
+    options: {
+      light: "Light",
+      system: "System",
+      dark: "Dark",
+    },
+    /* Announced with the System option so the resolved value is available to
+       assistive technology without the visible label changing - "System" must
+       keep reading as selected even when it resolves to Dark. */
+    systemResolvedLight: "System, currently light",
+    systemResolvedDark: "System, currently dark",
   },
 
   navigation: {

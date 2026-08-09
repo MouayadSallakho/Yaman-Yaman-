@@ -77,7 +77,7 @@
   .arrow { display: none; }
 }
 
-.arrow:hover { background: var(--tone-ffffff-1p0); }
+.arrow:hover { background: var(--color-card-background); }
 
 .arrow:focus-visible {
   opacity: 1;

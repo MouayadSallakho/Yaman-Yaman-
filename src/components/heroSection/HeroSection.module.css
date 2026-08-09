@@ -3,7 +3,7 @@
 }
 
 .holderContent .firstSlide {
-    background-color: var(--tone-ffffff-1p0);
+    background-color: var(--color-card-background);
     border-radius: 10px;
     padding: 12px;
 }
@@ -85,7 +85,7 @@
 
 .holderContent .secondSlide h3+p+a {
     background: none;
-    background-color: var(--tone-ffffff-1p0);
+    background-color: var(--color-card-background);
     display: block;
     padding: 6px 14px;
     font-family: Inter;
@@ -357,7 +357,7 @@
 
 
 .holderContent .firstSlide {
-  background-color: var(--tone-ffffff-1p0);
+  background-color: var(--color-card-background);
   border-radius: 10px;
   padding: 12px;
 

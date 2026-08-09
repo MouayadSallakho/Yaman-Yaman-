@@ -137,7 +137,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle at 50% 38%, var(--tone-ffffff-1p0) 0%, var(--tone-f4f9fd-1p0) 60%, var(--tone-e7f1f8-1p0) 100%);
+  background: radial-gradient(circle at 50% 38%, var(--color-card-background) 0%, var(--tone-f4f9fd-1p0) 60%, var(--tone-e7f1f8-1p0) 100%);
   border: 1px solid var(--tone-0492d0-0p18);
   box-shadow:
     inset 0 2px 6px var(--tone-ffffff-0p9),
@@ -298,7 +298,7 @@
 }
 .viewAll:hover,
 .viewAll:focus-visible {
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   box-shadow: 0 8px 18px var(--tone-0492d0-0p2);
   transform: translateY(-1px);
   color: var(--brand-primary-strong);

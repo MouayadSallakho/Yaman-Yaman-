@@ -1,0 +1,525 @@
+- generic [active] [ref=e1]:
+  - link "تخطّي إلى المحتوى الرئيسي" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "الصفحة الرئيسية لـ Techno Solutions" [ref=e5] [cursor=pointer]:
+        - /url: /
+      - navigation "التنقل الرئيسي" [ref=e7]:
+        - link "الرئيسية" [ref=e8] [cursor=pointer]:
+          - /url: /
+        - link "المنتجات" [ref=e9] [cursor=pointer]:
+          - /url: /products
+        - link "تواصل معنا" [ref=e10] [cursor=pointer]:
+          - /url: /contact
+      - generic [ref=e11]:
+        - search [ref=e12]:
+          - generic [ref=e13]: ابحث عن المنتجات
+          - searchbox "ابحث عن المنتجات" [ref=e14]
+          - button "بحث" [ref=e15] [cursor=pointer]
+        - button "اختر المظهر" [ref=e20] [cursor=pointer]
+        - button "اختر سمة الألوان" [ref=e28] [cursor=pointer]
+        - group "تغيير اللغة" [ref=e31]:
+          - button "EN" [ref=e32] [cursor=pointer]
+          - button "ع" [pressed] [ref=e33] [cursor=pointer]
+        - button "فتح السلة" [ref=e35] [cursor=pointer]
+        - button "الحساب" [ref=e39] [cursor=pointer]
+  - main [ref=e43]:
+    - region "التسوّق حسب الفئة" [ref=e44]:
+      - generic [ref=e47]:
+        - generic [ref=e48]:
+          - paragraph [ref=e49]: الفئات الشائعة
+          - generic [ref=e51]:
+            - generic [ref=e118]:
+              - generic [ref=e122]: الأعلى تقييماً
+              - generic [ref=e123]: 01 / 08
+            - generic [ref=e125]:
+              - button "الأعلى تقييماً" [pressed] [ref=e126] [cursor=pointer]
+              - generic [ref=e129]: الأعلى تقييماً
+            - generic [ref=e130]:
+              - button "أفضل قيمة" [ref=e131] [cursor=pointer]
+              - generic [ref=e134]: أفضل قيمة
+            - generic [ref=e135]:
+              - button "المتميزة" [ref=e136] [cursor=pointer]
+              - generic [ref=e139]: المتميزة
+            - generic [ref=e140]:
+              - button "يومية" [ref=e141] [cursor=pointer]
+              - generic [ref=e144]: يومية
+            - generic [ref=e145]:
+              - button "اقتصادية" [ref=e146] [cursor=pointer]
+              - generic [ref=e149]: اقتصادية
+            - generic [ref=e150]:
+              - button "الجوالات" [ref=e151] [cursor=pointer]
+              - generic [ref=e154]: الجوالات
+            - generic [ref=e155]:
+              - button "الأكثر رواجاً" [ref=e156] [cursor=pointer]
+              - generic [ref=e159]: الأكثر رواجاً
+            - generic [ref=e160]:
+              - button "عروض ساخنة" [ref=e161] [cursor=pointer]
+              - generic [ref=e164]: عروض ساخنة
+          - link "عرض كل الأعلى تقييماً" [ref=e165] [cursor=pointer]:
+            - /url: /products?search=Top%20Rated
+        - region [ref=e169]:
+          - heading "عروض اليوم" [level=2] [ref=e170]
+          - list [ref=e171]:
+            - listitem [ref=e172]:
+              - link "Xioma 14 Pro 256GB, Sierra Blue Xioma 14 Pro 256GB, Sierra Blue $1,049.00" [ref=e173] [cursor=pointer]:
+                - /url: /products?search=Xioma%2014%20Pro%20256GB%2C%20Sierra%20Blue
+                - img "Xioma 14 Pro 256GB, Sierra Blue" [ref=e177]
+                - generic [ref=e178]: Xioma 14 Pro 256GB, Sierra Blue
+                - generic [ref=e179]: $1,049.00
+            - listitem [ref=e181]:
+              - link "Xioma 15 Plus 256GB, Blue Xioma 15 Plus 256GB, Blue $999.00" [ref=e182] [cursor=pointer]:
+                - /url: /products?search=Xioma%2015%20Plus%20256GB%2C%20Blue
+                - img "Xioma 15 Plus 256GB, Blue" [ref=e186]
+                - generic [ref=e187]: Xioma 15 Plus 256GB, Blue
+                - generic [ref=e188]: $999.00
+            - listitem [ref=e190]:
+              - link "Xioma 15 Plus 128GB, Green -5% Xioma 15 Plus 128GB, Green $899.00 السعر السابق $949.00" [ref=e191] [cursor=pointer]:
+                - /url: /products?search=Xioma%2015%20Plus%20128GB%2C%20Green
+                - generic [ref=e192]:
+                  - img "Xioma 15 Plus 128GB, Green" [ref=e195]
+                  - generic [ref=e196]: "-5%"
+                - generic [ref=e197]: Xioma 15 Plus 128GB, Green
+                - generic [ref=e198]:
+                  - generic [ref=e199]: $899.00
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: السعر السابق
+                    - text: $949.00
+            - listitem [ref=e202]:
+              - link "BOSO 2 Wireless On-Ear Headphone -19% BOSO 2 Wireless On-Ear Headphone $610.00 السعر السابق $750.00" [ref=e203] [cursor=pointer]:
+                - /url: /products?search=BOSO%202%20Wireless%20On-Ear%20Headphone
+                - generic [ref=e204]:
+                  - img "BOSO 2 Wireless On-Ear Headphone" [ref=e207]
+                  - generic [ref=e208]: "-19%"
+                - generic [ref=e209]: BOSO 2 Wireless On-Ear Headphone
+                - generic [ref=e210]:
+                  - generic [ref=e211]: $610.00
+                  - generic [ref=e212]:
+                    - generic [ref=e213]: السعر السابق
+                    - text: $750.00
+          - link "Xioma Book Air 13 256GB, Space Gray عرض مميز Xioma Book Air 13 256GB, Space Gray $999.00 السعر السابق $1,099.00 عرض التفاصيل" [ref=e215] [cursor=pointer]:
+            - /url: /products?search=Xioma%20Book%20Air%2013%20256GB%2C%20Space%20Gray
+            - img "Xioma Book Air 13 256GB, Space Gray" [ref=e220]
+            - generic [ref=e221]:
+              - generic [ref=e222]: عرض مميز
+              - generic [ref=e223]: Xioma Book Air 13 256GB, Space Gray
+              - generic [ref=e224]:
+                - generic [ref=e225]: $999.00
+                - generic [ref=e226]:
+                  - generic [ref=e227]: السعر السابق
+                  - text: $1,099.00
+              - generic [ref=e228]: عرض التفاصيل
+        - region [ref=e231]:
+          - heading "الأكثر مبيعاً" [level=2] [ref=e232]
+          - list [ref=e233]:
+            - listitem [ref=e234]:
+              - link "المرتبة 1 Xioma S9+ 128GB Smartphone, Coral Blue Xioma S9+ 128GB Smartphone, Coral Blue $549.00" [ref=e235] [cursor=pointer]:
+                - /url: /products?search=Xioma%20S9%2B%20128GB%20Smartphone%2C%20Coral%20Blue
+                - generic "المرتبة 1" [ref=e236]: "1"
+                - img "Xioma S9+ 128GB Smartphone, Coral Blue" [ref=e240]
+                - generic [ref=e241]:
+                  - generic [ref=e242]: Xioma S9+ 128GB Smartphone, Coral Blue
+                  - generic [ref=e243]: $549.00
+            - listitem [ref=e245]:
+              - link "المرتبة 2 Xioma 12 Pro 512GB, Silver Xioma 12 Pro 512GB, Silver $829.00 السعر السابق $999.00 -17%" [ref=e246] [cursor=pointer]:
+                - /url: /products?search=Xioma%2012%20Pro%20512GB%2C%20Silver
+                - generic "المرتبة 2" [ref=e247]: "2"
+                - img "Xioma 12 Pro 512GB, Silver" [ref=e251]
+                - generic [ref=e252]:
+                  - generic [ref=e253]: Xioma 12 Pro 512GB, Silver
+                  - generic [ref=e254]:
+                    - generic [ref=e255]: $829.00
+                    - generic [ref=e256]:
+                      - generic [ref=e257]: السعر السابق
+                      - text: $999.00
+                    - generic [ref=e258]: "-17%"
+            - listitem [ref=e259]:
+              - link "المرتبة 3 Xioma 15 Plus 128GB, Yellow Xioma 15 Plus 128GB, Yellow $899.00 السعر السابق $949.00 -5%" [ref=e260] [cursor=pointer]:
+                - /url: /products?search=Xioma%2015%20Plus%20128GB%2C%20Yellow
+                - generic "المرتبة 3" [ref=e261]: "3"
+                - img "Xioma 15 Plus 128GB, Yellow" [ref=e265]
+                - generic [ref=e266]:
+                  - generic [ref=e267]: Xioma 15 Plus 128GB, Yellow
+                  - generic [ref=e268]:
+                    - generic [ref=e269]: $899.00
+                    - generic [ref=e270]:
+                      - generic [ref=e271]: السعر السابق
+                      - text: $949.00
+                    - generic [ref=e272]: "-5%"
+    - region [ref=e274]:
+      - generic [ref=e276]:
+        - generic [ref=e277]:
+          - generic [ref=e278]:
+            - generic [ref=e279]: وصل حديثاً
+            - heading "أحدث المنتجات" [level=2] [ref=e282]
+            - paragraph [ref=e283]: تقنيات جديدة أُضيفت هذا الأسبوع.
+          - generic [ref=e284]:
+            - tablist "تصفية المنتجات الجديدة حسب الفئة" [ref=e285]:
+              - tab "الكل" [selected] [ref=e286] [cursor=pointer]
+              - tab "الهواتف" [ref=e287] [cursor=pointer]
+              - tab "الصوتيات" [ref=e288] [cursor=pointer]
+              - tab "الأجهزة القابلة للارتداء" [ref=e289] [cursor=pointer]
+              - tab "الإكسسوارات" [ref=e290] [cursor=pointer]
+            - link "عرض الكل" [ref=e291] [cursor=pointer]:
+              - /url: /products?sort=newest
+        - tabpanel "الكل" [ref=e295]:
+          - article [ref=e296]:
+            - generic [ref=e297]: جديد
+            - img "Xioma 15 Pro 256GB, Blue Titanium" [ref=e300]
+            - generic [ref=e301]:
+              - generic [ref=e302]:
+                - heading "Xioma 15 Pro 256GB" [level=3] [ref=e303]
+                - paragraph [ref=e304]: Blue Titanium
+                - paragraph [ref=e305]: 6.7-inch ProMotion Display • A18 Ultra Chip • 48MP Pro Camera
+                - paragraph [ref=e306]:
+                  - generic [ref=e307]: ‏1,199.00 US$
+                  - generic [ref=e308]:
+                    - generic [ref=e309]: السعر السابق
+                    - text: ‏1,399.00 US$
+              - link "اكتشف الآن" [ref=e310] [cursor=pointer]:
+                - /url: /products?search=Xioma%2015%20Pro%20256GB
+          - generic [ref=e314]:
+            - article [ref=e315]:
+              - generic [ref=e316]:
+                - generic [ref=e317]: جديد
+                - img "Xioma 15 128GB, Mint Green" [ref=e320]
+              - generic [ref=e321]:
+                - generic [ref=e322]:
+                  - heading [level=3] [ref=e323]:
+                    - link "Xioma 15 128GB" [ref=e324] [cursor=pointer]:
+                      - /url: /products?search=Xioma%2015%20128GB
+                  - paragraph [ref=e325]: Mint Green
+                  - paragraph [ref=e326]:
+                    - generic [ref=e327]: ‏899.00 US$
+                    - generic [ref=e328]:
+                      - generic [ref=e329]: السعر السابق
+                      - text: ‏999.00 US$
+                - link "عرض Xioma 15 128GB" [ref=e330] [cursor=pointer]:
+                  - /url: /products?search=Xioma%2015%20128GB
+            - article [ref=e334]:
+              - generic [ref=e335]:
+                - generic [ref=e336]: جديد
+                - img "NovaBuds Pro, Active Noise Cancellation" [ref=e339]
+              - generic [ref=e340]:
+                - generic [ref=e341]:
+                  - heading [level=3] [ref=e342]:
+                    - link "NovaBuds Pro" [ref=e343] [cursor=pointer]:
+                      - /url: /products?search=NovaBuds%20Pro
+                  - paragraph [ref=e344]: Active Noise Cancellation
+                  - paragraph [ref=e345]:
+                    - generic [ref=e346]: ‏129.00 US$
+                    - generic [ref=e347]:
+                      - generic [ref=e348]: السعر السابق
+                      - text: ‏159.00 US$
+                - link "عرض NovaBuds Pro" [ref=e349] [cursor=pointer]:
+                  - /url: /products?search=NovaBuds%20Pro
+            - article [ref=e353]:
+              - generic [ref=e354]:
+                - generic [ref=e355]: جديد
+                - img "Pulse 3 Smart Watch, Midnight Aluminum" [ref=e358]
+              - generic [ref=e359]:
+                - generic [ref=e360]:
+                  - heading [level=3] [ref=e361]:
+                    - link "Pulse 3 Smart Watch" [ref=e362] [cursor=pointer]:
+                      - /url: /products?search=Pulse%203%20Smart%20Watch
+                  - paragraph [ref=e363]: Midnight Aluminum
+                  - paragraph [ref=e364]:
+                    - generic [ref=e365]: ‏199.00 US$
+                    - generic [ref=e366]:
+                      - generic [ref=e367]: السعر السابق
+                      - text: ‏249.00 US$
+                - link "عرض Pulse 3 Smart Watch" [ref=e368] [cursor=pointer]:
+                  - /url: /products?search=Pulse%203%20Smart%20Watch
+            - article [ref=e372]:
+              - generic [ref=e373]:
+                - generic [ref=e374]: جديد
+                - img "Shield Case for Xioma 15 Pro, MagSafe Compatible" [ref=e377]
+              - generic [ref=e378]:
+                - generic [ref=e379]:
+                  - heading [level=3] [ref=e380]:
+                    - link "Shield Case for Xioma 15 Pro" [ref=e381] [cursor=pointer]:
+                      - /url: /products?search=Shield%20Case%20for%20Xioma%2015%20Pro
+                  - paragraph [ref=e382]: MagSafe Compatible
+                  - paragraph [ref=e383]:
+                    - generic [ref=e384]: ‏39.00 US$
+                    - generic [ref=e385]:
+                      - generic [ref=e386]: السعر السابق
+                      - text: ‏49.00 US$
+                - link "عرض Shield Case for Xioma 15 Pro" [ref=e387] [cursor=pointer]:
+                  - /url: /products?search=Shield%20Case%20for%20Xioma%2015%20Pro
+    - region [ref=e391]:
+      - generic [ref=e393]:
+        - generic [ref=e394]:
+          - generic [ref=e395]:
+            - generic [ref=e396]: مختارة بعناية اليوم
+            - heading "اختيارات اليوم" [level=2] [ref=e399]
+            - paragraph [ref=e400]: مجموعة مركزة من المنتجات الجديرة بالاكتشاف اليوم.
+          - generic [ref=e401]:
+            - generic [ref=e402]: اختيار يومي • 5 منتجات
+            - link "عرض كل الاختيارات" [ref=e404] [cursor=pointer]:
+              - /url: /products?sort=recommended
+        - tabpanel "هاتف ذكي Xioma 14 Pro 256GB اختيار المحررين محدد" [ref=e408]:
+          - generic [ref=e409]:
+            - generic [ref=e410]:
+              - generic [ref=e412]:
+                - generic [ref=e413]: هاتف ذكي
+                - generic [ref=e414]:
+                  - button "الاختيار السابق" [ref=e415] [cursor=pointer]
+                  - generic [ref=e418]: الاختيار 01 من 05
+                  - button "الاختيار التالي" [ref=e419] [cursor=pointer]
+              - img "Xioma 14 Pro 256GB — أزرق سييرا" [ref=e424]
+            - generic [ref=e425]:
+              - generic [ref=e426]: اختيار المحررين
+              - generic [ref=e429]:
+                - heading "Xioma 14 Pro 256GB" [level=3] [ref=e430]
+                - paragraph [ref=e431]: أزرق سييرا
+              - paragraph [ref=e432]: هاتف رائد بشاشة ساطعة وكاميرات قوية وأداء موثوق يدوم طوال اليوم.
+              - generic [ref=e433]:
+                - generic [ref=e434]: لماذا اخترناه
+                - paragraph [ref=e435]: ترقية متوازنة لمن يريد أداء الفئة الرائدة دون الدفع مقابل إضافات غير ضرورية.
+              - list "أبرز مزايا المنتج" [ref=e436]:
+                - listitem [ref=e437]:
+                  - generic [ref=e440]: كاميرا 48 ميجابكسل
+                - listitem [ref=e441]:
+                  - generic [ref=e444]: بطارية تدوم طوال اليوم
+                - listitem [ref=e445]:
+                  - generic [ref=e448]: يدعم الجيل الخامس
+              - generic [ref=e449]:
+                - generic [ref=e450]:
+                  - generic [ref=e451]:
+                    - generic [ref=e452]: ‏1,049.00 US$
+                    - generic [ref=e453]: وفّر 13%
+                  - generic [ref=e454]:
+                    - generic [ref=e455]: السعر السابق
+                    - text: ‏1,199.00 US$
+                - link "عرض التفاصيل" [ref=e456] [cursor=pointer]:
+                  - /url: /products?search=Xioma%2014%20Pro%20256GB
+        - tablist "اختر منتجاً لواجهة اختيارات اليوم" [ref=e460]:
+          - tab "هاتف ذكي Xioma 14 Pro 256GB اختيار المحررين محدد" [selected] [ref=e461] [cursor=pointer]:
+            - generic [ref=e464]:
+              - generic [ref=e465]:
+                - generic [ref=e466]: "01"
+                - generic [ref=e467]: هاتف ذكي
+              - strong [ref=e468]: Xioma 14 Pro 256GB
+              - generic [ref=e469]: اختيار المحررين
+            - generic [ref=e473]: محدد
+          - tab "صوتيات NovaBuds Pro أفضل قيمة" [ref=e474] [cursor=pointer]:
+            - generic [ref=e477]:
+              - generic [ref=e478]:
+                - generic [ref=e479]: "02"
+                - generic [ref=e480]: صوتيات
+              - strong [ref=e481]: NovaBuds Pro
+              - generic [ref=e482]: أفضل قيمة
+          - tab "جهاز قابل للارتداء Pulse 3 Smart Watch رائج اليوم" [ref=e486] [cursor=pointer]:
+            - generic [ref=e489]:
+              - generic [ref=e490]:
+                - generic [ref=e491]: "03"
+                - generic [ref=e492]: جهاز قابل للارتداء
+              - strong [ref=e493]: Pulse 3 Smart Watch
+              - generic [ref=e494]: رائج اليوم
+          - tab "جهاز لوحي Xioma Pad 6 128GB اختيار الفريق" [ref=e498] [cursor=pointer]:
+            - generic [ref=e501]:
+              - generic [ref=e502]:
+                - generic [ref=e503]: "04"
+                - generic [ref=e504]: جهاز لوحي
+              - strong [ref=e505]: Xioma Pad 6 128GB
+              - generic [ref=e506]: اختيار الفريق
+          - tab "إكسسوار Orbit Magnetic Stand يستحق الاكتشاف" [ref=e510] [cursor=pointer]:
+            - generic [ref=e513]:
+              - generic [ref=e514]:
+                - generic [ref=e515]: "05"
+                - generic [ref=e516]: إكسسوار
+              - strong [ref=e517]: Orbit Magnetic Stand
+              - generic [ref=e518]: يستحق الاكتشاف
+        - status [ref=e522]
+    - region [ref=e523]:
+      - generic [ref=e525]:
+        - generic [ref=e526]:
+          - generic [ref=e527]:
+            - generic [ref=e528]: علامات موثوقة
+            - heading "واجهة العلامات التجارية" [level=2] [ref=e531]
+            - paragraph [ref=e532]: استكشف أبرز العلامات التقنية الموثوقة وابتكاراتها المميزة.
+          - link "عرض كل العلامات" [ref=e533] [cursor=pointer]:
+            - /url: /products?browse=brands
+        - generic [ref=e537]:
+          - article [ref=e538]:
+            - generic [ref=e539]:
+              - generic [ref=e540]: علامة مميزة
+              - heading "XIOMA" [level=3] [ref=e543]
+              - paragraph [ref=e544]: أداء يتجاوز التوقعات. صُمم من أجلك.
+              - paragraph [ref=e545]: هواتف ذكية فاخرة مصممة بدقة وقوة وأناقة.
+            - img "هواتف XIOMA رائدة باللون الأزرق المعدني" [ref=e548]
+            - generic [ref=e549]:
+              - list [ref=e550]:
+                - listitem [ref=e551]:
+                  - generic [ref=e554]: ضمان رسمي
+                - listitem [ref=e555]:
+                  - generic [ref=e559]: دعم على مدار الساعة
+                - listitem [ref=e560]:
+                  - generic [ref=e563]: إطلاقات حصرية
+              - generic [ref=e564]:
+                - link "استكشف XIOMA" [ref=e565] [cursor=pointer]:
+                  - /url: /products?search=XIOMA
+                - generic [ref=e569]: 28 منتجاً
+          - generic [ref=e570]:
+            - article [ref=e571]:
+              - link "استكشف NOVA" [ref=e572] [cursor=pointer]:
+                - /url: /products?search=NOVA%20Audio
+                - heading "NOVA" [level=3] [ref=e573]
+                - img "سماعات NOVA فاخرة تغطي الأذن" [ref=e576]
+                - generic [ref=e577]:
+                  - generic [ref=e578]: الصوتيات
+                  - generic [ref=e579]: 24 منتجاً
+            - article [ref=e584]:
+              - link "استكشف PULSE" [ref=e585] [cursor=pointer]:
+                - /url: /products?search=PULSE%20Wearables
+                - heading "PULSE" [level=3] [ref=e586]
+                - img "ساعة PULSE ذكية باللون البنفسجي" [ref=e589]
+                - generic [ref=e590]:
+                  - generic [ref=e591]: الأجهزة القابلة للارتداء
+                  - generic [ref=e592]: 18 منتجاً
+            - article [ref=e597]:
+              - link "استكشف ORBIT" [ref=e598] [cursor=pointer]:
+                - /url: /products?search=ORBIT%20Accessories
+                - heading "ORBIT" [level=3] [ref=e599]
+                - img "حامل شحن لاسلكي من ORBIT" [ref=e602]
+                - generic [ref=e603]:
+                  - generic [ref=e604]: الإكسسوارات
+                  - generic [ref=e605]: 32 منتجاً
+            - article [ref=e610]:
+              - link "استكشف SONIQ" [ref=e611] [cursor=pointer]:
+                - /url: /products?search=SONIQ%20Home%20Tech
+                - heading "SONIQ" [level=3] [ref=e612]
+                - img "مكبر صوت منزلي ذكي من SONIQ" [ref=e615]
+                - generic [ref=e616]:
+                  - generic [ref=e617]: تقنيات المنزل
+                  - generic [ref=e618]: 16 منتجاً
+            - article [ref=e623]:
+              - link "استكشف LUMA" [ref=e624] [cursor=pointer]:
+                - /url: /products?search=LUMA%20Lighting
+                - heading "LUMA" [level=3] [ref=e625]
+                - img "مصباح ذكي عصري من LUMA" [ref=e628]
+                - generic [ref=e629]:
+                  - generic [ref=e630]: الإضاءة
+                  - generic [ref=e631]: 14 منتجاً
+            - article [ref=e636]:
+              - link "استكشف VERTEX" [ref=e637] [cursor=pointer]:
+                - /url: /products?search=VERTEX%20Gaming
+                - heading "VERTEX" [level=3] [ref=e638]
+                - img "وحدة تحكم ألعاب من VERTEX" [ref=e641]
+                - generic [ref=e642]:
+                  - generic [ref=e643]: الألعاب
+                  - generic [ref=e644]: 24 منتجاً
+        - generic [ref=e649]:
+          - generic [ref=e654]:
+            - strong [ref=e655]: ضمان رسمي
+            - generic [ref=e656]: منتجات أصلية 100% بضمان العلامة التجارية.
+          - generic [ref=e664]:
+            - strong [ref=e665]: شحن سريع وآمن
+            - generic [ref=e666]: توصيل سريع مع تحديثات تتبع لحظية.
+          - generic [ref=e672]:
+            - strong [ref=e673]: بائعون موثوقون
+            - generic [ref=e674]: شركاء موثوقون وجودة يمكنك الاعتماد عليها.
+          - generic [ref=e679]:
+            - strong [ref=e680]: إطلاقات حصرية
+            - generic [ref=e681]: كن أول من يصل إلى المنتجات الجديدة والإصدارات المحدودة.
+    - region [ref=e682]:
+      - generic [ref=e684]:
+        - generic [ref=e685]:
+          - generic [ref=e686]:
+            - generic [ref=e687]: عروض ترويجية مميزة
+            - heading "المزيد للاستكشاف" [level=2] [ref=e690]
+            - paragraph [ref=e691]: طرق سريعة للوصول إلى عروض مفيدة وتقنيات مختارة.
+          - link "تصفّح كل المنتجات" [ref=e692] [cursor=pointer]:
+            - /url: /products
+        - list [ref=e696]:
+          - listitem [ref=e697]:
+            - link "ابتداءً من $569 Sono Playgo 5 اكتشف الآن" [ref=e698] [cursor=pointer]:
+              - /url: /products
+              - generic [ref=e699]:
+                - generic [ref=e700]: ابتداءً من $569
+                - strong [ref=e701]: Sono Playgo 5
+                - generic [ref=e702]: اكتشف الآن
+          - listitem [ref=e706]:
+            - link "الأفضل للعمل Logitek Bluetooth Keyboard اكتشف الآن" [ref=e707] [cursor=pointer]:
+              - /url: /products
+              - generic [ref=e708]:
+                - generic [ref=e709]: الأفضل للعمل
+                - strong [ref=e710]: Logitek Bluetooth Keyboard
+                - generic [ref=e711]: اكتشف الآن
+          - listitem [ref=e715]:
+            - link "وصل حديثاً xomia Sport Water-Resistance Watch تسوّق الآن" [ref=e716] [cursor=pointer]:
+              - /url: /products
+              - generic [ref=e717]:
+                - generic [ref=e718]: وصل حديثاً
+                - strong [ref=e719]: xomia Sport Water-Resistance Watch
+                - generic [ref=e720]: تسوّق الآن
+          - listitem [ref=e724]:
+            - link "ابتداءً من $169 OKODo hero 11+ black تسوّق الآن" [ref=e725] [cursor=pointer]:
+              - /url: /products
+              - generic [ref=e726]:
+                - generic [ref=e727]: ابتداءً من $169
+                - strong [ref=e728]: OKODo hero 11+ black
+                - generic [ref=e729]: تسوّق الآن
+  - contentinfo [ref=e733]:
+    - generic [ref=e734]:
+      - generic [ref=e735]:
+        - generic [ref=e736]:
+          - link "الصفحة الرئيسية لـ Techno Solutions" [ref=e737] [cursor=pointer]:
+            - /url: /
+          - paragraph [ref=e739]: Techno Solutions متجر تقني للحواسيب المحمولة والهواتف والصوتيات والألعاب وأجهزة المنزل الذكي.
+          - link "استكشف كل المنتجات" [ref=e740] [cursor=pointer]:
+            - /url: /products
+        - navigation "روابط تذييل الموقع" [ref=e741]:
+          - generic [ref=e742]:
+            - heading "اكتشف" [level=2] [ref=e743]
+            - list [ref=e744]:
+              - listitem [ref=e745]:
+                - link "وصل حديثاً" [ref=e746] [cursor=pointer]:
+                  - /url: /#new-arrivals
+              - listitem [ref=e747]:
+                - link "اختيارات اليوم" [ref=e748] [cursor=pointer]:
+                  - /url: /#todays-picks
+              - listitem [ref=e749]:
+                - link "أفضل العلامات" [ref=e750] [cursor=pointer]:
+                  - /url: /#brand-showcase
+          - generic [ref=e751]:
+            - heading "التسوّق" [level=2] [ref=e752]
+            - list [ref=e753]:
+              - listitem [ref=e754]:
+                - link "كل المنتجات" [ref=e755] [cursor=pointer]:
+                  - /url: /products
+              - listitem [ref=e756]:
+                - link "عروض اليوم" [ref=e757] [cursor=pointer]:
+                  - /url: /#commerce-core
+              - listitem [ref=e758]:
+                - link "السلة" [ref=e759] [cursor=pointer]:
+                  - /url: /cart
+          - generic [ref=e760]:
+            - heading "الحساب" [level=2] [ref=e761]
+            - list [ref=e762]:
+              - listitem [ref=e763]:
+                - link "تسجيل الدخول" [ref=e764] [cursor=pointer]:
+                  - /url: /login
+              - listitem [ref=e765]:
+                - link "التسجيل" [ref=e766] [cursor=pointer]:
+                  - /url: /register
+              - listitem [ref=e767]:
+                - link "لوحة التحكم" [ref=e768] [cursor=pointer]:
+                  - /url: /dashboard
+              - listitem [ref=e769]:
+                - link "توثيق الحساب" [ref=e770] [cursor=pointer]:
+                  - /url: /verify
+          - generic [ref=e771]:
+            - heading "الدعم" [level=2] [ref=e772]
+            - list [ref=e773]:
+              - listitem [ref=e774]:
+                - link "تواصل معنا" [ref=e775] [cursor=pointer]:
+                  - /url: /contact
+      - generic [ref=e776]:
+        - paragraph [ref=e777]: © 2026 Techno Solutions. جميع الحقوق محفوظة.
+        - group "تغيير اللغة" [ref=e778]:
+          - button "EN" [ref=e779] [cursor=pointer]
+          - button "ع" [pressed] [ref=e780] [cursor=pointer]
+  - status

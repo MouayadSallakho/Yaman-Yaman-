@@ -1,0 +1,124 @@
+.root {
+  display: grid;
+  gap: 10px;
+}
+
+.label {
+  margin: 0;
+  color: var(--color-drawer-text-muted);
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/*
+  Segmented control: one track, three equal segments. `1fr` per column keeps the
+  segments equal at every drawer width, so the control never reflows into a
+  ragged row on a 320px screen.
+*/
+.group {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid var(--color-drawer-border);
+  border-radius: 14px;
+  background: var(--color-drawer-elevated);
+}
+
+.option {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 6px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-drawer-text-muted);
+  font-size: 0.78rem;
+  font-weight: 720;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.option svg {
+  flex: none;
+  font-size: 0.95rem;
+}
+
+.option:hover {
+  color: var(--color-drawer-text);
+  background: var(--color-nav-hover);
+}
+
+/*
+  Selection is never signalled by colour alone: the selected segment also gains
+  a filled surface, a border and a weight change, so it survives greyscale,
+  forced colours and colour-vision differences.
+*/
+.selected {
+  border-color: var(--color-nav-selected-mark);
+  background: var(--color-nav-selected);
+  color: var(--color-drawer-text);
+  font-weight: 820;
+}
+
+.option:focus-visible {
+  outline: 2px solid var(--color-nav-selected-mark);
+  outline-offset: 1px;
+  box-shadow: none;
+}
+
+/* The 44px touch target is met by the row, not the segment: the segments are
+   40px tall inside a 4px-padded track, so the pressable area is 48px. */
+@media (pointer: coarse) {
+  .option {
+    min-height: 44px;
+  }
+}
+
+/* Narrow phones: the icon alone would be ambiguous for "System", so labels stay
+   and the gap collapses instead. */
+@media (max-width: 359.98px) {
+  .option {
+    gap: 4px;
+    padding: 0 2px;
+    font-size: 0.72rem;
+  }
+
+  .option svg {
+    font-size: 0.88rem;
+  }
+}
+
+@media (forced-colors: active) {
+  .group {
+    border-color: CanvasText;
+  }
+
+  .option {
+    color: CanvasText;
+  }
+
+  .selected {
+    border-color: Highlight;
+    background: Highlight;
+    color: HighlightText;
+  }
+
+  .option:focus-visible {
+    outline-color: Highlight;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .option {
+    transition: none;
+  }
+}

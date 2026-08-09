@@ -95,7 +95,7 @@
   border: 1px solid var(--tone-0492d0-0p26);
   border-radius: 999px;
   color: var(--brand-primary-strong);
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   font-size: 0.82rem;
   font-weight: 760;
   white-space: nowrap;
@@ -165,7 +165,7 @@
   overflow: hidden;
   border: 1px solid var(--tone-205ba4-0p11);
   border-radius: var(--promo-card-radius);
-  background: linear-gradient(155deg, var(--tone-ffffff-1p0), var(--tone-f2f8ff-0p9));
+  background: linear-gradient(155deg, var(--color-card-background), var(--tone-f2f8ff-0p9));
   box-shadow: 0 10px 24px var(--tone-19497e-0p07);
   transition:
     transform 180ms var(--motion-ease),

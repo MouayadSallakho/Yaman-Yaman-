@@ -312,7 +312,7 @@
   overflow: hidden;
   border: 1px solid var(--tone-5591cf-0p22);
   border-radius: 15px;
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   cursor: pointer;
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
@@ -350,7 +350,7 @@
   transition: transform 180ms ease, background 180ms ease;
 }
 
-.openGalleryButton:hover { transform: translateY(-2px); background: var(--tone-ffffff-1p0); }
+.openGalleryButton:hover { transform: translateY(-2px); background: var(--color-card-background); }
 
 .purchasePanel {
   position: sticky;
@@ -381,7 +381,7 @@
   border: 1px solid var(--tone-dbe7f4-1p0);
   border-radius: 50%;
   color: var(--tone-254b73-1p0);
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   font-size: 1.35rem;
   cursor: pointer;
   transition: transform 180ms ease, color 180ms ease;
@@ -435,7 +435,7 @@
   border: 1px solid var(--tone-dce6f2-1p0);
   border-radius: 12px;
   color: var(--tone-31455f-1p0);
-  background: var(--tone-ffffff-1p0);
+  background: var(--color-card-background);
   font-size: 0.8rem;
   font-weight: 800;
   cursor: pointer;
@@ -457,7 +457,7 @@
 .controlLabel { display: block; margin-bottom: 7px; font-size: 0.78rem; font-weight: 900; }
 .quantityControl { display: flex; align-items: center; overflow: hidden; border: 1px solid var(--tone-dce6f2-1p0); border-radius: 13px; }
 .quantityControl button,
-.quantityControl output { display: grid; place-items: center; width: 42px; height: 41px; border: 0; background: var(--tone-ffffff-1p0); }
+.quantityControl output { display: grid; place-items: center; width: 42px; height: 41px; border: 0; background: var(--color-card-background); }
 .quantityControl button { color: var(--tone-194468-1p0); cursor: pointer; }
 .quantityControl button:hover:not(:disabled) { background: var(--tone-edf7ff-1p0); }
 .quantityControl button:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -467,7 +467,7 @@
 .purchaseActions { display: grid; gap: 9px; }
 .addToCart,
 .buyNow { min-height: 50px; border-radius: 14px; font-weight: 900; cursor: pointer; transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease; }
-.addToCart { display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--tone-096edc-1p0); color: var(--tone-075eb9-1p0); background: var(--tone-ffffff-1p0); }
+.addToCart { display: flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid var(--tone-096edc-1p0); color: var(--tone-075eb9-1p0); background: var(--color-card-background); }
 .buyNow { border: 0; color: var(--tone-ffffff-1p0); background: linear-gradient(135deg, var(--tone-0873e6-1p0), var(--tone-123b92-1p0)); box-shadow: 0 12px 28px var(--tone-075abf-0p2); }
 .addToCart:hover,
 .buyNow:hover { transform: translateY(-2px); }
@@ -535,7 +535,7 @@
 .overviewStat span { font-size: 0.7rem; }
 
 .specGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; overflow: hidden; margin: 0; border: 1px solid var(--tone-e1eaf4-1p0); border-radius: 18px; background: var(--tone-e1eaf4-1p0); }
-.specGrid > div { min-height: 94px; padding: 17px; background: var(--tone-ffffff-1p0); }
+.specGrid > div { min-height: 94px; padding: 17px; background: var(--color-card-background); }
 .specGrid dt { color: var(--tone-7a8799-1p0); font-size: 0.68rem; font-weight: 800; }
 .specGrid dd { margin: 6px 0 0; color: var(--tone-1b3453-1p0); font-size: 0.82rem; font-weight: 800; }
 
@@ -553,7 +553,7 @@
 .reviewSummary p { font-size: 0.78rem; }
 .reviewSummary small { color: var(--tone-beddf7-1p0); font-size: 0.67rem; line-height: 1.45; }
 .reviewList { display: grid; gap: 10px; }
-.reviewList article { padding: 17px; border: 1px solid var(--tone-e0eaf4-1p0); border-radius: 17px; background: var(--tone-ffffff-1p0); }
+.reviewList article { padding: 17px; border: 1px solid var(--tone-e0eaf4-1p0); border-radius: 17px; background: var(--color-card-background); }
 .reviewList header { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
 .reviewList header > span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; color: var(--tone-0870df-1p0); background: var(--tone-eaf6ff-1p0); font-size: 0.7rem; font-weight: 900; }
 .reviewList header div { display: grid; }
@@ -564,7 +564,7 @@
 
 .boxPanel { display: grid; grid-template-columns: 0.38fr 0.62fr; gap: 28px; align-items: center; }
 .boxGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.boxGrid > div { display: grid; gap: 10px; min-height: 112px; padding: 15px; border: 1px solid var(--tone-dfeaf5-1p0); border-radius: 17px; background: linear-gradient(145deg, var(--tone-ffffff-1p0), var(--tone-f0f8ff-1p0)); }
+.boxGrid > div { display: grid; gap: 10px; min-height: 112px; padding: 15px; border: 1px solid var(--tone-dfeaf5-1p0); border-radius: 17px; background: linear-gradient(145deg, var(--color-card-background), var(--tone-f0f8ff-1p0)); }
 .boxGrid span { color: var(--tone-0870df-1p0); font-size: 0.69rem; font-weight: 900; }
 .boxGrid strong { align-self: end; color: var(--tone-28415e-1p0); font-size: 0.79rem; }
 
