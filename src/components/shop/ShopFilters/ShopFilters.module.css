@@ -137,6 +137,31 @@
   box-shadow: var(--focus-ring);
 }
 
+/* Pending until these inputs can act, matching the Sort control's treatment:
+   only paint changes — same row height, same control box, same type — so
+   enabling them shifts nothing. The panel keeps all of its structure and every
+   label stays fully legible; the rows simply stop inviting a click that would
+   be dropped. Hover is withdrawn with them, because offering a highlight for a
+   row that cannot respond is the same lie in a quieter form. */
+.radio:disabled,
+.checkbox:disabled {
+  cursor: progress;
+  opacity: 0.55;
+}
+
+.filters[data-pending="true"] .option {
+  cursor: progress;
+}
+
+.filters[data-pending="true"] .option:hover {
+  background: none;
+  color: inherit;
+}
+
+.filters[data-pending="true"] .optionEmpty:hover {
+  color: var(--filter-empty-text);
+}
+
 .groupHeader:focus-visible {
   outline: none;
   border-radius: 8px;

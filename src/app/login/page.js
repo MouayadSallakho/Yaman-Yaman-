@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -15,11 +15,38 @@ export default function LoginPage() {
   const router = useRouter();
   const { t } = useTranslation();
 
-  const [email, setEmail] = useState("");
-  const [pass, setPass] = useState("");
-  const [remember, setRemember] = useState(true);
   const [showPass, setShowPass] = useState(false);
   const hydrated = useHydrated();
+
+  /*
+    The credential fields are deliberately uncontrolled.
+
+    The browser can fill them before React exists, and that is worth keeping:
+    someone types their address while the bundle is still on the wire, and a
+    password manager fills both the moment the form is parsed. Neither reaches
+    React. Backing them with `value={state}` therefore guarantees a divergence,
+    and React resolves that divergence its own way — measured here, it blanked a
+    field the user had already filled and then rejected the submit with "Email
+    is required" over text they could plainly read.
+
+    Reconciling the two halves after the fact loses a race that cannot be won:
+    React writes the empty value during the commit, which happens before any
+    effect that could have read the real one. Not creating the divergence is the
+    only version of this that has no timing in it at all. The DOM is the single
+    source of truth for these three fields, `onChange` is kept purely to clear a
+    stale validation message, and nothing in this component ever writes over what
+    the browser put in.
+  */
+  const emailRef = useRef(null);
+  const passRef = useRef(null);
+  const rememberRef = useRef(null);
+
+  /** What the form actually contains right now — read at validation and submit. */
+  const readForm = () => ({
+    email: (emailRef.current?.value ?? "").trim(),
+    password: passRef.current?.value ?? "",
+    remember: rememberRef.current?.checked ?? true,
+  });
 
   const [errEmail, setErrEmail] = useState("");
   const [errPass, setErrPass] = useState("");
@@ -28,10 +55,10 @@ export default function LoginPage() {
 
   const [toast, setToast] = useState("");
 
-  function validate() {
+  function validate(values) {
     let ok = true;
 
-    const e = email.trim();
+    const e = values.email;
     if (!e) {
       setErrEmail(t("auth.validation.emailRequired"));
       ok = false;
@@ -40,10 +67,10 @@ export default function LoginPage() {
       ok = false;
     } else setErrEmail("");
 
-    if (!pass) {
+    if (!values.password) {
       setErrPass(t("auth.validation.passwordRequired"));
       ok = false;
-    } else if (pass.length < 6) {
+    } else if (values.password.length < 6) {
       setErrPass(t("auth.validation.passwordMin"));
       ok = false;
     } else setErrPass("");
@@ -55,11 +82,13 @@ export default function LoginPage() {
     e.preventDefault();
     setApiError("");
 
-    if (!validate()) return;
+    const values = readForm();
+
+    if (!validate(values)) return;
 
     setLoading(true);
 
-    AuthAPI.login({ email: email.trim(), password: pass })
+    AuthAPI.login({ email: values.email, password: values.password })
       .then((data) => {
         const token = data?.token;
         if (!token) throw new Error(t("auth.validation.tokenMissing"));
@@ -68,7 +97,7 @@ export default function LoginPage() {
         // boundary absorbs a blocked or full store and keeps the session in
         // memory, so a browser that refuses persistence never surfaces here as
         // a failed sign-in.
-        saveToken(token, { remember });
+        saveToken(token, { remember: values.remember });
 
         // show toast here
         setToast(t("auth.login.toast"));
@@ -118,20 +147,25 @@ export default function LoginPage() {
             </p>
           </div>
 
-          <form className={styles.form} onSubmit={onSubmit} autoComplete="off">
+          {/* No `autoComplete="off"`: this is a sign-in form, and switching
+              autofill off here is what stops a password manager from filling
+              it at all. No `name` attributes either — the form has no action
+              and its default button is disabled until submission is handled in
+              JavaScript, so there is no native GET that could carry an address
+              or a password in a URL. */}
+          <form className={styles.form} onSubmit={onSubmit}>
             {apiError ? <p className={styles.apiError}>{apiError}</p> : null}
 
             <div className={styles.field}>
               <label>{t("auth.common.email")}</label>
               <input
+                ref={emailRef}
                 className={`${styles.input} ${errEmail ? styles.inputError : ""}`}
                 type="email"
+                autoComplete="email"
                 placeholder={t("auth.common.emailPlaceholder")}
-                value={email}
-                onChange={(e) => {
-                  setEmail(e.target.value);
-                  setErrEmail("");
-                }}
+                defaultValue=""
+                onChange={() => setErrEmail("")}
               />
               {errEmail ? <p className={styles.error}>{errEmail}</p> : null}
             </div>
@@ -140,14 +174,13 @@ export default function LoginPage() {
               <label>{t("auth.common.password")}</label>
               <div className={styles.passWrap}>
                 <input
+                  ref={passRef}
                   className={`${styles.input} ${errPass ? styles.inputError : ""}`}
                   type={showPass ? "text" : "password"}
+                  autoComplete="current-password"
                   placeholder={t("auth.login.passwordPlaceholder")}
-                  value={pass}
-                  onChange={(e) => {
-                    setPass(e.target.value);
-                    setErrPass("");
-                  }}
+                  defaultValue=""
+                  onChange={() => setErrPass("")}
                 />
                 <button
                   type="button"
@@ -163,9 +196,9 @@ export default function LoginPage() {
             <div className={styles.row}>
               <label className={styles.check}>
                 <input
+                  ref={rememberRef}
                   type="checkbox"
-                  checked={remember}
-                  onChange={(e) => setRemember(e.target.checked)}
+                  defaultChecked
                 />
                 <span>{t("auth.login.rememberMe")}</span>
               </label>

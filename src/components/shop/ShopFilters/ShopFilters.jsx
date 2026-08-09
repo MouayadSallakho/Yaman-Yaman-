@@ -3,6 +3,7 @@
 import { useId, useState } from "react";
 import { FiChevronDown } from "react-icons/fi";
 
+import useHydrated from "@/hooks/useHydrated";
 import { useTranslation } from "@/i18n/LocaleProvider";
 import {
   BRANDS,
@@ -59,8 +60,23 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
   const { t } = useTranslation();
   const activeBand = matchPriceBand(filters.min, filters.max);
 
+  /**
+   * Every facet below is a controlled native input, and a native input is
+   * operable the moment the browser parses it — long before the handler that
+   * would act on it exists. Ticking one in that window is worse than doing
+   * nothing: the browser paints the tick, the URL never changes, and because
+   * the `checked` prop never moved React has no reason to correct the DOM. The
+   * panel is then left showing a filter the grid is not applying, indefinitely.
+   *
+   * So the inputs say what is true until they can act. Only the inputs: the
+   * group disclosures, the labels, the counts, the panel and the page all stay
+   * live, and the disclosure buttons keep working because collapsing a group is
+   * local state that hydrates with them.
+   */
+  const hydrated = useHydrated();
+
   return (
-    <div className={styles.filters}>
+    <div className={styles.filters} data-pending={hydrated ? undefined : "true"}>
       <FilterGroup title={t("shop.filters.category")}>
         <ul className={styles.optionList}>
           <li>
@@ -71,6 +87,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                 className={styles.radio}
                 checked={filters.category === ""}
                 onChange={() => actions.setCategory("")}
+                disabled={!hydrated}
               />
               <span className={styles.optionLabel}>{t("shop.filters.allProducts")}</span>
               <span className={styles.count}>{facets.allCategories}</span>
@@ -88,6 +105,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                     className={styles.radio}
                     checked={filters.category === category.id}
                     onChange={() => actions.setCategory(category.id)}
+                    disabled={!hydrated}
                   />
                   <span className={styles.optionLabel}>{t(category.labelKey)}</span>
                   <span className={styles.count}>{count}</span>
@@ -108,6 +126,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                 className={styles.radio}
                 checked={activeBand === "" && filters.min == null && filters.max == null}
                 onChange={() => actions.setPriceRange(null, null)}
+                disabled={!hydrated}
               />
               <span className={styles.optionLabel}>{t("shop.filters.anyPrice")}</span>
             </label>
@@ -122,6 +141,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                   className={styles.radio}
                   checked={activeBand === band.id}
                   onChange={() => actions.setPriceRange(band.min, band.max)}
+                  disabled={!hydrated}
                 />
                 <span className={styles.optionLabel}>{priceBandLabel(band, t)}</span>
               </label>
@@ -142,6 +162,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                     className={styles.checkbox}
                     checked={filters.brands.includes(brand)}
                     onChange={() => actions.toggleBrand(brand)}
+                    disabled={!hydrated}
                   />
                   <span className={styles.optionLabel}>{brand}</span>
                   <span className={styles.count}>{count}</span>
@@ -162,6 +183,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                 className={styles.radio}
                 checked={filters.rating == null}
                 onChange={() => actions.setRating(null)}
+                disabled={!hydrated}
               />
               <span className={styles.optionLabel}>{t("shop.filters.anyRating")}</span>
             </label>
@@ -176,6 +198,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                   className={styles.radio}
                   checked={filters.rating === step}
                   onChange={() => actions.setRating(step)}
+                  disabled={!hydrated}
                 />
                 <span className={styles.optionLabel}>{t("shop.filters.ratingAndUp", { rating: step })}</span>
               </label>
@@ -193,6 +216,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                 className={styles.checkbox}
                 checked={filters.inStockOnly}
                 onChange={actions.toggleInStock}
+                disabled={!hydrated}
               />
               <span className={styles.optionLabel}>{t("shop.filters.inStockOnly")}</span>
             </label>
@@ -204,6 +228,7 @@ export default function ShopFilters({ filters, facets, actions, idPrefix = "shop
                 className={styles.checkbox}
                 checked={filters.dealsOnly}
                 onChange={actions.toggleDeals}
+                disabled={!hydrated}
               />
               <span className={styles.optionLabel}>{t("shop.filters.dealsOnly")}</span>
             </label>
