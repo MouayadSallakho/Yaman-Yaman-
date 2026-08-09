@@ -1,0 +1,93 @@
+/*
+  One shimmer definition for the whole application.
+
+  Every skeleton surface shares these keyframes and these semantic tokens, so a
+  grid of loading cards animates in step and the Light/Dark phase can retheme all
+  of them by changing two custom properties rather than editing component CSS.
+
+  The animation moves `background-position` on a single gradient — no filter, no
+  blur, no per-element animation engine — so a full product grid of skeletons
+  stays compositor-cheap.
+*/
+.base {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-button, 8px);
+  background: linear-gradient(
+    100deg,
+    var(--color-skeleton-base) 30%,
+    var(--color-skeleton-highlight) 48%,
+    var(--color-skeleton-base) 66%
+  );
+  background-size: 220% 100%;
+  animation: skeletonShimmer 1.35s var(--motion-ease, ease) infinite;
+}
+
+@keyframes skeletonShimmer {
+  from { background-position: 180% 0; }
+  to { background-position: -40% 0; }
+}
+
+/** A text-like run. Width is supplied by the caller. */
+.line {
+  height: 10px;
+  border-radius: 999px;
+}
+
+/** Fills a positioned media slot edge to edge. */
+.media {
+  position: absolute;
+  inset: 0;
+  border-radius: 0;
+}
+
+/*
+  The failed state is deliberately NOT a skeleton.
+
+  A shimmer means "still arriving". An asset that will never arrive must stop
+  claiming that, so this is a flat, static, neutral surface carrying a small
+  neutral mark and no text: no product name, no file path, no broken-image
+  affordance, and never a substituted photograph of a different product.
+*/
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: var(--color-media-fallback-bg);
+  animation: none;
+}
+
+.fallbackMark {
+  width: 28%;
+  max-width: 44px;
+  min-width: 20px;
+  aspect-ratio: 4 / 3;
+  border: 2px solid var(--color-media-fallback-mark);
+  border-radius: 6px;
+  opacity: 0.5;
+}
+
+/* A single diagonal stroke reads as "no image" without resembling an error. */
+.fallbackMark::after {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to bottom right,
+    transparent calc(50% - 1px),
+    var(--color-media-fallback-mark) calc(50% - 1px),
+    var(--color-media-fallback-mark) calc(50% + 1px),
+    transparent calc(50% + 1px)
+  );
+}
+
+/* Shimmer is decorative motion — hold a flat tone instead of pulsing. */
+@media (prefers-reduced-motion: reduce) {
+  .base {
+    animation: none;
+    background: var(--color-skeleton-base);
+  }
+}

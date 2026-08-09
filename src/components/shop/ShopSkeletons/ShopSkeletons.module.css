@@ -5,8 +5,11 @@
 .sortBlock,
 .heroArt,
 .heroCta {
-  --shimmer-base: var(--tone-e8eef5-1p0);
-  --shimmer-highlight: var(--tone-f4f8fc-1p0);
+  /* Semantic skeleton tokens, not fixed tones: these already vary per accent
+     theme, and the Light/Dark phase can retheme every skeleton in the app by
+     changing them in one place. */
+  --shimmer-base: var(--color-skeleton-base);
+  --shimmer-highlight: var(--color-skeleton-highlight);
   background: linear-gradient(
     100deg,
     var(--shimmer-base) 30%,
@@ -154,6 +157,6 @@
   .heroArt,
   .heroCta {
     animation: none;
-    background: var(--tone-e8eef5-1p0);
+    background: var(--color-skeleton-base);
   }
 }

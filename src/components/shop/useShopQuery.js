@@ -24,9 +24,15 @@ const toNumber = (value) => {
 /**
  * Single source of truth for what the shop is showing.
  *
- * Filters and sort live in the URL, which buys three things for free: the view
- * is shareable, the browser Back button restores the previous result set, and
- * no state is duplicated between the sidebar and the mobile drawer.
+ * Filters and sort live in the URL, which buys two things for free: the view is
+ * shareable, and no state is duplicated between the sidebar and the mobile
+ * drawer.
+ *
+ * Every mutation *replaces* the current history entry rather than pushing a new
+ * one, so a session of narrowing filters does not have to be unwound one click
+ * at a time before Back can leave the page. The trade is deliberate and worth
+ * naming: Back does not step through previous filter states. Arriving at any
+ * such URL — a shared link, Forward, a reload — still restores it exactly.
  *
  * @param {() => void} [onChange] Invoked after any filter/sort mutation so the
  *   caller can run its own side effect (this page scrolls to the results).
@@ -58,22 +64,33 @@ export default function useShopQuery(onChange) {
   /** Write the given state to the URL. Never scrolls — the page owns that. */
   const commit = useCallback(
     (nextFilters, nextSort, { notify = true } = {}) => {
-      const params = new URLSearchParams();
-      if (nextFilters.search) params.set("search", nextFilters.search);
-      if (nextFilters.category) params.set("category", nextFilters.category);
-      if (nextFilters.brands.length) params.set("brand", nextFilters.brands.join(","));
-      if (nextFilters.min != null) params.set("min", String(nextFilters.min));
-      if (nextFilters.max != null) params.set("max", String(nextFilters.max));
-      if (nextFilters.rating != null) params.set("rating", String(nextFilters.rating));
-      if (nextFilters.inStockOnly) params.set("stock", "1");
-      if (nextFilters.dealsOnly) params.set("deals", "1");
-      if (nextSort && nextSort !== DEFAULT_SORT) params.set("sort", nextSort);
+      // Seeded from the current query, not from empty. The shop owns the keys
+      // below and nothing else: a campaign tag, a referrer, anything a marketing
+      // link or another feature put on the URL survives a filter or sort change
+      // instead of being silently dropped by the first click on the page.
+      const params = new URLSearchParams(searchParams);
+      const set = (key, value) => {
+        if (value == null || value === "") params.delete(key);
+        else params.set(key, String(value));
+      };
+
+      set("search", nextFilters.search);
+      set("category", nextFilters.category);
+      set("brand", nextFilters.brands.join(","));
+      set("min", nextFilters.min);
+      set("max", nextFilters.max);
+      set("rating", nextFilters.rating);
+      set("stock", nextFilters.inStockOnly ? "1" : "");
+      set("deals", nextFilters.dealsOnly ? "1" : "");
+      // The default order is the absence of the parameter, so the shared URL of
+      // an unsorted view stays clean.
+      set("sort", nextSort && nextSort !== DEFAULT_SORT ? nextSort : "");
 
       const query = params.toString();
       router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
       if (notify) onChange?.();
     },
-    [onChange, pathname, router]
+    [onChange, pathname, router, searchParams]
   );
 
   const patchFilters = useCallback(

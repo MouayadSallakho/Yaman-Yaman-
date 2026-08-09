@@ -52,7 +52,15 @@ export default function MobilePulseHero({ enabled }) {
     []
   );
 
-  const { activeIndex, dealsIndex, sellersIndex, select } = useMobilePulseSequence({
+  const {
+    activeIndex,
+    dealsIndex,
+    sellersIndex,
+    select,
+    // The arc borrows these while a drag is in flight — see MobileCategoryArc.
+    pauseAmbient,
+    resumeAmbient,
+  } = useMobilePulseSequence({
     rootRef,
     count,
     labelForIndex,
@@ -85,6 +93,8 @@ export default function MobilePulseHero({ enabled }) {
           dir={dir}
           t={t}
           onSelect={select}
+          onDragStart={pauseAmbient}
+          onDragEnd={resumeAmbient}
         />
 
         {/*

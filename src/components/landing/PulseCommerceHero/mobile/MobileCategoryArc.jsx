@@ -76,6 +76,8 @@ export default function MobileCategoryArc({
   dir,
   t,
   onSelect,
+  onDragStart,
+  onDragEnd,
 }) {
   const listRef = useRef(null);
   const stageRef = useRef(null);
@@ -91,6 +93,10 @@ export default function MobileCategoryArc({
     activeIndex,
     rtl: dir === "rtl",
     onCommit: onSelect,
+    // Fired only once a horizontal drag is actually accepted, never on a tap or
+    // a vertical scroll, so ordinary touches leave the hero's idle motion alone.
+    onDragStart,
+    onDragEnd,
   });
 
   /*

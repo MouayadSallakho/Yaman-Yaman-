@@ -8,6 +8,7 @@ import styles from "./LoginPage.module.css";
 import { AuthAPI } from "@/lib/api/auth";
 import { saveToken } from "@/lib/auth/storage";
 import Toast from "@/components/ui/Toast";
+import useHydrated from "@/hooks/useHydrated";
 import { useTranslation } from "@/i18n/LocaleProvider";
 
 export default function LoginPage() {
@@ -18,6 +19,7 @@ export default function LoginPage() {
   const [pass, setPass] = useState("");
   const [remember, setRemember] = useState(true);
   const [showPass, setShowPass] = useState(false);
+  const hydrated = useHydrated();
 
   const [errEmail, setErrEmail] = useState("");
   const [errPass, setErrPass] = useState("");
@@ -173,7 +175,15 @@ export default function LoginPage() {
               </Link>
             </div>
 
-            <button className={styles.submit} disabled={loading} type="submit">
+            {/*
+              Also disabled until this form is live. Signing in is entirely a
+              client concern here — there is no server action behind it — so a
+              submit before hydration does not sign anyone in: the browser
+              performs its default GET, the page reloads, and whatever was typed
+              is gone. Disabling the default button also suppresses Enter-to-
+              submit, which is the same trap by a different key.
+            */}
+            <button className={styles.submit} disabled={loading || !hydrated} type="submit">
               {loading ? t("auth.login.submitting") : t("auth.login.submit")}
             </button>
 

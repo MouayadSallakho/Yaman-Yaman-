@@ -310,12 +310,24 @@ export default function Navbarr() {
         </nav>
 
         <div className={styles.desktopActions}>
-          <form className={styles.search} onSubmit={submitSearch} role="search">
+          {/* action + name make this work before React does. `submitSearch`
+              prevents the default once it exists, so the fast path is unchanged;
+              until then the browser performs the same GET the handler would, and
+              a term typed in the first second reaches the results instead of
+              being wiped by a reload to the current page. */}
+          <form
+            className={styles.search}
+            onSubmit={submitSearch}
+            role="search"
+            action="/products"
+            method="get"
+          >
             <label className={styles.srOnly} htmlFor="site-search-desktop">
               {t("common.search.ariaLabel")}
             </label>
             <input
               id="site-search-desktop"
+              name="search"
               type="search"
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}
@@ -393,7 +405,13 @@ export default function Navbarr() {
             </button>
           </div>
 
-          <form className={styles.mobileSearch} onSubmit={submitSearch} role="search">
+          <form
+            className={styles.mobileSearch}
+            onSubmit={submitSearch}
+            role="search"
+            action="/products"
+            method="get"
+          >
             <FiSearch aria-hidden="true" />
             <label className={styles.srOnly} htmlFor="site-search-mobile">
               {t("common.search.ariaLabel")}
@@ -401,6 +419,7 @@ export default function Navbarr() {
             <input
               ref={mobileSearchInputRef}
               id="site-search-mobile"
+              name="search"
               type="search"
               value={searchText}
               onChange={(event) => setSearchText(event.target.value)}

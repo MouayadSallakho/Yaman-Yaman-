@@ -98,6 +98,21 @@ export default function useProductFancybox({ gallery, t, dir }) {
             },
           },
         },
+        /*
+          No dialog semantics are patched on here, deliberately.
+
+          Fancybox 6 renders into a real `<dialog>` and opens it with
+          `showModal()` — verified on the live overlay, which matches `:modal`.
+          That gives the implicit dialog role, the top-layer modal boundary, the
+          focus trap and Escape for free, and `l10n.MODAL` above supplies the
+          accessible name in the active language. Setting `role="dialog"` and
+          `aria-modal` on the inner container would nest a second dialog inside
+          the real one, which is worse than leaving it alone.
+
+          Recorded because an earlier pass measured `role = null` on
+          `.fancybox__container` and concluded the semantics were missing. That
+          was the wrong element: the roled element is its `<dialog>` parent.
+        */
         on: {
           destroy: () => { instanceRef.current = null; },
         },

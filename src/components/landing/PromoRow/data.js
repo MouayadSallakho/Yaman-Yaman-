@@ -67,14 +67,16 @@ export const promotions = [
     media: { ...PROVISIONAL_MEDIA },
   },
   {
-    // Spelled `xomia` to match the existing catalogue record. The shop
-    // catalogue spells the same product `xioma`; that inconsistency belongs to
-    // the Asset Integrity Recovery audit and is deliberately not resolved here.
+    // The asset was `xomia-sport-watch.webp` on disk; it has been renamed to the
+    // brand's real spelling now that the identity is settled (the catalogue
+    // record is `xioma-sport-watch`, brand XIOMA). The displayed title below is
+    // still the misspelled marketing copy and is left alone on purpose: that is
+    // customer-facing wording, not an engineering detail to change silently.
     id: "watch",
     title: "xomia Sport Water-Resistance Watch",
     noteKey: "promo.notes.watch",
     ctaKey: "promo.cta.shop",
-    imageSrc: `${assetBase}/xomia-sport-watch.webp`,
+    imageSrc: `${assetBase}/xioma-sport-watch.webp`,
     destinationUrl: PRODUCTS_ROUTE,
     theme: "light",
     media: { ...PROVISIONAL_MEDIA },

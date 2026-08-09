@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import { MediaFallback, MediaSkeleton } from "@/components/ui/Skeleton/Skeleton";
 import styles from "./AssetImage.module.css";
 
 const FIT_CLASS = {
@@ -78,7 +79,6 @@ export default function AssetImage({
 
   const isMissing = failed || failedSources.has(src);
 
-  const label = placeholderLabel || alt || "Generated image";
   const fixedStyle = !fill && width && height ? { width, height } : undefined;
 
   return (
@@ -87,14 +87,28 @@ export default function AssetImage({
       style={fixedStyle}
       {...slotProps}
     >
-      <span
-        className={`${styles.placeholder} ${placeholderTone === "dark" ? styles.placeholderDark : ""} ${loaded && !isMissing ? styles.placeholderHidden : ""}`.trim()}
-        aria-hidden="true"
-      >
-        <span className={styles.placeholderIcon} />
-        <span className={styles.placeholderLabel}>{label}</span>
-        {showPath && src ? <span className={styles.placeholderPath}>{src}</span> : null}
-      </span>
+      {/*
+        Two genuinely different states, never the same visual.
+
+        Loading shows a shimmer and nothing else — no product name, no file path,
+        no broken-image icon, no instructional copy. A customer waiting for a
+        photograph should see the shape of the photograph arriving, not a caption
+        describing the app's internals.
+
+        A missing asset stops shimmering immediately. Continuing to pulse would
+        promise something that is never going to appear, so the failed state is a
+        flat neutral surface instead. It keeps the slot's exact dimensions in
+        both cases, so nothing reflows when the real image lands.
+
+        `placeholderLabel` and `showPath` are still accepted so the many call
+        sites need no edit, but they no longer render: the label duplicated the
+        `alt` text already on the image, and the path was an internal detail.
+      */}
+      {isMissing ? (
+        <MediaFallback />
+      ) : loaded ? null : (
+        <MediaSkeleton />
+      )}
 
       {src && !isMissing ? (
         <Image

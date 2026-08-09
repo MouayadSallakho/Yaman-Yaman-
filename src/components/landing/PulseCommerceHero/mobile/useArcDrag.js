@@ -107,8 +107,23 @@ function interpolatedPosition(value) {
 
 const wrapIndex = (value, count) => ((value % count) + count) % count;
 
-export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
+export function useArcDrag({
+  stageRef,
+  count,
+  activeIndex,
+  rtl,
+  onCommit,
+  onDragStart,
+  onDragEnd,
+}) {
   const [dragging, setDragging] = useState(false);
+
+  /*
+    Exactly one `onDragStart` must be balanced by exactly one `onDragEnd`,
+    whichever way the gesture ends — release, cancel, lost capture, resize or
+    unmount. This tracks whether we currently owe an end call.
+  */
+  const interactingRef = useRef(false);
 
   const stateRef = useRef({
     phase: "idle", // idle | pressing | dragging | snapping
@@ -128,17 +143,25 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
   // life instead of being torn down every time the active category changes.
   // Synced in an effect, never during render: a ref write during render is not
   // guaranteed to survive a discarded render pass.
+  /** Arc geometry and node list, captured at drag start. See `paint`. */
+  const geometryRef = useRef({ rect: null, nodes: null });
+
   const activeRef = useRef(activeIndex);
   const rtlRef = useRef(rtl);
   const commitRef = useRef(onCommit);
   const countRef = useRef(count);
+
+  const dragStartRef = useRef(onDragStart);
+  const dragEndRef = useRef(onDragEnd);
 
   useEffect(() => {
     activeRef.current = activeIndex;
     rtlRef.current = rtl;
     commitRef.current = onCommit;
     countRef.current = count;
-  }, [activeIndex, rtl, onCommit, count]);
+    dragStartRef.current = onDragStart;
+    dragEndRef.current = onDragEnd;
+  }, [activeIndex, rtl, onCommit, count, onDragStart, onDragEnd]);
 
   /**
    * The collection a release at this displacement would land on.
@@ -158,10 +181,32 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
     (shift) => {
       const stage = stageRef.current;
       if (!stage) return;
-      const rect = stage.getBoundingClientRect();
-      if (!rect.width || !rect.height) return;
 
-      const nodes = stage.querySelectorAll("[data-m-node]");
+      /*
+        Geometry and the node list are read once per gesture, not once per frame.
+
+        This function used to call `getBoundingClientRect()` and
+        `querySelectorAll()` here, inside the rAF callback — so every frame read
+        layout immediately after the previous frame had written transforms and
+        custom properties to these same nodes. That is a forced synchronous
+        layout per frame, and a Chrome performance trace of one drag at 4x CPU
+        named it directly: 83ms of forced reflow with this function as the top
+        offender, and 11-13 layout events across a 24-frame gesture.
+
+        Worth recording that this was NOT the suspected cause. Neutralising every
+        `--drag-p` visual consumer (glow, scale, icon/label/buffer opacity) via
+        injected CSS moved style recalculation by only ~7% and left p95 frame
+        duration unchanged, so the premium glow was exonerated before this code
+        was touched. The cost was the read, not the paint.
+
+        The cached values are refreshed on pointerdown and dropped on resize,
+        which are the only moments the arc's geometry can actually change during
+        a gesture.
+      */
+      const cache = geometryRef.current;
+      if (!cache.rect || !cache.nodes) return;
+      const { rect, nodes } = cache;
+      if (!rect.width || !rect.height) return;
 
       /*
         Live preview: the collection a release would land on is shown as active
@@ -238,6 +283,16 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       });
     };
 
+    /**
+     * Give the hero's idle motion back. Safe to call repeatedly; only the call
+     * that balances an actual `onDragStart` does anything.
+     */
+    const endInteraction = () => {
+      if (!interactingRef.current) return;
+      interactingRef.current = false;
+      dragEndRef.current?.();
+    };
+
     const reset = () => {
       cancelFrame();
       state.phase = "idle";
@@ -248,6 +303,10 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       // transform and no `data-preview` can outlive the gesture that wrote it.
       clearPaint();
       setDragging(false);
+      // `reset` is the one funnel every exit path already goes through — release,
+      // cancel, lost capture and resize all land here — so balancing the
+      // interaction here means no route out can strand the ambient motion.
+      endInteraction();
     };
 
     const onPointerDown = (event) => {
@@ -255,7 +314,14 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       // A secondary mouse button should never start a drag.
       if (event.pointerType === "mouse" && event.button !== 0) return;
 
+      // The one geometry read of the gesture. Everything the frame loop needs is
+      // captured here, before any style has been written this gesture.
       const rect = stage.getBoundingClientRect();
+      geometryRef.current = {
+        rect,
+        nodes: Array.from(stage.querySelectorAll("[data-m-node]")),
+      };
+
       // One slot step is the centre-to-neighbour distance along the arc.
       state.slotWidthPx = Math.max(
         1,
@@ -318,6 +384,13 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
 
         state.phase = "dragging";
         setDragging(true);
+
+        // Only now — a tap, a vertical scroll or an abandoned press never gets
+        // this far, so ordinary touches leave the hero's idle motion running.
+        if (!interactingRef.current) {
+          interactingRef.current = true;
+          dragStartRef.current?.();
+        }
       }
 
       if (state.phase !== "dragging") return;
@@ -398,8 +471,17 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       // puts the chosen collection in the centre slot, so clearing the inline
       // transforms lands every node exactly on its slot with no jump.
       clearPaint();
-      reset();
+
+      /*
+        Commit before resetting, not after.
+
+        `reset` is what hands the hero's idle motion back, and the sequence defers
+        that resume until its snap timeline has finished. Committing first means
+        that timeline already exists when the resume is requested, so the ambient
+        breath waits for the snap instead of fading back in over the top of it.
+      */
       commitRef.current?.(next);
+      reset();
     };
 
     const onLostCapture = (event) => {
@@ -415,6 +497,8 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
     };
 
     const onResize = () => {
+      // The cached rect is only valid for the layout it was measured in.
+      geometryRef.current = { rect: null, nodes: null };
       if (state.phase === "idle") return;
       clearPaint();
       reset();
@@ -436,6 +520,8 @@ export function useArcDrag({ stageRef, count, activeIndex, rtl, onCommit }) {
       stage.removeEventListener("lostpointercapture", onLostCapture);
       window.removeEventListener("resize", onResize);
       clearPaint();
+      // Unmounting mid-drag must not leave the hero's idle motion stood down.
+      endInteraction();
     };
   }, [stageRef, paint, clearPaint, targetIndexFor]);
 

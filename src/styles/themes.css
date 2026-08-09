@@ -69,6 +69,8 @@ html[data-theme="original-tech-blue"] {
   --color-input-focus: #0492d0;
   --color-skeleton-base: #e8eef5;
   --color-skeleton-highlight: #f7fbff;
+  --color-media-fallback-bg: #eef2f7;
+  --color-media-fallback-mark: #9fb2c4;
 
   --color-cinematic-deep: #030a14;
   --color-cinematic-mid: #06263f;
@@ -176,6 +178,8 @@ html[data-theme="aurora-cyan"] {
   --color-input-focus: #078f92;
   --color-skeleton-base: #deeaeb;
   --color-skeleton-highlight: #f6fbfb;
+  --color-media-fallback-bg: #e7eff0;
+  --color-media-fallback-mark: #93aeb0;
 
   --color-cinematic-deep: #031216;
   --color-cinematic-mid: #063841;
@@ -282,6 +286,8 @@ html[data-theme="royal-violet"] {
   --color-input-focus: #5b4bd8;
   --color-skeleton-base: #e5e3ec;
   --color-skeleton-highlight: #faf9fc;
+  --color-media-fallback-bg: #edebf2;
+  --color-media-fallback-mark: #a49fb5;
 
   --color-cinematic-deep: #0d0920;
   --color-cinematic-mid: #21194a;

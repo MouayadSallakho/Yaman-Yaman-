@@ -269,7 +269,14 @@ export default function useProductOrbitGalleryMotion({
         stage.dataset.dragging = "true";
         // Capture only once a real drag begins — capturing on pointerdown
         // retargets the following click and the arrows would never receive it.
-        if (!stage.hasPointerCapture?.(pointerId)) stage.setPointerCapture?.(pointerId);
+        // Best-effort: a gesture that started before this became interactive
+        // delivers its moves here without the browser ever having seen a
+        // pointerdown for that id, and capturing it then throws.
+        try {
+          if (!stage.hasPointerCapture?.(pointerId)) stage.setPointerCapture(pointerId);
+        } catch {
+          /* the drag still tracks through pointermove without capture */
+        }
         timelineRef.current?.kill();
         timelineRef.current = null;
       }

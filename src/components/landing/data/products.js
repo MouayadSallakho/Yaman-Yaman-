@@ -126,7 +126,7 @@ export const promoTiles = [
     title: "xomia Sport Water-Resistance Watch",
     note: "New arrival",
     cta: "Shop now",
-    image: "/images/promos/xomia-sport-watch.webp",
+    image: "/images/promos/xioma-sport-watch.webp",
     theme: "light",
   },
   {
