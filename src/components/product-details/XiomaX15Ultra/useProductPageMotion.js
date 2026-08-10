@@ -11,9 +11,9 @@ export default function useProductPageMotion(scopeRef) {
       return undefined;
     }
 
-    // The gallery shell animates in as one unit. Individual orbit cards are
-    // deliberately excluded: useProductOrbitGalleryMotion is their only owner,
-    // and two timelines writing the same transforms would fight each other.
+    // The gallery shell animates in as one unit. The slides inside it are
+    // deliberately excluded: Swiper owns their transforms, and two systems
+    // writing the same properties would fight each other.
     const timeline = gsap.timeline({ defaults: { ease: "power3.out" } });
     timeline
       .from("[data-product-breadcrumb]", { opacity: 0, y: 10, duration: 0.38 })

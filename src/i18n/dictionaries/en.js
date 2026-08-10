@@ -337,6 +337,81 @@ const en = {
     dashboard: { title: "This is the Dashboard page for the admin" },
   },
 
+  /*
+    Contact.
+
+    Deliberately free of business facts. The repository holds no support email,
+    phone number, postal address, opening hours or maps location, and no
+    message-delivery service is configured, so none of those are stated here.
+    Copy promises nothing about response times for the same reason.
+  */
+  contact: {
+    hero: {
+      eyebrow: "Support",
+      title: "Contact us",
+      intro:
+        "Questions about an order, a product, or working with us? Tell us what you need and we will take it from there.",
+    },
+
+    form: {
+      heading: "Send us a message",
+      description: "Fields marked with an asterisk are required.",
+      formLabel: "Contact form",
+      name: "Full name",
+      namePlaceholder: "Your name",
+      email: "Email address",
+      emailPlaceholder: "example@email.com",
+      subject: "Subject",
+      subjectPlaceholder: "Select a subject",
+      subjects: {
+        order: "Order enquiry",
+        product: "Product question",
+        returns: "Returns or warranty",
+        business: "Business or partnership",
+        other: "Something else",
+      },
+      message: "Message",
+      messagePlaceholder: "Tell us how we can help.",
+      messageHint: "{count} of {max} characters",
+      required: "required",
+      submit: "Send message",
+      submitting: "Sending…",
+    },
+
+    validation: {
+      nameRequired: "Please enter your name.",
+      emailRequired: "Please enter your email address.",
+      emailInvalid: "Please enter a valid email address.",
+      subjectRequired: "Please choose a subject.",
+      messageRequired: "Please write your message.",
+      messageMin: "Please add a little more detail (at least 20 characters).",
+      messageMax: "Please shorten your message to {max} characters or fewer.",
+      summaryHeading: "Please check the form",
+    },
+
+    /*
+      Shown before the visitor invests effort, not after. Sending is wired to a
+      real submission seam that reports genuine pending/success/error states —
+      there is simply no service behind it in this environment, and saying so up
+      front is the only honest option.
+    */
+    unavailable: {
+      title: "Message delivery is not connected yet",
+      body:
+        "This form is complete, but no message service is configured for this environment, so nothing can be delivered right now. Please do not rely on it to reach us.",
+      error:
+        "Your message was not sent: no message service is configured for this environment. Nothing you typed has been lost.",
+    },
+
+    selfService: {
+      title: "In the meantime",
+      description: "These parts of the store are working now.",
+      products: "Browse all products",
+      cart: "Review your cart",
+      account: "Sign in to your account",
+    },
+  },
+
   commerce: {
     regionLabel: "Category shopping",
     categoryLabel: "Shop by category",

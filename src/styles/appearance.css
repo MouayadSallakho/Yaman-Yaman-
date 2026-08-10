@@ -30,6 +30,15 @@
   /* TEXT */
   --color-text-disabled: var(--color-text-muted);
 
+  /* `--color-error` is a signal colour: it is tuned to read as "error" on a
+     border, an icon or a fill, where 3:1 is the bar. As ordinary text it is
+     measured at 3.91:1 on a white card and 3.35:1 on --color-error-soft, both
+     below AA. This names the text-safe step so a form can show a validation
+     message without either failing contrast or inventing its own red.
+     The default is the signal colour itself, which is already correct on the
+     dark surfaces; only the light appearance needs the darker ink. */
+  --color-error-text: var(--color-error);
+
   /* BORDERS - `--color-border` (subtle) and `--color-border-strong` already
      exist; this names the middle step so the three-step scale is complete. */
   --color-border-default: var(--color-divider);
@@ -74,6 +83,10 @@ html[data-theme="aurora-cyan"] { --color-primary-contrast: #06777b; }
    ------------------------------------------------------------------ */
 html[data-appearance="light"] {
   color-scheme: light;
+
+  /* 5.26:1 on a white card, 4.51:1 on --color-error-soft. Same hue as
+     --color-error, stepped down in luminance only. */
+  --color-error-text: #c13d41;
 }
 
 /* ------------------------------------------------------------------

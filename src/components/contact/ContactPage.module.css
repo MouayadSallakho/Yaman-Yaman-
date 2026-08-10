@@ -1,0 +1,489 @@
+/* ============================================================
+   Contact
+
+   Every colour here resolves through the semantic token layer, so the page
+   inherits all five accents and both appearances without owning a palette of
+   its own. Nothing is hardcoded and there is no Contact-specific theme.
+
+   Direction is expressed with logical properties throughout (inline-start /
+   inline-end, padding-inline, margin-inline) so Arabic is a real mirror rather
+   than a set of RTL overrides.
+   ============================================================ */
+
+.page {
+  min-height: 60vh;
+  padding-block: clamp(20px, 3vw, 40px) clamp(48px, 6vw, 88px);
+  background: var(--surface-page);
+}
+
+.container {
+  width: min(var(--content-max), calc(100% - (var(--content-gutter) * 2)));
+  margin-inline: auto;
+}
+
+/* ----------------------------------------------------------------- hero
+   Intentionally short. The form is the task; this band only names the page and
+   sets expectation, so it never grows tall enough to push the form under the
+   fold on a phone. */
+.hero {
+  padding-block: clamp(18px, 3vw, 34px) clamp(22px, 3.4vw, 38px);
+}
+
+.heroEyebrow {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 780;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.heroTitle {
+  margin: 0;
+  color: var(--text-main);
+  font-size: clamp(1.85rem, 4.2vw, 2.85rem);
+  font-weight: 820;
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+}
+
+/* Decorative only, and the one place the accent appears at full strength in
+   the page chrome. */
+.heroRule {
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin-block: 16px 18px;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary);
+}
+
+.heroIntro {
+  max-width: 56ch;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.65;
+}
+
+/* ----------------------------------------------------------------- layout
+   One column by default. The form is first in the DOM, so the mobile order
+   (form before secondary information) needs no ordering rules — the desktop
+   two-column arrangement is the special case, not the baseline. */
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(16px, 2.2vw, 24px);
+  align-items: start;
+}
+
+@media (min-width: 1024px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr) clamp(280px, 26%, 340px);
+  }
+}
+
+/* ----------------------------------------------------------------- panels */
+.formPanel,
+.asideCard {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+}
+
+.formPanel {
+  padding: clamp(18px, 2.6vw, 32px);
+}
+
+.panelHeader {
+  margin-bottom: clamp(16px, 2vw, 22px);
+}
+
+.panelTitle {
+  margin: 0 0 6px;
+  color: var(--text-main);
+  font-size: clamp(1.15rem, 1.6vw, 1.4rem);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.panelDescription {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+/* ----------------------------------------------------------------- notice
+   Neutral rather than accent-tinted: this is information about the state of the
+   service, not a promotion, and a neutral surface keeps the copy at full text
+   contrast in every theme. */
+.notice {
+  display: flex;
+  gap: 12px;
+  margin-bottom: clamp(16px, 2vw, 22px);
+  padding: 14px 16px;
+  border: 1px solid var(--border-strong);
+  border-inline-start: 3px solid var(--color-warning);
+  border-radius: var(--radius-control);
+  background: var(--surface-raised);
+}
+
+.noticeIcon {
+  flex: none;
+  margin-top: 2px;
+  color: var(--color-warning);
+  font-size: 1.05rem;
+}
+
+.noticeTitle {
+  margin: 0 0 4px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  font-weight: 780;
+}
+
+.noticeBody {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+/* ----------------------------------------------------------------- form */
+.form {
+  display: grid;
+  gap: clamp(14px, 1.8vw, 18px);
+}
+
+/* Two-up only where the fields stay comfortably wide. Below this the pair
+   stacks rather than becoming two cramped inputs. */
+.row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(14px, 1.8vw, 18px);
+}
+
+@media (min-width: 640px) {
+  .row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.field {
+  display: grid;
+  gap: 7px;
+  min-width: 0;
+}
+
+.label {
+  color: var(--text-main);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.req {
+  margin-inline-start: 3px;
+  color: var(--color-error-text);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--color-input-border);
+  border-radius: var(--radius-control);
+  background: var(--color-input-background);
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.92rem;
+  transition:
+    border-color var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+/* 44px minimum pointer target on the single-line controls. */
+.input,
+.select {
+  min-height: 46px;
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 150px;
+  line-height: 1.6;
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--text-soft);
+  opacity: 1; /* Firefox dims placeholders by default, which would undo the
+                 contrast work on --color-text-muted. */
+}
+
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--color-input-focus);
+  box-shadow: var(--focus-ring);
+}
+
+.inputError {
+  border-color: var(--color-error);
+}
+
+/* Native select, restyled. Keeping the real control means keyboard behaviour,
+   the mobile picker and forced-colors rendering all come for free. */
+.selectWrap {
+  position: relative;
+  display: grid;
+}
+
+.select {
+  appearance: none;
+  padding-inline-end: 40px;
+  cursor: pointer;
+}
+
+/*
+  The chevron's POSITION is logical (it follows the writing direction), but its
+  SHAPE is not: "down" is down in both directions. Built from physical
+  border-right/border-bottom for exactly that reason — with logical borders the
+  arrow mirrored into a "<" in Arabic, because border-inline-end resolves to the
+  left edge there.
+*/
+.selectWrap::after {
+  content: "";
+  position: absolute;
+  inset-inline-end: 16px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -6px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  color: var(--text-muted);
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.fieldFoot {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.counter {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.76rem;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.error,
+.formError {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  color: var(--color-error-text);
+  font-size: 0.8rem;
+  font-weight: 640;
+  line-height: 1.45;
+}
+
+.error svg,
+.formError svg {
+  flex: none;
+}
+
+/* Neutral surface, error border. On --color-error-soft the same ink measured
+   4.48:1 — a hair under AA — because the tint lifts the background toward the
+   text. The border and icon still carry the "error" signal, and the message
+   itself gets the full 5.1:1 of a plain raised surface. */
+.formError {
+  padding: 12px 14px;
+  border: 1px solid var(--color-error);
+  border-radius: var(--radius-control);
+  background: var(--surface-raised);
+  font-size: 0.85rem;
+}
+
+/* ----------------------------------------------------------------- submit
+   `--color-primary-contrast` over `--color-on-primary` is the pair the token
+   layer guarantees at 4.5:1 in every theme and both appearances; the plain
+   `--color-primary` is a brand fill and is not safe under text in two of the
+   five accents. */
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  justify-self: start;
+  min-height: 48px;
+  padding: 0 26px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-contrast);
+  color: var(--color-on-primary);
+  font-size: 0.92rem;
+  font-weight: 760;
+  cursor: pointer;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+}
+
+.submit:hover:not(:disabled) {
+  background: var(--color-primary-hover);
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.submit:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+/* Geometry is unchanged while pending — same padding, same min-height, and the
+   label swap is a text change inside a button that is already sized by its
+   tallest state, so nothing below it moves. */
+.submit:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+
+/* ----------------------------------------------------------------- aside */
+.aside {
+  display: grid;
+  gap: clamp(16px, 2.2vw, 20px);
+}
+
+.asideCard {
+  padding: clamp(16px, 2.2vw, 22px);
+}
+
+.asideTitle {
+  margin: 0 0 6px;
+  color: var(--text-main);
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.asideDescription {
+  margin: 0 0 14px;
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.55;
+}
+
+.linkList {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.linkItem {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 48px;
+  padding: 8px 12px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-control);
+  background: var(--surface-raised);
+  color: var(--text-main);
+  font-size: 0.88rem;
+  font-weight: 640;
+  text-decoration: none;
+  transition:
+    background-color var(--motion-fast) var(--motion-ease),
+    border-color var(--motion-fast) var(--motion-ease);
+}
+
+.linkItem:hover,
+.linkItem:focus-visible {
+  border-color: var(--color-primary);
+  background: var(--color-primary-softer);
+}
+
+.linkItem:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.linkIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary-contrast);
+  font-size: 0.95rem;
+}
+
+.linkLabel {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* Mirrors with the writing direction, so it points "forward" in Arabic too. */
+.linkArrow {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+[dir="rtl"] .linkArrow {
+  transform: scaleX(-1);
+}
+
+/* ----------------------------------------------------------------- motion */
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .select,
+  .textarea,
+  .submit,
+  .linkItem {
+    transition: none;
+  }
+
+  .submit:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ----------------------------------------------------------------- forced colours
+   The accent-tinted surfaces carry meaning here (the icon chip, the hovered
+   link), and in forced-colors mode a custom background is replaced wholesale.
+   Restating the borders keeps each element's boundary readable once the palette
+   is the user's. */
+@media (forced-colors: active) {
+  .formPanel,
+  .asideCard,
+  .notice,
+  .linkItem,
+  .linkIcon {
+    border: 1px solid CanvasText;
+  }
+
+  .submit {
+    border: 1px solid ButtonText;
+  }
+
+  .selectWrap::after {
+    color: CanvasText;
+  }
+}

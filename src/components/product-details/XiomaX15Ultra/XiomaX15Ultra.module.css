@@ -86,20 +86,16 @@
 
 .galleryStage {
   position: relative;
-  /* Card size is expressed as a share of the stage so one slot table serves
-     every breakpoint — no per-breakpoint repositioning of individual cards.
-     Only the height is raised for the 2:3 portrait product assets: the orbit's
-     x offsets are card-width-relative, so widening the box would tighten the
-     spacing the slot model already defines. Taller box + object-fit: contain
-     makes the product larger without moving any card. */
-  --orbit-card-w: 38%;
-  --orbit-card-h: 74%;
-  min-height: clamp(480px, 36vw, 548px);
+  min-height: clamp(420px, 32vw, 500px);
+  display: grid;
+  align-items: center;
   overflow: hidden;
   isolation: isolate;
   border: 1px solid var(--tone-ffffff-0p76);
   border-radius: 24px;
   outline: none;
+  /* Vertical page scrolling stays with the page; Swiper claims the horizontal
+     axis through its own touch handling. */
   touch-action: pan-y;
   background:
     linear-gradient(var(--tone-3891da-0p065) 1px, transparent 1px),
@@ -107,42 +103,65 @@
     radial-gradient(circle at 50% 40%, var(--tone-f4fbff-1p0) 0%, var(--tone-d9e9f8-1p0) 38%, var(--tone-9ebddd-1p0) 100%);
   background-size: 44px 44px, 44px 44px, auto;
   box-shadow: inset 0 1px 0 var(--tone-ffffff-0p9);
-  perspective: 1500px;
+  /* No `perspective` here on purpose: Swiper's own `.swiper-3d` sets the
+     perspective for the Coverflow transforms, and a second one on the ancestor
+     would compose with it and distort the depth Swiper computes. */
 }
 
 .galleryStage:focus-visible {
   box-shadow: inset 0 1px 0 var(--tone-ffffff-0p9), 0 0 0 4px var(--tone-0777e8-0p24);
 }
 
-.stageGlow {
-  position: absolute;
-  z-index: 0;
-  inset: 10% 16% 12%;
-  border-radius: 50%;
-  background: radial-gradient(circle, var(--tone-ffffff-0p92), var(--tone-4da9ef-0p14) 46%, transparent 70%);
-  filter: blur(10px);
+/* ----------------------------------------------------------------- coverflow
+   The definite height lives HERE, on the Swiper container, not on the slide.
+
+   Measured the other way round first and it broke everything: `swiper/css` ships
+   `.swiper-slide { height: 100% }`, which is the same single-class weight as a
+   CSS-module class and lands later in the bundle, so it won a height set on
+   `.coverSlide`. With the media absolutely positioned (`.coverMedia`) the slide
+   then had no intrinsic height either — it collapsed to 0px, which is invisible
+   in a screenshot because the images still paint from their absolute box, but it
+   silently ate every pointer event: no clicks, no drag, no Fancybox.
+
+   Giving the container the height lets Swiper's own `height: 100%` resolve
+   correctly, so the two stylesheets agree instead of competing. */
+.coverflow {
+  width: 100%;
+  height: clamp(330px, 25vw, 400px);
 }
 
-.stageOrbit,
-.stageOrbitSecondary {
-  position: absolute;
-  z-index: 1;
-  left: 14%;
-  right: 14%;
-  bottom: 5%;
-  height: 27%;
-  border: 2px solid var(--tone-ffffff-0p84);
-  border-radius: 50%;
-  transform: rotateX(72deg);
-  box-shadow: 0 0 24px var(--tone-ffffff-0p95), 0 0 72px var(--tone-2697ed-0p38);
+/*
+  `slidesPerView: auto` means the slide's own width IS the layout, so this is
+  where the centre/neighbour balance is actually decided. Percentages of the
+  stage rather than the demo's fixed 300px: at 320px a fixed width leaves no
+  neighbour visible, and at 1920px it strands the product in the middle of a
+  large empty stage. Two classes so the width also outranks Swiper's own
+  `.swiper-slide { width: 100% }`.
+*/
+.coverflow .coverSlide {
+  width: 62%;
+  max-width: 420px;
+  height: 100%;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-.stageOrbitSecondary {
-  left: 22%;
-  right: 22%;
-  bottom: 8%;
-  border-width: 1px;
-  opacity: 0.6;
+/* AssetImage's shared `.slot` paints its own light gradient stage, which inside
+   this deck reads as a card around the product. Neutralised here only, scoped
+   through .coverSlide so every other AssetImage keeps its stage. overflow is
+   opened so the product's drop-shadow is not clipped at the contained image's
+   letterbox edge. */
+.coverSlide .coverMedia {
+  background: none;
+  overflow: visible;
+}
+
+.coverImage {
+  filter: drop-shadow(0 18px 22px var(--tone-183152-0p24));
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
 .counter {
@@ -161,76 +180,6 @@
   letter-spacing: 0.08em;
 }
 
-/* Every card shares one identical box, centred with margins so the transform is
-   free to express the orbit. Slot differences are transform + opacity only, which
-   is what makes a card able to travel from one slot to another.
-   GSAP owns transform/opacity/z-index at runtime; the [data-slot] rules below are
-   the equivalent static composition, so the deck is correct before GSAP runs and
-   stays usable if it never does. Deliberately no transition on transform here —
-   CSS and GSAP must not both drive it. */
-.galleryPanel {
-  position: absolute;
-  z-index: 4;
-  /* Centred with calc() rather than negative margins: a percentage margin
-     resolves against the container's WIDTH, so margin-top would offset the card
-     by a share of the stage width and float it above centre. In `top`/`left` the
-     percentages resolve against height and width respectively, as intended. */
-  top: calc(50% - (var(--orbit-card-h) / 2));
-  left: calc(50% - (var(--orbit-card-w) / 2));
-  width: var(--orbit-card-w);
-  height: var(--orbit-card-h);
-  padding: 0;
-  /* Deliberately no background, border, radius, shadow or backdrop-filter: the
-     product image is the subject, and the panel exists only to own the transform,
-     the pointer hit area, z-order and accessibility. It stays a full-size
-     invisible surface so the user never has to hit transparent pixels. */
-  border: 0;
-  background: none;
-  cursor: pointer;
-  transform-style: preserve-3d;
-  will-change: transform, opacity;
-  /* Without this the browser starts its own native image-drag on pointerdown and
-     fires pointercancel, which kills the deck's drag gesture after one move. */
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* Focus is an outline rather than a ring-shaped shadow, so keyboard focus never
-   reads as the card shell we just removed. */
-.galleryPanel:focus-visible {
-  outline: 3px solid var(--tone-0876ed-1p0);
-  outline-offset: 6px;
-  border-radius: 12px;
-}
-
-/* Static slot composition (pre-GSAP / no-GSAP fallback). */
-.galleryPanel[data-slot="active"] {
-  z-index: 30;
-  opacity: 1;
-  transform: translateZ(40px);
-  cursor: zoom-in;
-}
-
-.galleryPanel[data-slot="near-prev"] { z-index: 20; opacity: 0.92; transform: translate3d(-78%, 0, -60px) rotateY(22deg) rotateZ(-1.2deg) scale(0.72); }
-.galleryPanel[data-slot="near-next"] { z-index: 20; opacity: 0.92; transform: translate3d(78%, 0, -60px) rotateY(-22deg) rotateZ(1.2deg) scale(0.72); }
-.galleryPanel[data-slot="far-prev"] { z-index: 10; opacity: 0.55; transform: translate3d(-128%, 0, -150px) rotateY(30deg) rotateZ(-1.6deg) scale(0.55); }
-.galleryPanel[data-slot="far-next"] { z-index: 10; opacity: 0.55; transform: translate3d(128%, 0, -150px) rotateY(-30deg) rotateZ(1.6deg) scale(0.55); }
-
-.galleryPanel[data-slot="hidden"] {
-  z-index: 0;
-  opacity: 0;
-  transform: translate3d(-150%, 0, -240px) scale(0.44);
-  pointer-events: none;
-}
-
-[dir="rtl"] .galleryPanel[data-slot="near-prev"] { transform: translate3d(78%, 0, -60px) rotateY(-22deg) rotateZ(1.2deg) scale(0.72); }
-[dir="rtl"] .galleryPanel[data-slot="near-next"] { transform: translate3d(-78%, 0, -60px) rotateY(22deg) rotateZ(-1.2deg) scale(0.72); }
-[dir="rtl"] .galleryPanel[data-slot="far-prev"] { transform: translate3d(128%, 0, -150px) rotateY(-30deg) rotateZ(1.6deg) scale(0.55); }
-[dir="rtl"] .galleryPanel[data-slot="far-next"] { transform: translate3d(-128%, 0, -150px) rotateY(30deg) rotateZ(-1.6deg) scale(0.55); }
-
-/* Hidden cards must never be reachable, whatever GSAP last wrote inline. */
-.galleryStage[data-dragging] .galleryPanel { cursor: grabbing; }
-
 .liveRegion {
   position: absolute;
   width: 1px;
@@ -240,37 +189,15 @@
   white-space: nowrap;
 }
 
-.panelMedia,
+.coverMedia,
 .thumbnailMedia,
 .detailMedia {
   position: absolute !important;
   inset: 0;
 }
 
-/* AssetImage's shared .slot paints its own light gradient stage. Inside the orbit
-   that reads as exactly the card we just removed, so it is neutralised here only —
-   scoped through .galleryPanel to outrank .slot without touching the shared
-   component, so thumbnails and every other AssetImage keep their stage.
-   overflow is opened up so the product's drop-shadow is not clipped at the
-   letterbox edges of the contained image. */
-.galleryPanel .panelMedia {
-  background: none;
-  overflow: visible;
-}
-
-/* The panel owns every pointer interaction; the image must not be a drag source
-   or an event target of its own.
-   The drop-shadow follows the image's alpha silhouette, so with the transparent
-   product assets it grounds the product itself rather than drawing a card. */
-.panelImage {
-  filter: drop-shadow(0 18px 22px var(--tone-183152-0p24));
-  pointer-events: none;
-  user-select: none;
-  -webkit-user-drag: none;
-}
-
-/* No visible caption is rendered over the orbit any more. The same descriptions
-   remain available through image alt text, the thumbnail accessible names, the
+/* No visible caption is rendered over the deck. The same descriptions remain
+   available through image alt text, the thumbnail accessible names, the
    settled-image live announcement and the Fancybox captions. */
 
 .galleryArrow {
@@ -580,7 +507,9 @@
   .container { width: min(100% - 28px, 900px); }
   .heroGrid { grid-template-columns: 1fr; }
   .purchasePanel { position: static; }
-  .galleryStage { min-height: clamp(380px, 52vw, 470px); --orbit-card-w: 42%; }
+  .galleryStage { min-height: clamp(380px, 52vw, 470px); }
+  .coverflow { height: clamp(300px, 42vw, 370px); }
+  .coverflow .coverSlide { width: 66%; }
   .thumbnailRail { grid-template-columns: repeat(8, minmax(86px, 1fr)); }
   .trustRow { grid-template-columns: repeat(3, 1fr); }
   .overviewPanel, .cameraPanel { grid-template-columns: 1fr; }
@@ -602,11 +531,13 @@
   .purchaseHeader, .productIdentity, .ratingRow { display: none; }
   .galleryShell { padding: 10px; border-radius: 23px; }
   .galleryStage {
-    min-height: min(96vw, 380px);
+    min-height: min(96vw, 400px);
     border-radius: 18px;
-    --orbit-card-w: 54%;
-    --orbit-card-h: 72%;
   }
+  /* Wider share of a narrow stage so the centre stays inspectable, but still
+     short of full width — the cut-off neighbours are what say "there is more". */
+  .coverflow { height: min(74vw, 300px); }
+  .coverflow .coverSlide { width: 72%; max-width: none; }
   .counter { top: 12px; left: 12px; }
   .galleryArrow { top: 44%; width: 44px; height: 44px; }
   .previousArrow { left: 8px; }
@@ -632,8 +563,10 @@
   .page { padding-bottom: 62px; }
   .container { width: calc(100% - 16px); }
   .breadcrumb span:nth-last-child(2), .breadcrumb span:nth-last-child(3) { display: none; }
-  /* Near cards stay on stage here — a single card gives no sense of an orbit. */
-  .galleryStage { min-height: min(98vw, 360px); --orbit-card-w: 58%; }
+  /* Neighbours stay on stage even here: a single slide gives no sense of a deck. */
+  .galleryStage { min-height: min(98vw, 372px); }
+  .coverflow { height: min(78vw, 272px); }
+  .coverflow .coverSlide { width: 76%; }
   .storageOptions { grid-template-columns: 1fr; }
   .storageOption span { min-height: 45px; }
   .quantityAndStatus { align-items: start; flex-direction: column; }

@@ -90,9 +90,44 @@ html[data-mabco-intro="show"] body {
   overflow: hidden;
 }
 
-/* The intro shell is present in server HTML; visibility is gated here.
-   Any state that is not "show" (skip, done, or the no-JS/absent fallback)
-   removes it from view so the landing page is the first frame instead. */
+/*
+  Measured bug, and the reason the rules below exist.
+
+  The intro shell is NOT in the server HTML. `LandingExperience` starts at phase
+  `checking` and returns `null`, so `.mabco-intro-shell` first appears only once
+  React has hydrated. An earlier revision of this file assumed the opposite, and
+  that assumption was the whole defect: `show` removed the `checking` rule that
+  was hiding the page, but nothing replaced it, so between "the boot script
+  decided the intro is due" and "React finally mounted the intro" the homepage
+  was simply on screen with nothing over it.
+
+  Timeline captured at 390x844, 4x CPU, Fast 4G, cold session:
+
+      537ms  checking  shell:no   painted: neutral frame   (correct)
+      612ms  show      shell:no   painted: neutral frame
+     1085ms  show      shell:no   painted: HOMEPAGE        <-- the bug
+     6722ms  show      shell:YES  painted: INTRO           <-- 5,637ms late
+     9398ms  done      shell:no   painted: homepage
+
+  So `show` has to hide the page exactly as `checking` does, and then re-reveal
+  the one thing that is allowed to be seen. `visibility` is what makes that
+  possible: unlike `display`, a descendant may set `visibility: visible` and win
+  against a hidden ancestor, so the shell shows through while the page it sits
+  inside of stays hidden. The gate needs no JavaScript and no timer — the page
+  cannot be revealed early because nothing reveals it until the state leaves
+  `show`.
+*/
+html[data-mabco-intro="show"] body > *:not(script) {
+  visibility: hidden;
+}
+
+html[data-mabco-intro="show"] .mabco-intro-shell,
+html[data-mabco-intro="show"] .mabco-intro-shell * {
+  visibility: visible;
+}
+
+/* Any state that is not "show" (skip, done, or the no-JS/absent fallback)
+   removes the shell from view so the landing page is the first frame instead. */
 html:not([data-mabco-intro="show"]) .mabco-intro-shell {
   display: none !important;
 }
