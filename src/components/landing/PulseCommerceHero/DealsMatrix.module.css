@@ -261,11 +261,32 @@
   text-transform: uppercase;
 }
 
+/*
+  The featured title is the only variable-height element in the featured card,
+  so a product whose name wraps to two lines made the card - and with it the
+  matrix, the Category Reactor and Top Sellers - exactly one line box taller
+  than a product whose name fits on one. Measured at 1440px: 152.01px vs
+  170.55px card, 670.34px vs 688.88px hero.
+
+  The clamp already capped long names at two lines; what was missing was
+  reserving that height when the name is short. `min-height` is derived from the
+  line-height rather than hardcoded, and expressed in `em` so it resolves
+  against this element's own font-size - which is a clamp() and is overridden
+  again in the compact block below. That keeps exactly two line boxes reserved
+  at every viewport without repeating a pixel value anywhere.
+
+  The clamp is visual only: the full product name stays in the DOM, so assistive
+  technology still reads the complete title.
+*/
 .featuredTitle {
+  --featured-title-leading: 1.22;
+  --featured-title-lines: 2;
+
   color: var(--text-main);
   font-size: clamp(1rem, 1.2vw, 1.22rem);
   font-weight: 760;
-  line-height: 1.22;
+  line-height: var(--featured-title-leading);
+  min-height: calc(var(--featured-title-leading) * var(--featured-title-lines) * 1em);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
